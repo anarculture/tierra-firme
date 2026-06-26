@@ -12,7 +12,7 @@ Estado: ✅ hecho · ⬜ pendiente · 🔸 = HITL.
 
 ---
 
-## ⬜ M1 · Bottom-sheet móvil con Feed
+## ✅ M1 · Bottom-sheet móvil con Feed
 **Tipo:** AFK · **Blocked by:** ninguno.
 **Qué construir:** En móvil (≤860px) el mapa va a pantalla completa y aparece una hoja inferior
 arrastrable que contiene el feed de réplicas; en desktop no cambia nada (rieles + feed a la derecha).

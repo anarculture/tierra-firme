@@ -156,11 +156,23 @@ body { display: grid; grid-template-rows: auto 1fr auto; overflow: hidden; }
 .leaflet-control-attribution { background: rgba(11,14,20,.7) !important; }
 .leaflet-control-attribution, .leaflet-control-attribution a { color: var(--muted) !important; }
 
+/* bottom-sheet (móvil) — oculto en desktop */
+#sheet { display: none; }
+
 @media (max-width: 860px) {
-  .rail { position: fixed; top: 48px; bottom: 28px; z-index: 500; width: 82%; max-width: 320px; transition: transform .2s ease; }
-  #left { left: 0; transform: translateX(-100%); }
-  #right { right: 0; left: auto; transform: translateX(100%); }
-  body.show-left #left { transform: none; }
-  body.show-right #right { transform: none; }
+  #left, #right { display: none; }   /* rieles fuera en móvil: la hoja los reemplaza */
+  #sources { display: none; }        /* evita solape con la hoja (vuelve en M2 si hace falta) */
   .only-mobile { display: inline-block; }
+  #sheet {
+    display: flex; flex-direction: column;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 500;
+    background: var(--surface); border-top: 1px solid var(--border);
+    border-radius: 14px 14px 0 0; box-shadow: var(--shadow);
+    height: 130px; transition: height .25s ease; max-height: 88vh;
+  }
+  #sheet.half { height: 48vh; }
+  #sheet.full { height: 88vh; }
+  .sheet-handle { padding: 8px; display: grid; place-items: center; flex: 0 0 auto; cursor: grab; }
+  .sheet-handle::before { content: ""; width: 38px; height: 4px; border-radius: 2px; background: var(--border); }
+  #sheet-content { overflow-y: auto; padding: 0 var(--s4) var(--s4); flex: 1; }
 }

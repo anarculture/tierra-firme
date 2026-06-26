@@ -3,6 +3,7 @@
 import { get } from "./api.js";
 import { pipFeature } from "./pip.js";
 import { filtrar, estadosDe } from "./centros-filter.js";
+import { nextSheetState } from "./sheet.js";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const dial = (s) => "tel:" + String(s).replace(/[^0-9*#+]/g, "");
@@ -178,14 +179,16 @@ async function renderChoro() {
   el("choro-scale").textContent = `Intensidad por estado (máx ${max}) · puntos de capas activas.`;
 }
 
-async function renderFeed() {
+async function renderFeed(target = "right") {
+  const c = el(target);
+  if (!c) return;
   let rep = { items: [] };
   try { rep = await get("/api/replicas"); } catch {}
   const items = (rep.items || []).slice(0, 12);
   const body = items.length
     ? items.map((r) => `<div class="feed-item"><span class="feed-mag">M${esc(r.payload?.mag ?? "?")}</span> ${esc(r.payload?.place || "—")}<div class="src">${esc(r.sourceId)} · ${hace(r.payload?.time || r.fetchedAt)}</div></div>`).join("")
     : `<div class="empty">Sin actividad sísmica en la ventana, o la fuente no está disponible ahora.</div>`;
-  el("right").innerHTML = `<h3>Feed · últimas réplicas</h3>${body}`;
+  c.innerHTML = `<h3>Feed · últimas réplicas</h3>${body}`;
 }
 
 function showDetail(def, item) {
@@ -279,16 +282,24 @@ async function openCentros() {
 
 function renderTopnav() {
   el("topnav").innerHTML = `
-    <button class="tbtn only-mobile" id="nav-left">☰ Capas</button>
-    <button class="tbtn only-mobile" id="nav-right">Feed</button>
     <button class="tbtn" id="nav-centros">Centros</button>
     <button class="tbtn" id="nav-panel">Panel vital</button>
     <button class="tbtn" id="nav-serv">Servicios</button>`;
   el("nav-centros").onclick = openCentros;
   el("nav-panel").onclick = openPanelVital;
   el("nav-serv").onclick = openServicios;
-  el("nav-left").onclick = () => { document.body.classList.remove("show-right"); document.body.classList.toggle("show-left"); };
-  el("nav-right").onclick = () => { document.body.classList.remove("show-left"); document.body.classList.toggle("show-right"); };
+}
+
+// Bottom-sheet móvil: feed dentro + handle que cicla peek/half/full. (Desktop: #sheet display:none.)
+function initSheet() {
+  const sheet = el("sheet"); if (!sheet) return;
+  renderFeed("sheet-content");
+  el("sheet-handle").addEventListener("click", () => {
+    const next = nextSheetState(sheet.dataset.state || "peek");
+    sheet.dataset.state = next;
+    sheet.classList.remove("peek", "half", "full");
+    sheet.classList.add(next);
+  });
 }
 
 async function boot() {
@@ -301,6 +312,7 @@ async function boot() {
     if (r) el("lc-" + d.key).textContent = r.plotted + (r.items.length > r.plotted ? `/${r.items.length}` : "");
   }
   renderSources();
+  initSheet();
   setTimeout(() => state.map && state.map.invalidateSize(), 200);
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 }
