@@ -1,33 +1,34 @@
 /* Capa API (LECTURA) + sirve la web. Server-light: solo Node stdlib (node:http).
    Índice/espejo: aquí NO se escribe. La escritura (resolución) va a Supabase desde src/resolucion.
-   Scaffold: endpoints /api/* devuelven stubs vacíos hasta que el colector los pueble. */
+   /api/<curado>  → src/curated/<curado>.json   (panel-vital, servicios, donaciones)
+   /api/<bundle>  → data/bundles/<bundle>.json   (output del colector: replicas, centros, ...) */
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const WEB_ROOT = fileURLToPath(new URL("../../web", import.meta.url));
+const CURATED_DIR = fileURLToPath(new URL("../curated", import.meta.url));
+const BUNDLE_DIR = fileURLToPath(new URL("../../data/bundles", import.meta.url));
 const PORT = process.env.PORT || 8787;
 const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml" };
+const CURATED = new Set(["panel-vital", "servicios", "donaciones"]);
 
-// TODO(Sx): reemplazar stubs por bundles JSON reales del colector (src/ingest/run.js).
-const STUB_API = {
-  "/api/health": { ok: true, scaffold: true },
-  "/api/replicas": { _todo: "TODO(Sx): contador + pronóstico (SismosVE/USGS)", items: [] },
-  "/api/personas": { _todo: "TODO(Sx): búsqueda cross-source + clusters", items: [] },
-  "/api/centros": { _todo: "TODO(Sx)", items: [] },
-  "/api/refugios": { _todo: "TODO(Sx)", items: [] },
-  "/api/donaciones": { _todo: "TODO(Sx)", items: [] },
-  "/api/servicios": { _todo: "TODO(Sx): catálogo curado", items: [] },
-  "/api/panel-vital": { _todo: "TODO(Sx): contactos de urgencia curados", items: [] }
-};
+async function apiBody(name) {
+  if (name === "health") return { ok: true, scaffold: true };
+  const file = CURATED.has(name) ? join(CURATED_DIR, `${name}.json`) : join(BUNDLE_DIR, `${name}.json`);
+  if (existsSync(file)) return JSON.parse(await readFile(file, "utf8"));
+  return { items: [], _todo: "TODO(Sx): sin datos aún para esta categoría" };
+}
 
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   if (url.pathname.startsWith("/api/")) {
-    const hit = STUB_API[url.pathname];
-    res.writeHead(hit ? 200 : 404, { "content-type": "application/json" });
-    return res.end(JSON.stringify(hit ?? { error: "not found", _todo: "TODO(Sx)" }));
+    const name = url.pathname.slice(5).replace(/[^a-z0-9-]/gi, "");
+    const body = await apiBody(name);
+    res.writeHead(200, { "content-type": "application/json" });
+    return res.end(JSON.stringify(body));
   }
   const rel = url.pathname === "/" ? "/index.html" : url.pathname;
   const file = normalize(join(WEB_ROOT, rel));
@@ -42,4 +43,4 @@ const server = createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, () => console.log(`monitorVE scaffold → http://localhost:${PORT}  (api + web, stubs)`));
+server.listen(PORT, () => console.log(`monitorVE → http://localhost:${PORT}  (api + web)`));

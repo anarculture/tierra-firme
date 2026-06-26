@@ -65,3 +65,23 @@ body { margin: 0; background: var(--bg); color: var(--text); font: var(--t-md)/1
   border-top: 1px solid var(--border); }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* ---- componentes (S0) ---- */
+.hd { display: flex; align-items: center; gap: var(--s3); }
+.back { display: inline-flex; color: var(--muted); text-decoration: none; padding: 6px; border-radius: var(--radius-sm); border: 1px solid var(--border); }
+.back:hover { color: var(--text); border-color: #2e3850; }
+.ico { width: 20px; height: 20px; display: block; }
+.screen { padding: var(--s4); max-width: 720px; margin: 0 auto; }
+.lede { color: var(--muted); margin: 0 0 var(--s4); font-size: var(--t-sm); }
+.card { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); text-decoration: none; color: var(--text); }
+.card .go { color: var(--muted); display: inline-flex; }
+.soon { font: var(--t-xs)/1 var(--mono); color: var(--warn); border: 1px solid color-mix(in srgb, var(--warn) 35%, var(--border)); padding: 3px 6px; border-radius: 999px; font-style: normal; }
+.soon-lg { display: inline-block; margin-top: var(--s2); color: var(--warn); font: var(--t-sm) var(--mono); }
+.list { display: flex; flex-direction: column; gap: var(--s2); }
+.row { display: grid; grid-template-columns: auto 1fr; grid-template-areas: "ic main" "ic src"; gap: 2px var(--s3); align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--s3) var(--s4); text-decoration: none; color: var(--text); }
+.row:hover { border-color: #2e3850; }
+.row-ic { grid-area: ic; color: var(--accent); display: inline-flex; }
+.row-main { grid-area: main; display: flex; align-items: baseline; justify-content: space-between; gap: var(--s3); }
+.row .num { font: var(--t-lg) var(--mono); letter-spacing: -.02em; }
+.src { grid-area: src; color: var(--muted); font-size: var(--t-xs); }
+.empty { color: var(--muted); text-align: center; padding: var(--s6) var(--s4); }

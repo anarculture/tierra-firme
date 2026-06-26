@@ -1,6 +1,13 @@
 {
-  "_doc": "Entradas curadas — Panel vital (contactos de urgencia). Capa propia (Q6): cada entrada lleva fuenteOrigen + verificadoEl. Shell vacío.",
-  "_schema": { "tipo": "telefono|enlace", "titulo": "", "contacto": "", "categoria": "", "fuenteOrigen": "", "verificadoEl": "YYYY-MM-DD" },
-  "_todo": "TODO(Sx): poblar desde plan §Panel vital (171/911/112/*1, Protección Civil, Bomberos...).",
-  "items": []
+  "_doc": "Entradas curadas — Panel vital (contactos de urgencia). Capa propia (Q6): cada entrada lleva fuenteOrigen + verificadoEl.",
+  "items": [
+    { "titulo": "Emergencias · CANTV (fija)", "contacto": "171", "categoria": "linea-nacional", "fuenteOrigen": "Protección Civil", "verificadoEl": "2026-06-26" },
+    { "titulo": "Emergencias · Movistar", "contacto": "911", "categoria": "linea-nacional", "fuenteOrigen": "Protección Civil", "verificadoEl": "2026-06-26" },
+    { "titulo": "Emergencias · Digitel", "contacto": "112", "categoria": "linea-nacional", "fuenteOrigen": "Protección Civil", "verificadoEl": "2026-06-26" },
+    { "titulo": "Emergencias · Movilnet (celular)", "contacto": "*1", "categoria": "linea-nacional", "fuenteOrigen": "Protección Civil", "verificadoEl": "2026-06-26" },
+    { "titulo": "Protección Civil", "contacto": "0800-5588427", "categoria": "proteccion-civil", "fuenteOrigen": "Protección Civil", "verificadoEl": "2026-06-26" },
+    { "titulo": "Protección Civil (alterno)", "contacto": "0800-2668446", "categoria": "proteccion-civil", "fuenteOrigen": "Protección Civil", "verificadoEl": "2026-06-26" },
+    { "titulo": "Bomberos · UCV", "contacto": "0212-6052222", "categoria": "bomberos", "fuenteOrigen": "investigación monitorVE", "verificadoEl": "2026-06-26" },
+    { "titulo": "Bomberos · La Guaira", "contacto": "0212-3327620", "categoria": "bomberos", "fuenteOrigen": "investigación monitorVE", "verificadoEl": "2026-06-26" }
+  ]
 }

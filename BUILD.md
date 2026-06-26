@@ -66,7 +66,7 @@ Por cada `Sx` en orden:
 > Cada check es mecánico (test `node:test` o `curl`+grep que puede fallar). El pulido visual lo
 > garantizan ui-ux-pro-max + output-skill y se valida en el smoke global (§6).
 
-### [ ] S0 — Shell + sistema de diseño + Panel vital  *(rails de: app, design, api-curado)*
+### [x] S0 — Shell + sistema de diseño + Panel vital  *(rails de: app, design, api-curado)*
 - **Objetivo:** app dark navegable con los 6 pilares + Panel vital de urgencia 100% funcional (tap-to-call). Cero red.
 - **Archivos:** `web/app.js` (router + 6 pantallas), `web/index.html`, `web/styles.css` (extender componentes con ui-ux-pro-max sobre los tokens), `src/curated/panel-vital.json` (poblar), `src/api/server.js` (servir cualquier `src/curated/*.json` por `/api/<nombre>`).
 - **Seed Panel vital (inline, verificado):** `171` CANTV · `911` Movistar · `112` Digitel · `*1` Movilnet · Protección Civil `0800-5588427` / `0800-2668446` · Bomberos UCV `(0212)605-2222` · Bomberos La Guaira `(0212)332-7620`. Cada uno: `{titulo, contacto, categoria, fuenteOrigen:"investigación/Protección Civil", verificadoEl:"2026-06-26"}`.
