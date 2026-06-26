@@ -42,7 +42,7 @@ marcar visualmente los de confianza baja distinto de los exactos.
 - [ ] Estilo distinto para aproximados vs exactos; tooltip aclara "ubicación aproximada (estado)".
 - [ ] Helper de jitter puro + test failable (determinista por id).
 
-## ⬜ A3 · Heatmap de gaps
+## ✅ A3 · Heatmap de gaps
 **Tipo:** AFK · **Blocked by:** ninguno (usa `needs`+`estado`, ya disponibles).
 **Qué construir:** El choropleth deja de contar "nº de puntos" y pasa a mostrar **necesidad vs
 cobertura** por estado: intensidad = necesidades reportadas no cubiertas; leyenda de gap.
