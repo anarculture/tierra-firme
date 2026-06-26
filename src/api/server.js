@@ -4,7 +4,7 @@
    /api/<bundle>  → data/bundles/<bundle>.json   (output del colector: replicas, centros, ...) */
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -14,8 +14,22 @@ const BUNDLE_DIR = fileURLToPath(new URL("../../data/bundles", import.meta.url))
 const PORT = process.env.PORT || 8787;
 const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml" };
 
+// Lee .env (stdlib, sin dep). Solo se EXPONE la URL + publishable key (públicas); la secret NO sale al navegador.
+function loadEnv() {
+  const f = fileURLToPath(new URL("../../.env", import.meta.url));
+  if (!existsSync(f)) return {};
+  const out = {};
+  for (const line of readFileSync(f, "utf8").split("\n")) {
+    const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)$/);
+    if (m) out[m[1]] = m[2].trim();
+  }
+  return out;
+}
+const ENV = { ...loadEnv(), ...process.env };
+
 async function apiBody(name) {
   if (name === "health") return { ok: true, scaffold: true };
+  if (name === "config") return { supabaseUrl: ENV.SUPABASE_URL || "", supabasePublishableKey: ENV.SUPABASE_PUBLISHABLE_KEY || "" };
   // Curado primero (src/curated/<name>.json), luego bundle del colector (data/bundles/<name>.json).
   for (const dir of [CURATED_DIR, BUNDLE_DIR]) {
     const file = join(dir, `${name}.json`);

@@ -82,7 +82,7 @@ sesgo a separar. Reusa `web/pip`-style puro + heurística de nombre.
 
 ---
 
-## ⬜ F0 · Capa de escritura Supabase  🔸HITL
+## ✅ F0 · Capa de escritura Supabase  🔸HITL
 **Tipo:** HITL (requiere claves Supabase del dueño) · **Blocked by:** ninguno.
 **Qué construir:** Cliente Supabase + esquema aplicado (`supabase/migrations/0001_schema.sql`) + env
 (`.env`, sin hardcodear). Base para resolución y coordinación (C2/C3).
