@@ -8,7 +8,7 @@ const PILARES = [
   { id: "directorio", t: "Centros y donaciones", d: "Dónde ayudar y a dónde donar", slice: "S4" },
   { id: "mapa", t: "Mapa del país", d: "Daños y centros por estado", slice: "S2" },
   { id: "servicios", t: "Servicios", d: "Telemedicina, apoyo, estructural", slice: "S7" },
-  { id: "tablero", t: "Tablero", d: "Cifras y réplicas", slice: "S1" }
+  { id: "tablero", t: "Tablero", d: "Cifras y réplicas", ready: true }
 ];
 
 const PATHS = {
@@ -59,6 +59,27 @@ const screens = {
       <p class="lede">Tocá para llamar. Líneas de emergencia.</p>
       <div class="list">${rows || `<div class="empty">Sin contactos cargados.</div>`}</div>`,
       { back: true, sub: "Contactos de urgencia" });
+  },
+
+  async tablero() {
+    let rep = { items: [], source: "", fetchedAt: null };
+    let oaf = { items: [] };
+    try { rep = await get("/api/replicas"); } catch { /* offline */ }
+    try { oaf = await get("/api/replicas-oaf"); } catch { /* offline */ }
+    const items = rep.items || [];
+    const last = items.slice(0, 8).map((r) => `
+      <div class="qrow"><span class="qmag">M${esc(r.payload?.mag ?? "?")}</span><span class="qplace">${esc(r.payload?.place || "—")}</span></div>`).join("");
+    const oafRows = (oaf.items || []).map((o) => `<div class="kv"><span>${esc(o.titulo)}</span><b>${esc(o.valor)}</b></div>`).join("");
+    return shell("Tablero", `
+      <div class="metric-card">
+        <div class="metric">${items.length}</div>
+        <div class="metric-lab">réplicas en la ventana${rep.source ? ` · ${esc(rep.source)}` : ""}</div>
+        ${rep.fetchedAt ? `<div class="src">actualizado ${fmtFecha(rep.fetchedAt)}</div>` : ""}
+      </div>
+      ${oafRows ? `<div class="section">Pronóstico (USGS OAF)</div><div class="card kvs">${oafRows}</div>` : ""}
+      ${items.length ? `<div class="section">Últimas réplicas</div><div class="card">${last}</div>`
+        : `<div class="empty">Sin réplicas en la ventana, o la fuente no está disponible ahora.</div>`}`,
+      { back: true, sub: "Cifras y réplicas" });
   },
 
   soon(p) {

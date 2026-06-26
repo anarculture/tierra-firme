@@ -1,0 +1,7 @@
+{
+  "_doc": "Pronóstico operacional de réplicas (OAF). Entrada curada porque USGS no expone JSON limpio del OAF. Actualizar cuando cambie el boletín.",
+  "items": [
+    { "titulo": "Probabilidad de M5+ (próxima semana)", "valor": "~95%", "fuenteOrigen": "USGS OAF", "verificadoEl": "2026-06-24" },
+    { "titulo": "Probabilidad de M6+ (próxima semana)", "valor": "~40%", "fuenteOrigen": "USGS OAF", "verificadoEl": "2026-06-24" }
+  ]
+}

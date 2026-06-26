@@ -13,12 +13,14 @@ const CURATED_DIR = fileURLToPath(new URL("../curated", import.meta.url));
 const BUNDLE_DIR = fileURLToPath(new URL("../../data/bundles", import.meta.url));
 const PORT = process.env.PORT || 8787;
 const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml" };
-const CURATED = new Set(["panel-vital", "servicios", "donaciones"]);
 
 async function apiBody(name) {
   if (name === "health") return { ok: true, scaffold: true };
-  const file = CURATED.has(name) ? join(CURATED_DIR, `${name}.json`) : join(BUNDLE_DIR, `${name}.json`);
-  if (existsSync(file)) return JSON.parse(await readFile(file, "utf8"));
+  // Curado primero (src/curated/<name>.json), luego bundle del colector (data/bundles/<name>.json).
+  for (const dir of [CURATED_DIR, BUNDLE_DIR]) {
+    const file = join(dir, `${name}.json`);
+    if (existsSync(file)) return JSON.parse(await readFile(file, "utf8"));
+  }
   return { items: [], _todo: "TODO(Sx): sin datos aún para esta categoría" };
 }
 

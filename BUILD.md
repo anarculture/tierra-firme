@@ -73,7 +73,7 @@ Por cada `Sx` en orden:
 - **AC:** dark mode aplicado; navegación entre pilares funciona; panel muestra los contactos con `tel:`/links; cada tarjeta muestra fuente+verificadoEl.
 - **Check:** `node:test` asserta que `panel-vital.json` tiene ≥7 items y cada uno trae `titulo,contacto,fuenteOrigen,verificadoEl`; `curl -s localhost:8787/api/panel-vital` devuelve esos items.
 
-### [ ] S1 — Réplicas en vivo  *(rails de: colector→bundle→api)*
+### [x] S1 — Réplicas en vivo  *(rails de: colector→bundle→api)*
 - **Objetivo:** widget de réplicas en el tablero: contador + últimos sismos + pronóstico OAF (curado).
 - **Archivos:** `src/ingest/sismosve.js` (fetch+normalize), `src/ingest/run.js` (correr adapter → escribir `data/bundles/replicas.json`), `src/api/server.js` (servir bundles), `web/app.js` (pantalla tablero/réplicas), `src/curated/replicas-oaf.json` (nuevo: ~95% M5+, 40% M6+, fuente USGS, fecha).
 - **AC:** `npm run ingest` baja de `sismosve.rafnixg.dev/api/sismos/recent` y escribe el bundle; tablero muestra contador + lista; OAF se muestra como Entrada curada con fecha+fuente; respaldo USGS FDSNWS documentado en el adapter (TODO si falla SismosVE).

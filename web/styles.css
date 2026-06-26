@@ -85,3 +85,15 @@ body { margin: 0; background: var(--bg); color: var(--text); font: var(--t-md)/1
 .row .num { font: var(--t-lg) var(--mono); letter-spacing: -.02em; }
 .src { grid-area: src; color: var(--muted); font-size: var(--t-xs); }
 .empty { color: var(--muted); text-align: center; padding: var(--s6) var(--s4); }
+
+/* ---- tablero / réplicas (S1) ---- */
+.metric-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--s5); text-align: center; }
+.metric-lab { color: var(--muted); font-size: var(--t-sm); margin-top: 4px; }
+.section { color: var(--muted); font-size: var(--t-xs); text-transform: uppercase; letter-spacing: .08em; margin: var(--s4) 0 var(--s2); }
+.kvs { display: flex; flex-direction: column; gap: var(--s2); }
+.kv { display: flex; justify-content: space-between; gap: var(--s3); }
+.kv b { font: var(--t-md) var(--mono); color: var(--accent); }
+.qrow { display: flex; gap: var(--s3); align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--border); }
+.qrow:last-child { border-bottom: 0; }
+.qmag { font: var(--t-md) var(--mono); color: var(--warn); min-width: 56px; }
+.qplace { color: var(--text); font-size: var(--t-sm); }
