@@ -1,6 +1,7 @@
 /* monitorVE — consola situacional (ADR 0003). El mapa es la app. Leaflet global (L).
    Densidad sobre estética · marcadores tipados por _kind · degradación elegante (útil con cero datos). */
 import { get } from "./api.js";
+import { pipFeature } from "./pip.js";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const dial = (s) => "tel:" + String(s).replace(/[^0-9*#+]/g, "");
@@ -108,6 +109,9 @@ function renderLeft() {
       <span class="lcount" id="lc-${d.key}">—</span>
     </label>`).join("");
   el("left").innerHTML = `<h3>Capas</h3>${rows}
+    <h3>Choropleth</h3>
+    <label class="layer"><input type="checkbox" id="choro-on"><span class="lname">Intensidad por estado</span></label>
+    <div class="lede" id="choro-scale" style="font-size:11px">Colorea estados por nº de puntos de las capas activas.</div>
     <h3>Leyenda</h3>
     <div class="lede" style="font-size:12px">Tamaño del punto ≈ magnitud. Anillo punteado = estimación de área afectada (epicentros). Cada dato lleva su fuente.</div>`;
   el("left").querySelectorAll("input[data-layer]").forEach((inp) => {
@@ -116,8 +120,58 @@ function renderLeft() {
       const r = await toggleLayer(def, e.target.checked);
       if (r) el("lc-" + def.key).textContent = r.plotted + (r.items.length > r.plotted ? `/${r.items.length}` : "");
       renderSources();
+      if (choro.on) renderChoro();
     });
   });
+  el("choro-on").addEventListener("change", (e) => { choro.on = e.target.checked; renderChoro(); });
+}
+
+/* Choropleth: colorea estados por nº de puntos (de capas activas) que caen en cada polígono (PIP). */
+const choro = { on: false, layer: null, geo: null };
+async function ensureEstados() {
+  if (!choro.geo) { const r = await fetch("ve-estados.geojson"); choro.geo = await r.json(); }
+  return choro.geo;
+}
+function activeItems() {
+  const out = [];
+  for (const d of LAYERS) {
+    const l = state.loaded[d.key];
+    if (l && state.groups[d.key] && state.map.hasLayer(state.groups[d.key])) out.push(...l.items);
+  }
+  return out;
+}
+const normEstado = (s) => String(s || "").replace(/\s*\(.*\)\s*/g, "").trim();
+function choroColor(n, max) {
+  if (!n) return "#1a1f2b";
+  const r = n / max;
+  return r > 0.66 ? "#e5484d" : r > 0.33 ? "#e0a33e" : "#3fb27f";
+}
+async function renderChoro() {
+  if (!choro.on) { if (choro.layer) { state.map.removeLayer(choro.layer); choro.layer = null; } return; }
+  const geo = await ensureEstados();
+  // Conteo por campo `estado` (centros) + PIP por coords (epicentros/réplicas/daños sin estado).
+  const byName = {}; const coordPts = [];
+  for (const it of activeItems()) {
+    const e = normEstado(it.payload?.estado);
+    if (e) byName[e] = (byName[e] || 0) + 1;
+    else if (it.coords) coordPts.push([it.coords.lng, it.coords.lat]);
+  }
+  const counts = {};
+  let max = 1;
+  for (const f of geo.features) {
+    let n = byName[f.properties.name] || 0;
+    for (const p of coordPts) if (pipFeature(p, f.geometry)) n++;
+    counts[f.properties.name] = n;
+    if (n > max) max = n;
+  }
+  if (choro.layer) state.map.removeLayer(choro.layer);
+  choro.layer = L.geoJSON(geo, {
+    style: (f) => { const n = counts[f.properties.name] || 0; return { color: "#2e3850", weight: 1, fillColor: choroColor(n, max), fillOpacity: n ? 0.5 : 0.06 }; },
+    onEachFeature: (f, layer) => { const n = counts[f.properties.name] || 0; layer.bindTooltip(`${f.properties.name}: ${n} punto(s)`, { sticky: true }); }
+  });
+  choro.layer.addTo(state.map);
+  choro.layer.bringToBack();
+  el("choro-scale").textContent = `Intensidad por estado (máx ${max}) · puntos de capas activas.`;
 }
 
 async function renderFeed() {

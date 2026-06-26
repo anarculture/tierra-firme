@@ -82,8 +82,15 @@ Por cada `Sx` en orden:
 ### [ ] S2 — Mapa nivel 1: choropleth SVG de 24 estados  *(rails de: mapa país)*
 > NOTA: la **consola situacional** (ADR 0003) ya entrega el mapa Leaflet+CARTO dark con
 > **marcadores tipados por capa** (epicentros/réplicas/acopios/daños/refugios/hospitales),
-> toggles+conteo+frescura, feed, detalle al click y salud de fuentes. Falta de S2: el
-> **choropleth por estado** (severidad) y el **modo offline SVG**.
+> toggles+conteo+frescura, feed, detalle al click y salud de fuentes.
+> **Choropleth por estado ✓** (`web/ve-estados.geojson` + `web/pip.js`): cuenta por campo
+> `estado` (centros) + PIP por coords (epicentros); enciende 17 estados con datos reales.
+> Falta de S2: **modo offline puro** (SVG sin tiles).
+> **S3 daños:** adapter+test ✓; la fuente `/api/public/media/reports/` devolvió 503 → 0 datos
+> (reintentar); falta lista de daños en UI.
+> **S4 centros:** datos cableados — **159 centros reales** de AyudaVE (acopiovenezuela 404,
+> endpoint por confirmar). Sin coords → no pines; visibles en el choropleth. Falta directorio
+> (lista+filtros) + pines cuando haya coords.
 - **Objetivo:** mapa del país interactivo, dark, offline (sin tiles).
 - **Archivos:** `web/estados.svg` (paths de los 24 estados, dominio público/OSM), `web/app.js` (pantalla mapa + bind intensidad), `web/styles.css` (usar escala de severidad).
 - **AC:** SVG tiñe cada estado por intensidad desde un agregado (réplicas/daños/centros por estado); tap → resumen del estado; **a11y: mostrar el valor, no solo color**.

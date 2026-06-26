@@ -4,6 +4,9 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import * as sismosve from "./sismosve.js";
 import * as usgs from "./usgs.js";
+import * as ayudave from "./ayudave.js";
+import * as acopio from "./acopiovenezuela.js";
+import * as terremoto from "./terremotovenezuela.js";
 
 const BUNDLE_DIR = fileURLToPath(new URL("../../data/bundles", import.meta.url));
 
@@ -18,8 +21,19 @@ async function buildReplicas() {
   return { categoria: "replica", source, items, fetchedAt: new Date().toISOString() };
 }
 
-// TODO(Sx): añadir builders por categoría (centros, personas, danos...) en sus slices.
-const BUNDLES = { replicas: buildReplicas };
+async function buildCentros() {
+  const a = await safe(() => ayudave.fetchRegistros(), "ayudave");
+  const b = await safe(() => acopio.fetchRegistros(), "acopiovenezuela");
+  return { categoria: "centro", sources: ["ayudave", "acopiovenezuela"], items: [...a, ...b], fetchedAt: new Date().toISOString() };
+}
+
+async function buildDanos() {
+  const items = await safe(() => terremoto.fetchRegistros(), "terremotovenezuela");
+  return { categoria: "dano", source: "terremotovenezuela", items, fetchedAt: new Date().toISOString() };
+}
+
+// TODO(Sx): añadir builders restantes (personas, refugios, hospitales, mascotas) en sus slices.
+const BUNDLES = { replicas: buildReplicas, centros: buildCentros, danos: buildDanos };
 
 async function main() {
   await mkdir(BUNDLE_DIR, { recursive: true });
