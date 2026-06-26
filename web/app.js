@@ -188,13 +188,15 @@ async function renderChoro(container) {
 async function renderFeed(target = "right") {
   const c = el(target);
   if (!c) return;
-  let rep = { items: [] };
+  let rep = { items: [] }, sit = { items: [] };
   try { rep = await get("/api/replicas"); } catch {}
+  try { sit = await get("/api/sitreps"); } catch {}
+  const sitreps = (sit.items || []).map((s) => `<div class="feed-item"><b>${esc(s.titulo)}</b> ${confBadge("monitorVE")}<div style="font-size:13px">${esc(s.texto)}</div><div class="src">${esc(s.zona)} · ${esc(s.fuenteOrigen)} · ${esc(s.verificadoEl)}</div></div>`).join("");
   const items = (rep.items || []).slice(0, 12);
   const body = items.length
     ? items.map((r) => `<div class="feed-item"><span class="feed-mag">M${esc(r.payload?.mag ?? "?")}</span> ${esc(r.payload?.place || "—")}<div class="src">${esc(r.sourceId)} ${confBadge(r.sourceId)} · ${hace(r.payload?.time || r.fetchedAt)}</div></div>`).join("")
     : `<div class="empty">Sin actividad sísmica en la ventana, o la fuente no está disponible ahora.</div>`;
-  c.innerHTML = `<h3>Feed · últimas réplicas</h3>${body}`;
+  c.innerHTML = (sitreps ? `<h3>Reportes verificados</h3>${sitreps}` : "") + `<h3>Feed · últimas réplicas</h3>${body}`;
 }
 
 function showDetail(def, item) {
