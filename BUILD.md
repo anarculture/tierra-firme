@@ -89,8 +89,9 @@ Por cada `Sx` en orden:
 > **S3 daños:** adapter+test ✓; la fuente `/api/public/media/reports/` devolvió 503 → 0 datos
 > (reintentar); falta lista de daños en UI.
 > **S4 centros:** datos cableados — **159 centros reales** de AyudaVE (acopiovenezuela 404,
-> endpoint por confirmar). Sin coords → no pines; visibles en el choropleth. Falta directorio
-> (lista+filtros) + pines cuando haya coords.
+> endpoint por confirmar). **Directorio (lista + búsqueda + filtro por estado) ✓** (botón
+> "Centros"; `web/centros-filter.js` testeado). Sin coords → no pines; visibles en choropleth
+> y directorio. Falta solo: pines cuando una fuente traiga coords.
 - **Objetivo:** mapa del país interactivo, dark, offline (sin tiles).
 - **Archivos:** `web/estados.svg` (paths de los 24 estados, dominio público/OSM), `web/app.js` (pantalla mapa + bind intensidad), `web/styles.css` (usar escala de severidad).
 - **AC:** SVG tiñe cada estado por intensidad desde un agregado (réplicas/daños/centros por estado); tap → resumen del estado; **a11y: mostrar el valor, no solo color**.
@@ -102,7 +103,7 @@ Por cada `Sx` en orden:
 - **AC:** bundle `data/bundles/danos.json`; tablero muestra cifras (colapsos/severos/parciales) con fecha+fuente; el choropleth de S2 usa daños como intensidad.
 - **Check:** `node:test` de `normalize(fixtureDanos)` → `Registro` categoria `dano`; `curl /api/danos` devuelve items.
 
-### [ ] S4 — Directorio: Centros de acopio  *(rails de: directorio + Leaflet nivel 2)*
+### [x] S4 — Directorio: Centros de acopio  *(rails de: directorio + Leaflet nivel 2)*
 - **Objetivo:** directorio buscable de centros + pines en mapa-detalle (Leaflet/CARTO dark, lazy-load).
 - **Archivos:** `src/ingest/acopiovenezuela.js`, `src/ingest/ayudave.js` (centros), `src/ingest/centrosayudavenezuela.js` (nuevo), `src/ingest/run.js`, `web/app.js` (directorio + Leaflet diferido), `web/MAP.md` (cumplir).
 - **AC:** bundle `centros.json` (unión de las 3 fuentes, cada registro con `source`); directorio filtra por estado/municipio; pines en Leaflet **solo** al abrir mapa-detalle; cada centro muestra fuente+frescura.

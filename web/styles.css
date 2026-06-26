@@ -143,6 +143,11 @@ body { display: grid; grid-template-rows: auto 1fr auto; overflow: hidden; }
 .sheet-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s3); }
 .sheet-hd b { font-size: var(--t-lg); }
 .x { background: none; border: 0; color: var(--muted); font-size: 22px; cursor: pointer; line-height: 1; }
+.filters { display: flex; gap: var(--s2); margin-bottom: var(--s3); }
+.input, .select { background: var(--surface-2); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius-sm); padding: 8px 10px; font: var(--t-sm) var(--font); }
+.input { flex: 1; min-width: 0; }
+.select { flex: 0 0 auto; max-width: 45%; }
+.row .tag { margin-left: 8px; }
 
 .mk { background: none; border: 0; display: grid; place-items: center; line-height: 1; font-weight: 700; text-shadow: 0 0 4px #000, 0 0 2px #000; }
 .leaflet-container { background: var(--bg); font: var(--t-sm) var(--font); }

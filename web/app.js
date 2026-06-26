@@ -2,6 +2,7 @@
    Densidad sobre estética · marcadores tipados por _kind · degradación elegante (útil con cero datos). */
 import { get } from "./api.js";
 import { pipFeature } from "./pip.js";
+import { filtrar, estadosDe } from "./centros-filter.js";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const dial = (s) => "tel:" + String(s).replace(/[^0-9*#+]/g, "");
@@ -240,12 +241,46 @@ async function openServicios() {
   openSheet("Servicios", `<div class="list">${rows || `<div class="empty">Sin servicios.</div>`}</div>`);
 }
 
+function centroRow(c) {
+  const p = c.payload || {};
+  const loc = [p.municipio, p.estado].filter(Boolean).join(", ");
+  const needs = (p.needs || []).map((n) => (typeof n === "string" ? n : n.key)).filter(Boolean).slice(0, 4).join(" · ");
+  return `<div class="row" style="grid-template-columns:1fr">
+    <span class="row-main"><b>${esc(p.name || "(sin nombre)")}</b>${p.status ? `<span class="tag">${esc(p.status)}</span>` : ""}</span>
+    <span class="src">${esc(loc)}${p.address ? ` · ${esc(p.address)}` : ""}</span>
+    ${needs ? `<span class="src">Necesita: ${esc(needs)}</span>` : ""}
+    <span class="src">fuente: ${esc(c.sourceId)}</span>
+  </div>`;
+}
+async function openCentros() {
+  let items = [];
+  try { items = (await get("/api/centros")).items || []; } catch { /* offline */ }
+  const opts = `<option value="">Todos los estados</option>` + estadosDe(items).map((e) => `<option>${esc(e)}</option>`).join("");
+  openSheet("Centros de acopio", `
+    <div class="filters">
+      <input class="input" id="c-q" placeholder="Buscar por nombre, municipio o dirección…">
+      <select class="select" id="c-estado">${opts}</select>
+    </div>
+    <div class="src" id="c-count"></div>
+    <div class="list" id="c-list"></div>`);
+  const draw = () => {
+    const f = filtrar(items, { estado: el("c-estado").value, q: el("c-q").value });
+    el("c-count").textContent = `${f.length} de ${items.length} centros${f.length > 300 ? " · mostrando 300" : ""}`;
+    el("c-list").innerHTML = f.length ? f.slice(0, 300).map(centroRow).join("") : `<div class="empty">Sin resultados.</div>`;
+  };
+  el("c-q").addEventListener("input", draw);
+  el("c-estado").addEventListener("change", draw);
+  draw();
+}
+
 function renderTopnav() {
   el("topnav").innerHTML = `
     <button class="tbtn only-mobile" id="nav-left">☰ Capas</button>
     <button class="tbtn only-mobile" id="nav-right">Feed</button>
+    <button class="tbtn" id="nav-centros">Centros</button>
     <button class="tbtn" id="nav-panel">Panel vital</button>
     <button class="tbtn" id="nav-serv">Servicios</button>`;
+  el("nav-centros").onclick = openCentros;
   el("nav-panel").onclick = openPanelVital;
   el("nav-serv").onclick = openServicios;
   el("nav-left").onclick = () => { document.body.classList.remove("show-right"); document.body.classList.toggle("show-left"); };
