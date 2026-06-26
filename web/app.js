@@ -6,6 +6,7 @@ import { filtrar, estadosDe } from "./centros-filter.js";
 import { nextSheetState } from "./sheet.js";
 import { jitter } from "./jitter.js";
 import { confianza, CONF_COLOR } from "./confianza.js";
+import { agregarNeeds, urgencyRank } from "./needs-board.js";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 function confBadge(sourceId) {
@@ -292,13 +293,47 @@ async function openCentros() {
   draw();
 }
 
+// Needs board (C1): qué falta, dónde, con qué urgencia — primer eslabón del despachador.
+function needRow(r) {
+  const cls = urgencyRank(r.nivel) >= 2 ? "tag--crit" : urgencyRank(r.nivel) === 1 ? "tag--warn" : "";
+  return `<div class="row" style="grid-template-columns:1fr">
+    <span class="row-main"><b>${esc(r.tipo)}</b><span class="tag ${cls}">${esc(r.nivel || "s/n")}</span></span>
+    <span class="src">${esc(r.estado || "—")} · ${r.centros} centro(s) lo piden</span>
+  </div>`;
+}
+async function openNeeds() {
+  let centros = [];
+  try { centros = (await get("/api/centros")).items || []; } catch { /* offline */ }
+  const rows = agregarNeeds(centros);
+  const estados = [...new Set(rows.map((r) => r.estado).filter(Boolean))].sort((a, b) => a.localeCompare(b, "es"));
+  const tipos = [...new Set(rows.map((r) => r.tipo))].sort();
+  openSheet("Necesidades", `
+    <div class="filters">
+      <select class="select" id="n-estado"><option value="">Todos los estados</option>${estados.map((e) => `<option>${esc(e)}</option>`).join("")}</select>
+      <select class="select" id="n-tipo"><option value="">Toda necesidad</option>${tipos.map((t) => `<option>${esc(t)}</option>`).join("")}</select>
+    </div>
+    <div class="src" id="n-count"></div>
+    <div class="list" id="n-list"></div>`);
+  const draw = () => {
+    const fe = el("n-estado").value, ft = el("n-tipo").value;
+    const f = rows.filter((r) => (!fe || r.estado === fe) && (!ft || r.tipo === ft));
+    el("n-count").textContent = `${f.length} necesidades (tipo × estado), ordenadas por urgencia`;
+    el("n-list").innerHTML = f.length ? f.map(needRow).join("") : `<div class="empty">Sin necesidades.</div>`;
+  };
+  el("n-estado").addEventListener("change", draw);
+  el("n-tipo").addEventListener("change", draw);
+  draw();
+}
+
 function renderTopnav() {
   el("topnav").innerHTML = `
     <button class="tbtn only-mobile" id="nav-capas">Capas</button>
+    <button class="tbtn" id="nav-needs">Necesidades</button>
     <button class="tbtn" id="nav-centros">Centros</button>
     <button class="tbtn" id="nav-panel">Panel vital</button>
     <button class="tbtn" id="nav-serv">Servicios</button>`;
   el("nav-capas").onclick = openCapas;
+  el("nav-needs").onclick = openNeeds;
   el("nav-centros").onclick = openCentros;
   el("nav-panel").onclick = openPanelVital;
   el("nav-serv").onclick = openServicios;

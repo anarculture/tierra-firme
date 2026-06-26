@@ -91,7 +91,7 @@ sesgo a separar. Reusa `web/pip`-style puro + heurística de nombre.
 - [ ] Migración aplicada (tablas sources/records/clusters/resolutions/curated + coordinación).
 - [ ] Un write+read de prueba funciona; test/health failable.
 
-## ⬜ C1 · Needs board
+## ✅ C1 · Needs board
 **Tipo:** AFK · **Blocked by:** ninguno.
 **Qué construir:** Tablero de necesidades sin cubrir por urgencia/zona, derivado de `needs`+`estado`
 de los centros (solo-lectura primero). Es la vista que dispara la coordinación.
