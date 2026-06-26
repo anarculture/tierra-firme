@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>monitorVE — revisión de sitreps (operador)</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .screen { max-width: 720px; }
+    .draft { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .draft .appr { font-size: 13px; color: var(--warn); display: flex; gap: 6px; align-items: center; }
+    .textarea { background: var(--surface-2); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius-sm); padding: 8px 10px; font: var(--t-sm) var(--font); min-height: 64px; width: 100%; }
+    .btn-pub { background: var(--accent); color: #fff; border: 0; border-radius: var(--radius-sm); padding: 10px 16px; font-weight: 600; cursor: pointer; }
+    #res { margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <header class="hd"><div><h1>Revisión de sitreps</h1><p class="sub">Operador · editá, aprobá y publicá lo verificado</p></div></header>
+  <main class="screen" id="app">Cargando…</main>
+  <script type="module" src="revisar.js"></script>
+</body>
+</html>

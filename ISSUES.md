@@ -130,3 +130,9 @@ manualmente una necesidad a un voluntario/recurso (escribe en Supabase).
 ### Orden sugerido
 Fase A: **M1 → M2 → M3 → A3** (paralelizables M1+A3). Fase B: B3, B1, (B2 tras Personas).
 Fase C: F0 → C1 → C2 → C3 → C4.
+
+## ✅ P1 · Panel de revisión + publicar (bot → sitreps)
+**Tipo:** AFK · **Cierra el loop:** inbox → /sitrep (borrador → data/sitrep-drafts.json) → panel
+operador (editar/aprobar) → publica a src/curated/sitreps.json → feed "Reportes verificados".
+Servidor operador LOCAL aparte (`npm run revisar`, 127.0.0.1:8799); el público sigue read-only.
+Reusa `merge()` (procedencia obligatoria, dedup titulo+zona, frescura). `applyPublish` testeado.
