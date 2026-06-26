@@ -9,7 +9,8 @@
     "test": "node --test",
     "dev": "node src/api/server.js",
     "start": "node src/api/server.js",
-    "ingest": "node src/ingest/run.js"
+    "ingest": "node src/ingest/run.js",
+    "sb:health": "node scripts/sb-health.js"
   },
   "comment": "Sin dependencias externas: vanilla JS + Node stdlib. Las deps (p.ej. @supabase/supabase-js) se añaden cuando una capa las use — TODO(Sx).",
   "engines": { "node": ">=20" }
