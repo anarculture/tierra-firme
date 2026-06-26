@@ -151,6 +151,7 @@ body { display: grid; grid-template-rows: auto 1fr auto; overflow: hidden; }
 
 .mk { background: none; border: 0; display: grid; place-items: center; line-height: 1; font-weight: 700; text-shadow: 0 0 4px #000, 0 0 2px #000; }
 .mk-aprox { opacity: .5; }  /* ubicación aproximada (centroide de estado) */
+.conf { display: inline-block; font-size: 10px; line-height: 1.6; padding: 0 6px; border-radius: 999px; border: 1px solid; }
 .leaflet-container { background: var(--bg); font: var(--t-sm) var(--font); }
 .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
 .leaflet-bar a { background: var(--surface-2); color: var(--text); border-color: var(--border); }

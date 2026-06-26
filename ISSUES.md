@@ -53,7 +53,7 @@ cobertura** por estado: intensidad = necesidades reportadas no cubiertas; leyend
 
 ---
 
-## ⬜ B1 · Sitrep como fuente verificada  🔸HITL
+## ✅ B1 · Sitrep como fuente verificada  🔸HITL
 **Tipo:** HITL (verificación humana antes de publicar) · **Blocked by:** ninguno.
 **Qué construir:** Un sitrep (borrador del bot `/sitrep`, revisado por humano) se publica como
 capa/feed propio con procedencia "monitorVE-verificado" — somos FUENTE, no solo agregador.
@@ -62,7 +62,7 @@ capa/feed propio con procedencia "monitorVE-verificado" — somos FUENTE, no sol
 - [ ] Nunca se publica sin paso de verificación humana explícito.
 - [ ] Visible en el feed/mapa con su procedencia.
 
-## ⬜ B3 · Confianza por ítem + "por qué no verificado"
+## ✅ B3 · Confianza por ítem + "por qué no verificado"
 **Tipo:** AFK · **Blocked by:** ninguno.
 **Qué construir:** Cada dato mostrado lleva su nivel de confianza (oficial/org/comunitario/sin-verificar)
 y, cuando aplica, la razón de no estar verificado.

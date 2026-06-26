@@ -5,8 +5,14 @@ import { needsPorEstado } from "./gaps.js";
 import { filtrar, estadosDe } from "./centros-filter.js";
 import { nextSheetState } from "./sheet.js";
 import { jitter } from "./jitter.js";
+import { confianza, CONF_COLOR } from "./confianza.js";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function confBadge(sourceId) {
+  const c = confianza(sourceId);
+  const color = CONF_COLOR[c.nivel] || "#8b93a3";
+  return `<span class="conf" style="color:${color};border-color:${color}66"${c.razon ? ` title="${esc(c.razon)}"` : ""}>${esc(c.label)}</span>`;
+}
 const dial = (s) => "tel:" + String(s).replace(/[^0-9*#+]/g, "");
 const MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 function hace(iso) {
@@ -182,13 +188,15 @@ async function renderChoro(container) {
 async function renderFeed(target = "right") {
   const c = el(target);
   if (!c) return;
-  let rep = { items: [] };
+  let rep = { items: [] }, sit = { items: [] };
   try { rep = await get("/api/replicas"); } catch {}
+  try { sit = await get("/api/sitreps"); } catch {}
+  const sitreps = (sit.items || []).map((s) => `<div class="feed-item"><b>${esc(s.titulo)}</b> ${confBadge("monitorVE")}<div style="font-size:13px">${esc(s.texto)}</div><div class="src">${esc(s.zona)} · ${esc(s.fuenteOrigen)} · ${esc(s.verificadoEl)}</div></div>`).join("");
   const items = (rep.items || []).slice(0, 12);
   const body = items.length
-    ? items.map((r) => `<div class="feed-item"><span class="feed-mag">M${esc(r.payload?.mag ?? "?")}</span> ${esc(r.payload?.place || "—")}<div class="src">${esc(r.sourceId)} · ${hace(r.payload?.time || r.fetchedAt)}</div></div>`).join("")
+    ? items.map((r) => `<div class="feed-item"><span class="feed-mag">M${esc(r.payload?.mag ?? "?")}</span> ${esc(r.payload?.place || "—")}<div class="src">${esc(r.sourceId)} ${confBadge(r.sourceId)} · ${hace(r.payload?.time || r.fetchedAt)}</div></div>`).join("")
     : `<div class="empty">Sin actividad sísmica en la ventana, o la fuente no está disponible ahora.</div>`;
-  c.innerHTML = `<h3>Feed · últimas réplicas</h3>${body}`;
+  c.innerHTML = (sitreps ? `<h3>Reportes verificados</h3>${sitreps}` : "") + `<h3>Feed · últimas réplicas</h3>${body}`;
 }
 
 function showDetail(def, item) {
@@ -208,7 +216,7 @@ function showDetail(def, item) {
       <h4><span style="color:${def.color}">${def.sym}</span> ${esc(def.label.replace(/s$/, ""))}</h4>
       <div class="card">${rows.map(([k, v]) => `<div class="kv"><span class="k">${esc(k)}</span><span class="v">${esc(v)}</span></div>`).join("")}</div>
       ${item.nota ? `<div class="src" style="margin-top:8px">${esc(item.nota)}</div>` : ""}
-      <div class="src">Fuente: ${esc(src)}${item.verificadoEl ? ` · verificado ${esc(item.verificadoEl)}` : ""}</div>
+      <div class="src">Fuente: ${esc(src)} ${confBadge(item.sourceId)}${item.verificadoEl ? ` · verificado ${esc(item.verificadoEl)}` : ""}</div>
       <button class="tbtn" style="margin-top:12px" id="back-feed">← Volver al feed</button>
     </div>`;
   el("back-feed").addEventListener("click", () => renderFeed(target));
@@ -260,7 +268,7 @@ function centroRow(c) {
     <span class="row-main"><b>${esc(p.name || "(sin nombre)")}</b>${p.status ? `<span class="tag">${esc(p.status)}</span>` : ""}</span>
     <span class="src">${esc(loc)}${p.address ? ` · ${esc(p.address)}` : ""}</span>
     ${needs ? `<span class="src">Necesita: ${esc(needs)}</span>` : ""}
-    <span class="src">fuente: ${esc(c.sourceId)}</span>
+    <span class="src">fuente: ${esc(c.sourceId)} ${confBadge(c.sourceId)}</span>
   </div>`;
 }
 async function openCentros() {
