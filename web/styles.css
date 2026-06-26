@@ -1,13 +1,67 @@
-/* Mobile-first, low-bandwidth. Sin fuentes externas ni assets pesados. */
-:root { --azul: #003893; --bg: #f6f7f9; --card: #fff; --line: #e3e6ea; --muted: #5a6573; }
+/* monitorVE — sistema de diseño. Dirección: ver docs/adr/0002.
+   Minimalist editorial (Notion/Linear) en DARK. Mobile-first, low-bandwidth:
+   tipografía del sistema (sin webfonts), motion mínimo. TODOS los slices de UI usan
+   estos tokens; un color/spacing ad-hoc = regresión de diseño. TODO(Sx): extender componentes. */
+:root {
+  color-scheme: dark;
+
+  /* superficies (escala de profundidad) */
+  --bg: #0b0e14;
+  --surface: #12161f;
+  --surface-2: #1a1f2b;
+  --border: #232a37;
+
+  /* texto */
+  --text: #e6e9ef;
+  --muted: #8b93a3;
+
+  /* acento único, restringido */
+  --accent: #4c8dff;
+  --accent-weak: #1f2a44;
+
+  /* severidad (réplicas, daños, choropleth) — NO depender solo del color: poner valor/etiqueta */
+  --ok: #3fb27f;
+  --info: #4c8dff;
+  --warn: #e0a33e;
+  --crit: #e5484d;
+
+  /* escala tipográfica */
+  --t-xs: 12px; --t-sm: 13px; --t-md: 15px; --t-lg: 18px; --t-xl: 24px; --t-2xl: 32px;
+  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace; /* Swiss/datos densos */
+
+  /* espacio, radio, sombra */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px;
+  --radius: 12px; --radius-sm: 8px;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.25);
+}
+
 * { box-sizing: border-box; }
-body { margin: 0; font: 16px/1.5 system-ui, sans-serif; background: var(--bg); color: #1a1f26; }
-.hd { background: var(--azul); color: #fff; padding: 16px; }
-.hd h1 { margin: 0; font-size: 20px; }
-.hd p { margin: 2px 0 0; opacity: .85; font-size: 13px; }
-.grid { display: grid; gap: 10px; padding: 14px; grid-template-columns: 1fr; }
+body { margin: 0; background: var(--bg); color: var(--text); font: var(--t-md)/1.55 var(--font);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+.hd { padding: var(--s4); border-bottom: 1px solid var(--border); background: var(--surface); }
+.hd h1 { margin: 0; font-size: var(--t-lg); letter-spacing: -.01em; }
+.hd p { margin: 2px 0 0; color: var(--muted); font-size: var(--t-sm); }
+
+.grid { display: grid; gap: var(--s3); padding: var(--s4); grid-template-columns: 1fr; }
 @media (min-width: 560px) { .grid { grid-template-columns: 1fr 1fr; } }
-.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
-.card b { display: block; }
-.card small { color: var(--muted); }
-.ft { padding: 14px; color: var(--muted); font-size: 12px; text-align: center; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: var(--s4); transition: border-color .15s ease; }
+.card:hover { border-color: #2e3850; }
+.card b { display: block; margin-bottom: var(--s1); letter-spacing: -.01em; }
+.card small { color: var(--muted); font-size: var(--t-sm); }
+
+/* dato denso / cifras / contador de réplicas (acento brutalist controlado) */
+.metric { font: var(--t-2xl)/1.1 var(--mono); letter-spacing: -.02em; }
+.tag { display: inline-block; padding: 2px var(--s2); border-radius: 999px; font-size: var(--t-xs);
+  border: 1px solid var(--border); color: var(--muted); }
+.tag--crit { color: var(--crit); border-color: color-mix(in srgb, var(--crit) 40%, var(--border)); }
+.tag--warn { color: var(--warn); }
+.tag--ok   { color: var(--ok); }
+
+.ft { padding: var(--s4); color: var(--muted); font-size: var(--t-xs); text-align: center;
+  border-top: 1px solid var(--border); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

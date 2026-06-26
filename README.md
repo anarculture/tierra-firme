@@ -29,6 +29,13 @@ web/                    SPA shell (mobile-first, offline)
 supabase/migrations/    Esquema (stub, sin datos)
 ```
 
+## Diseño (front)
+Minimalist editorial (Notion/Linear) en **dark mode**, mobile-first, anti AI-slop. Dirección y
+trade-offs en `docs/adr/0002-direccion-de-diseno.md`. Tokens (única fuente de color/espacio) en
+`web/styles.css :root`. Mapa de dos niveles (SVG estados + Leaflet/CARTO dark) en `web/MAP.md`.
+Los slices de UI de dudamel son **verticales** (back→api→front): cada uno rellena el shell con
+estos tokens, no inventa look.
+
 ## Comandos (gates)
 ```bash
 npm test          # node:test — smoke failable (debe pasar)
