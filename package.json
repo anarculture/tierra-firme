@@ -1,0 +1,16 @@
+{
+  "name": "monitorve",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Índice/espejo de la crisis sísmica VE (24-jun-2026). Scaffold — shells, sin features.",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "test": "node --test",
+    "dev": "node src/api/server.js",
+    "start": "node src/api/server.js",
+    "ingest": "node src/ingest/run.js"
+  },
+  "comment": "Sin dependencias externas: vanilla JS + Node stdlib. Las deps (p.ej. @supabase/supabase-js) se añaden cuando una capa las use — TODO(Sx).",
+  "engines": { "node": ">=20" }
+}

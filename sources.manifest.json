@@ -1,0 +1,29 @@
+{
+  "_doc": "Manifiesto declarativo de Fuentes. SIN adaptadores (los adaptadores viven en src/ingest/). Cada entrada describe qué aporta y cómo expone el dato. TODO(Sx): cablear adapter por fuente.",
+  "_ley": "Somos índice/espejo: read-only sobre estas Fuentes. Ver CONTEXT.md + docs/adr/0001 + plan.",
+  "fuentes": [
+    { "id": "ayudave", "nombre": "AyudaVE", "url": "https://ayudahumanitariavenezuela.com", "categoria": ["persona", "centro", "localizacion"], "aporta": "personas, centros, hospitalizados (su /api expone JSON)", "exposicion": "api-json", "confianza": "comunitario", "estado": "activa", "adapter": null },
+    { "id": "venezuelareporta", "nombre": "Venezuela Reporta", "url": "https://venezuelareporta.org", "categoria": ["persona"], "aporta": "AGREGADOR MAESTRO de personas (dedup, búsqueda cédula/zona). Federar vía hola@buscados.org", "exposicion": "federacion", "confianza": "comunitario", "estado": "activa", "adapter": null },
+    { "id": "desaparecidos", "nombre": "Desaparecidos Terremoto Venezuela", "url": "https://desaparecidosterremotovenezuela.com", "categoria": ["persona"], "aporta": "registro de desaparecidos (~42k) + directorio de líneas de emergencia", "exposicion": "scrape", "confianza": "comunitario", "estado": "activa", "adapter": null },
+    { "id": "terremotovenezuela-app", "nombre": "Terremoto Venezuela App", "url": "https://terremotovenezuela.app", "categoria": ["persona", "dano", "centro"], "aporta": "mapa multi-categoría; open-source (repo GitHub público → posible dato directo)", "exposicion": "scrape", "confianza": "comunitario", "estado": "activa", "adapter": null },
+    { "id": "sismosve", "nombre": "SismosVE", "url": "https://sismosve.rafnixg.dev/api/sismos", "categoria": ["replica"], "aporta": "contador + últimos sismos (espejo JSON de FUNVISIS, refresco 30 min)", "exposicion": "api-json", "confianza": "org", "estado": "activa", "adapter": null },
+    { "id": "usgs", "nombre": "USGS FDSNWS", "url": "https://earthquake.usgs.gov/fdsnws/event/1/", "categoria": ["replica"], "aporta": "catálogo de réplicas (evento us6000t7zp); OAF probabilístico solo web → Entrada curada", "exposicion": "api-json", "confianza": "oficial", "estado": "activa", "adapter": null },
+    { "id": "emsc", "nombre": "EMSC Seismic Portal", "url": "https://www.seismicportal.eu", "categoria": ["replica"], "aporta": "feed de réplicas (respaldo, ~1 min)", "exposicion": "api-json", "confianza": "oficial", "estado": "activa", "adapter": null },
+    { "id": "terremotovenezuela-com", "nombre": "Terremoto Venezuela (mapa de daños)", "url": "https://terremotovenezuela.com", "categoria": ["dano"], "aporta": "mapa de daños estructurales (API implícita /api/public/media/reports/)", "exposicion": "implicit-api", "confianza": "comunitario", "estado": "activa", "adapter": null },
+    { "id": "sosvenezuela2026", "nombre": "SOS Venezuela 2026", "url": "https://sosvenezuela2026.com", "categoria": ["dano", "persona"], "aporta": "mapa de daños/colapsos + búsqueda", "exposicion": "scrape", "confianza": "comunitario", "estado": "activa", "adapter": null },
+    { "id": "acopiovenezuela", "nombre": "Acopio Venezuela", "url": "https://acopiovenezuela.vercel.app", "categoria": ["centro"], "aporta": "directorio de centros de acopio (~158)", "exposicion": "scrape", "confianza": "comunitario", "estado": "activa", "adapter": null },
+    { "id": "centrosayudavenezuela", "nombre": "Centros Ayuda Venezuela", "url": "https://centrosayudavenezuela.org", "categoria": ["centro"], "aporta": "centros de acopio buscables (dirección, contacto, ítems)", "exposicion": "scrape", "confianza": "comunitario", "estado": "activa", "adapter": null },
+    { "id": "acopios-refugios", "nombre": "Acopios y Refugios", "url": "https://acopios-refugios.vercel.app", "categoria": ["centro", "refugio"], "aporta": "mapeo de acopios y refugios/albergues", "exposicion": "scrape", "confianza": "comunitario", "estado": "por-verificar", "adapter": null },
+    { "id": "aje", "nombre": "AJE Venezuela", "url": "https://ajevenezuela.org/ayuda-venezuela", "categoria": ["donacion"], "aporta": "orgs verificadas + cuentas banco (verificado en crawl directo)", "exposicion": "curada", "confianza": "org", "estado": "activa", "adapter": null },
+    { "id": "caritas", "nombre": "Cáritas Venezuela", "url": "https://caritasvenezuela.org/donaciones", "categoria": ["donacion"], "aporta": "cuentas bancarias locales+intl, PayPal (RIF J-30485697-0)", "exposicion": "curada", "confianza": "org", "estado": "activa", "adapter": null },
+    { "id": "huellascan", "nombre": "HuellaScan", "url": "https://huellascan.com/terremoto", "categoria": ["mascota"], "aporta": "búsqueda de mascotas perdidas", "exposicion": "scrape", "confianza": "comunitario", "estado": "activa", "adapter": null },
+    { "id": "factchequeado", "nombre": "Factchequeado", "url": "https://factchequeado.com", "categoria": ["desinformacion"], "aporta": "fact-check de la emergencia (enlazar)", "exposicion": "link-only", "confianza": "oficial", "estado": "activa", "adapter": null }
+  ],
+  "excluidas": [
+    { "nombre": "Tilin / Centinela / Habitable", "razon": "no verificadas en web; posible confabulación del dossier. Revalidar antes de incluir." },
+    { "nombre": "Pacientes Terremoto Vzla", "razon": "no verificada; posible confabulación." },
+    { "nombre": "fvivemas", "razon": "es fundación de salud rural (UCV), NO localizador de pacientes del sismo." },
+    { "nombre": "Alimenta la Solidaridad", "razon": "pausada desde 15-may-2026 (pre-sismo)." },
+    { "nombre": "venezuelatebusca.com", "razon": "HTTP 403; inaccesible para agregar." }
+  ]
+}

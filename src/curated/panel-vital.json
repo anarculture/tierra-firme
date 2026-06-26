@@ -1,0 +1,6 @@
+{
+  "_doc": "Entradas curadas — Panel vital (contactos de urgencia). Capa propia (Q6): cada entrada lleva fuenteOrigen + verificadoEl. Shell vacío.",
+  "_schema": { "tipo": "telefono|enlace", "titulo": "", "contacto": "", "categoria": "", "fuenteOrigen": "", "verificadoEl": "YYYY-MM-DD" },
+  "_todo": "TODO(Sx): poblar desde plan §Panel vital (171/911/112/*1, Protección Civil, Bomberos...).",
+  "items": []
+}
