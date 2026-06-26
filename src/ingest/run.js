@@ -6,6 +6,7 @@ import * as sismosve from "./sismosve.js";
 import * as usgs from "./usgs.js";
 import * as ayudave from "./ayudave.js";
 import * as terremoto from "./terremotovenezuela.js";
+import * as geocoder from "./geocoder.js";
 // acopiovenezuela: en pausa — sus centros ya entran vía AyudaVE (source: acopiovenezuela.vercel.app)
 // y no expone /api ni __NEXT_DATA__ estable. Re-activar si se confirma un endpoint.
 
@@ -24,7 +25,9 @@ async function buildReplicas() {
 
 async function buildCentros() {
   const a = await safe(() => ayudave.fetchRegistros(), "ayudave");
-  return { categoria: "centro", source: "ayudave", items: a, fetchedAt: new Date().toISOString() };
+  // A2: AyudaVE entrega coords:null → geocodifica (Nominatim opt-in + fallback centroide de estado).
+  const items = await safe(() => geocoder.enrichCentros(a), "geocode");
+  return { categoria: "centro", source: "ayudave", items: items.length ? items : a, fetchedAt: new Date().toISOString() };
 }
 
 async function buildDanos() {
