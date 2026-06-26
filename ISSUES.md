@@ -62,7 +62,7 @@ capa/feed propio con procedencia "monitorVE-verificado" — somos FUENTE, no sol
 - [ ] Nunca se publica sin paso de verificación humana explícito.
 - [ ] Visible en el feed/mapa con su procedencia.
 
-## ⬜ B3 · Confianza por ítem + "por qué no verificado"
+## ✅ B3 · Confianza por ítem + "por qué no verificado"
 **Tipo:** AFK · **Blocked by:** ninguno.
 **Qué construir:** Cada dato mostrado lleva su nivel de confianza (oficial/org/comunitario/sin-verificar)
 y, cuando aplica, la razón de no estar verificado.
