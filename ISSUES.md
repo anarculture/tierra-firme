@@ -32,7 +32,7 @@ muestra en la hoja; KPI header compacto. Reusar `capasHtml`/`wireCapas` scopeado
 - [ ] Tap en marcador → detalle en la hoja (no en riel oculto); back vuelve al feed.
 - [ ] Sin IDs duplicados entre desktop y móvil (scope por contenedor); `node --check` + serve OK.
 
-## ⬜ M3 · Jitter/cluster de marcadores aproximados
+## ✅ M3 · Jitter/cluster de marcadores aproximados
 **Tipo:** AFK · **Blocked by:** ninguno (mejora a A2).
 **Qué construir:** Los centros geocodificados a centroide-de-estado se apilan (~17 puntos para 168).
 Dispersar (jitter determinista por id) o agrupar (cluster con conteo) para que el mapa sea legible;

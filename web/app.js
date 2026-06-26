@@ -4,6 +4,7 @@ import { get } from "./api.js";
 import { pipFeature } from "./pip.js";
 import { filtrar, estadosDe } from "./centros-filter.js";
 import { nextSheetState } from "./sheet.js";
+import { jitter } from "./jitter.js";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const dial = (s) => "tel:" + String(s).replace(/[^0-9*#+]/g, "");
@@ -54,14 +55,19 @@ function addMarker(group, def, item) {
   const c = item.coords; if (!c || c.lat == null || c.lng == null) return false;
   const mag = item.payload?.mag;
   const isEpi = def.key === "epicentro";
+  // Ubicación aproximada (centroide de estado): dispersar con jitter determinista y marcar distinto.
+  const aprox = c.source === "estado" || c.confidence === "baja";
+  const seed = [item.payload?.name, item.payload?.address, item.payload?.estado].filter(Boolean).join("|") || item.sourceId || def.key;
+  const pos = aprox ? jitter(c.lat, c.lng, seed) : { lat: c.lat, lng: c.lng };
   // Marcador tipado: el glifo del _kind (coincide con la leyenda), tamaño ≈ magnitud.
   const size = isEpi ? Math.max(20, (mag || 6) * 3) : Math.max(13, (mag || 4) * 2.4);
   const icon = L.divIcon({
-    className: "mk",
+    className: aprox ? "mk mk-aprox" : "mk",
     html: `<span style="color:${def.color};font-size:${size}px">${def.sym}</span>`,
     iconSize: [size, size], iconAnchor: [size / 2, size / 2]
   });
-  const m = L.marker([c.lat, c.lng], { icon, title: item.payload?.place || def.label });
+  const title = (item.payload?.place || item.payload?.name || def.label) + (aprox ? " (ubicación aprox. — estado)" : "");
+  const m = L.marker([pos.lat, pos.lng], { icon, title });
   m.on("click", () => showDetail(def, item));
   m.addTo(group);
   if (def.rings && item.payload?.ring_km) {

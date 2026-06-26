@@ -16,11 +16,10 @@ endpoint público. Sin transcripción acá: guarda el .ogg; /sitrep lo transcrib
 """
 import json, os, sys, time, urllib.parse, urllib.request
 from datetime import datetime, timezone
+from inbox import INBOX, MEDIA, append  # contrato del inbox compartido
 
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 BASE = f"https://api.telegram.org/bot{TOKEN}"
-INBOX = os.path.join(os.path.dirname(os.path.abspath(__file__)), "inbox")
-MEDIA = os.path.join(INBOX, "media")
 OFFSET_FILE = os.path.join(INBOX, ".offset")
 
 
@@ -69,12 +68,6 @@ def record(msg):
     return rec
 
 
-def append(rec):
-    os.makedirs(INBOX, exist_ok=True)
-    with open(os.path.join(INBOX, f"{rec['ts'][:10]}.jsonl"), "a") as f:
-        f.write(json.dumps(rec, ensure_ascii=False) + "\n")
-
-
 def poll():
     if not TOKEN:
         sys.exit("Falta TELEGRAM_BOT_TOKEN (crea el bot con @BotFather).")
@@ -111,7 +104,7 @@ def selftest():
     rec = record(fake)
     assert rec["from"] == "Adi (@adi)", rec["from"]
     assert rec["kind"] == "text" and "tapabocas" in rec["text"]
-    append(rec)
+    append(rec, INBOX)  # INBOX reasignado al tempdir; pasa explícito
     line = open(os.path.join(INBOX, f"{rec['ts'][:10]}.jsonl")).read()
     assert "tapabocas" in line, line
     print("selftest OK ->", INBOX)
