@@ -1,6 +1,13 @@
 {
-  "_doc": "Entradas curadas — Catálogo de servicios (contacto-y-listo). Capa propia (Q6). Shell vacío.",
-  "_schema": { "tipo": "telemedicina|psicologico|estructural|legal|transporte|veterinaria", "titulo": "", "contacto": "", "comoContactar": "", "fuenteOrigen": "", "verificadoEl": "YYYY-MM-DD" },
-  "_todo": "TODO(Sx): poblar desde plan §Servicios (Venemergencia, Rehabilitarte, UNIMET @fceunimet, Tu Gruero, FUNDAINIL...).",
-  "items": []
+  "_doc": "Entradas curadas — Catálogo de servicios (contacto-y-listo). Capa propia (Q6): fuenteOrigen + verificadoEl.",
+  "items": [
+    { "tipo": "telemedicina", "titulo": "Venemergencia (TAP)", "contacto": "0212-822.1262", "comoContactar": "Llamar 24/7 · gratuito", "fuenteOrigen": "venemergencia.com", "verificadoEl": "2026-06-26" },
+    { "tipo": "telemedicina", "titulo": "Nueve Once", "contacto": "", "link": "https://www.nueveonce.com", "comoContactar": "Urgencias + telemedicina", "fuenteOrigen": "nueveonce.com", "verificadoEl": "2026-06-26" },
+    { "tipo": "psicologico", "titulo": "Rehabilitarte · Lun–Mar", "contacto": "0424-6270439", "comoContactar": "Apoyo psicológico gratuito", "fuenteOrigen": "Efecto Cocuyo", "verificadoEl": "2026-06-26" },
+    { "tipo": "psicologico", "titulo": "Rehabilitarte · Mié–Jue", "contacto": "0414-9610311", "comoContactar": "Apoyo psicológico gratuito", "fuenteOrigen": "Efecto Cocuyo", "verificadoEl": "2026-06-26" },
+    { "tipo": "psicologico", "titulo": "Rehabilitarte · Vie–Sáb", "contacto": "0424-6077865", "comoContactar": "Apoyo psicológico gratuito", "fuenteOrigen": "Efecto Cocuyo", "verificadoEl": "2026-06-26" },
+    { "tipo": "psicologico", "titulo": "FUNDAINIL", "contacto": "", "link": "https://ucab.edu.ve", "comoContactar": "Psicosocial + legal · vía PsicoMapa UCAB", "fuenteOrigen": "UCAB", "verificadoEl": "2026-06-26" },
+    { "tipo": "estructural", "titulo": "UNIMET · Directorio Estructural", "contacto": "", "link": "https://instagram.com/fceunimet", "comoContactar": "Consultas estructurales gratis · IG @fceunimet", "fuenteOrigen": "@fceunimet", "verificadoEl": "2026-06-26" },
+    { "tipo": "transporte", "titulo": "Tu Gruero", "contacto": "", "link": "https://tugruero.com", "comoContactar": "Grúas / transporte pesado", "fuenteOrigen": "tugruero.com", "verificadoEl": "2026-06-26" }
+  ]
 }

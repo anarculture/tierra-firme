@@ -110,7 +110,7 @@ Por cada `Sx` en orden:
 - **AC:** lista con cuentas/links exactos; etiqueta de confianza visible; advertencia "verificá por tus medios". **Excluir** Alimenta la Solidaridad (pausada).
 - **Check:** `node:test` valida `donaciones.json` (cada item: `org, tipo, linkOficial, confianza, verificadoEl`); luego **`/security-review`** del diff (exposición de datos financieros) antes de `[x]`.
 
-### [ ] S7 — Catálogo de servicios
+### [x] S7 — Catálogo de servicios
 - **Objetivo:** servicios contacto-y-listo.
 - **Archivos:** `src/curated/servicios.json` (poblar), `web/app.js` (pantalla servicios).
 - **Seed (inline, verificado):** Telemedicina **Venemergencia TAP** `0212-822.1262` (24/7 gratis), `nueveonce.com` · Psicológico **Rehabilitarte** (Lun-Mar `0424-6270439`, Mié-Jue `0414-9610311`, Vie-Sáb `0424-6077865`), **FUNDAINIL** (PsicoMapa UCAB) · Estructural **UNIMET @fceunimet** (Instagram; fuenteOrigen = imagen del usuario) · Transporte **Tu Gruero** (`tugruero.com`).

@@ -7,7 +7,7 @@ const PILARES = [
   { id: "personas", t: "Personas", d: "Buscar desaparecidos / localizados", slice: "S8" },
   { id: "directorio", t: "Centros y donaciones", d: "Dónde ayudar y a dónde donar", slice: "S4" },
   { id: "mapa", t: "Mapa del país", d: "Daños y centros por estado", slice: "S2" },
-  { id: "servicios", t: "Servicios", d: "Telemedicina, apoyo, estructural", slice: "S7" },
+  { id: "servicios", t: "Servicios", d: "Telemedicina, apoyo, estructural", ready: true },
   { id: "tablero", t: "Tablero", d: "Cifras y réplicas", ready: true }
 ];
 
@@ -21,6 +21,19 @@ const dial = (s) => "tel:" + String(s).replace(/[^0-9*#+]/g, "");
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 const fmtFecha = (iso) => { const d = new Date(iso); return isNaN(d) ? esc(iso) : `${d.getUTCDate()} ${MES[d.getUTCMonth()]}`; };
+
+const TIPO_LABEL = { telemedicina: "Telemedicina", psicologico: "Apoyo psicológico", estructural: "Ingeniería estructural", legal: "Legal", transporte: "Transporte", veterinaria: "Veterinaria" };
+function srvRow(it) {
+  const phone = !!it.contacto;
+  const href = phone ? dial(it.contacto) : it.link || "#";
+  const ext = phone ? "" : ' target="_blank" rel="noopener"';
+  const right = phone ? `<span class="num">${esc(it.contacto)}</span>` : `<span class="go">${ico("chevron")}</span>`;
+  return `<a class="row" href="${href}"${ext}>
+    <span class="row-ic">${ico(phone ? "phone" : "chevron")}</span>
+    <span class="row-main"><b>${esc(it.titulo)}</b>${right}</span>
+    <span class="src">${esc(it.comoContactar)} · ${esc(it.fuenteOrigen)}</span>
+  </a>`;
+}
 
 const root = () => document.getElementById("app");
 
@@ -80,6 +93,18 @@ const screens = {
       ${items.length ? `<div class="section">Últimas réplicas</div><div class="card">${last}</div>`
         : `<div class="empty">Sin réplicas en la ventana, o la fuente no está disponible ahora.</div>`}`,
       { back: true, sub: "Cifras y réplicas" });
+  },
+
+  async servicios() {
+    let items = [];
+    try { items = (await get("/api/servicios")).items || []; } catch { /* offline */ }
+    const groups = {};
+    for (const it of items) (groups[it.tipo] ||= []).push(it);
+    const body = Object.keys(groups).map((tp) => `
+      <div class="section">${esc(TIPO_LABEL[tp] || tp)}</div>
+      <div class="list">${groups[tp].map(srvRow).join("")}</div>`).join("")
+      || `<div class="empty">Sin servicios cargados.</div>`;
+    return shell("Servicios", body, { back: true, sub: "Cómo contactarlos" });
   },
 
   soon(p) {
