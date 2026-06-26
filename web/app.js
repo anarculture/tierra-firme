@@ -24,6 +24,8 @@ function frescura(iso) {
   return m < 60 ? "fresh" : m < 360 ? "aging" : "stale";
 }
 const el = (id) => document.getElementById(id);
+const isMobile = () => window.matchMedia("(max-width: 860px)").matches;
+const panelTarget = () => (isMobile() ? "sheet-content" : "right");
 
 /* Capas: cada _kind con símbolo/color propio. Capa apagada = sin fetch (worldmonitor). */
 const LAYERS = [
@@ -105,31 +107,41 @@ async function renderKPIs() {
   el("kpis").innerHTML = kpis.join("");
 }
 
-function renderLeft() {
-  const rows = LAYERS.map((d) => `
-    <label class="layer">
-      <input type="checkbox" data-layer="${d.key}" ${d.on ? "checked" : ""}>
+// Panel de capas — markup + wiring scopeados a un contenedor (sirve en #left [desktop] y overlay [móvil]).
+function layerActivo(d) { return !!(state.groups[d.key] && state.map && state.map.hasLayer(state.groups[d.key])); }
+function capasHtml() {
+  const rows = LAYERS.map((d) => {
+    const checked = state.groups[d.key] ? layerActivo(d) : d.on;
+    const lc = state.loaded[d.key] ? state.loaded[d.key].plotted : "—";
+    return `<label class="layer">
+      <input type="checkbox" data-layer="${d.key}" ${checked ? "checked" : ""}>
       <span class="sym" style="color:${d.color}">${d.sym}</span>
       <span class="lname">${esc(d.label)}</span>
-      <span class="lcount" id="lc-${d.key}">—</span>
-    </label>`).join("");
-  el("left").innerHTML = `<h3>Capas</h3>${rows}
+      <span class="lcount" data-lc="${d.key}">${lc}</span>
+    </label>`;
+  }).join("");
+  return `<h3>Capas</h3>${rows}
     <h3>Choropleth</h3>
-    <label class="layer"><input type="checkbox" id="choro-on"><span class="lname">Intensidad por estado</span></label>
-    <div class="lede" id="choro-scale" style="font-size:11px">Colorea estados por nº de puntos de las capas activas.</div>
+    <label class="layer"><input type="checkbox" class="choro-on" ${choro.on ? "checked" : ""}><span class="lname">Intensidad por estado</span></label>
+    <div class="lede choro-scale" style="font-size:11px">Colorea estados por nº de puntos de las capas activas.</div>
     <h3>Leyenda</h3>
-    <div class="lede" style="font-size:12px">Tamaño del punto ≈ magnitud. Anillo punteado = estimación de área afectada (epicentros). Cada dato lleva su fuente.</div>`;
-  el("left").querySelectorAll("input[data-layer]").forEach((inp) => {
+    <div class="lede" style="font-size:12px">Tamaño ≈ magnitud. Anillo punteado = área estimada (epicentros). Cada dato lleva su fuente.</div>`;
+}
+function wireCapas(container) {
+  container.querySelectorAll("input[data-layer]").forEach((inp) => {
     inp.addEventListener("change", async (e) => {
       const def = LAYERS.find((x) => x.key === e.target.dataset.layer);
       const r = await toggleLayer(def, e.target.checked);
-      if (r) el("lc-" + def.key).textContent = r.plotted + (r.items.length > r.plotted ? `/${r.items.length}` : "");
+      const lc = container.querySelector(`[data-lc="${def.key}"]`);
+      if (r && lc) lc.textContent = r.plotted + (r.items.length > r.plotted ? `/${r.items.length}` : "");
       renderSources();
-      if (choro.on) renderChoro();
+      if (choro.on) renderChoro(container);
     });
   });
-  el("choro-on").addEventListener("change", (e) => { choro.on = e.target.checked; renderChoro(); });
+  const cb = container.querySelector(".choro-on");
+  if (cb) cb.addEventListener("change", (e) => { choro.on = e.target.checked; renderChoro(container); });
 }
+function renderLeft(target = "left") { const c = el(target); if (!c) return; c.innerHTML = capasHtml(); wireCapas(c); }
 
 /* Choropleth: colorea estados por nº de puntos (de capas activas) que caen en cada polígono (PIP). */
 const choro = { on: false, layer: null, geo: null };
@@ -151,7 +163,7 @@ function choroColor(n, max) {
   const r = n / max;
   return r > 0.66 ? "#e5484d" : r > 0.33 ? "#e0a33e" : "#3fb27f";
 }
-async function renderChoro() {
+async function renderChoro(container) {
   if (!choro.on) { if (choro.layer) { state.map.removeLayer(choro.layer); choro.layer = null; } return; }
   const geo = await ensureEstados();
   // Conteo por campo `estado` (centros) + PIP por coords (epicentros/réplicas/daños sin estado).
@@ -176,7 +188,8 @@ async function renderChoro() {
   });
   choro.layer.addTo(state.map);
   choro.layer.bringToBack();
-  el("choro-scale").textContent = `Intensidad por estado (máx ${max}) · puntos de capas activas.`;
+  const _s = (container || document).querySelector(".choro-scale");
+  if (_s) _s.textContent = `Intensidad por estado (máx ${max}) · puntos de capas activas.`;
 }
 
 async function renderFeed(target = "right") {
@@ -200,7 +213,10 @@ function showDetail(def, item) {
   if (p.time) rows.push(["Hora", p.time]);
   if (item.coords) rows.push(["Coords", `${item.coords.lat}, ${item.coords.lng}`]);
   const src = item.fuenteOrigen || item.sourceId || "—";
-  el("right").innerHTML = `
+  const target = panelTarget();
+  const c = el(target);
+  if (!c) return;
+  c.innerHTML = `
     <div class="detail">
       <h4><span style="color:${def.color}">${def.sym}</span> ${esc(def.label.replace(/s$/, ""))}</h4>
       <div class="card">${rows.map(([k, v]) => `<div class="kv"><span class="k">${esc(k)}</span><span class="v">${esc(v)}</span></div>`).join("")}</div>
@@ -208,7 +224,8 @@ function showDetail(def, item) {
       <div class="src">Fuente: ${esc(src)}${item.verificadoEl ? ` · verificado ${esc(item.verificadoEl)}` : ""}</div>
       <button class="tbtn" style="margin-top:12px" id="back-feed">← Volver al feed</button>
     </div>`;
-  el("back-feed").addEventListener("click", renderFeed);
+  el("back-feed").addEventListener("click", () => renderFeed(target));
+  if (isMobile()) { const sh = el("sheet"); if (sh) { sh.dataset.state = "half"; sh.classList.remove("peek", "full"); sh.classList.add("half"); } }
   if (item.coords) state.map.panTo([item.coords.lat, item.coords.lng]);
 }
 
@@ -282,12 +299,21 @@ async function openCentros() {
 
 function renderTopnav() {
   el("topnav").innerHTML = `
+    <button class="tbtn only-mobile" id="nav-capas">Capas</button>
     <button class="tbtn" id="nav-centros">Centros</button>
     <button class="tbtn" id="nav-panel">Panel vital</button>
     <button class="tbtn" id="nav-serv">Servicios</button>`;
+  el("nav-capas").onclick = openCapas;
   el("nav-centros").onclick = openCentros;
   el("nav-panel").onclick = openPanelVital;
   el("nav-serv").onclick = openServicios;
+}
+
+// Capas como overlay (móvil): reusa el mismo markup/wiring que el riel desktop.
+function openCapas() {
+  openSheet("Capas", capasHtml());
+  const c = el("overlay").querySelector(".sheet");
+  if (c) wireCapas(c);
 }
 
 // Bottom-sheet móvil: feed dentro + handle que cicla peek/half/full. (Desktop: #sheet display:none.)
@@ -304,13 +330,10 @@ function initSheet() {
 
 async function boot() {
   initMap();
-  renderLeft();
   renderTopnav();
   await Promise.all([renderKPIs(), renderFeed()]);
-  for (const d of LAYERS.filter((x) => x.on)) {
-    const r = await toggleLayer(d, true);
-    if (r) el("lc-" + d.key).textContent = r.plotted + (r.items.length > r.plotted ? `/${r.items.length}` : "");
-  }
+  for (const d of LAYERS.filter((x) => x.on)) await toggleLayer(d, true);
+  renderLeft(); // tras los toggles → los conteos ya están poblados
   renderSources();
   initSheet();
   setTimeout(() => state.map && state.map.invalidateSize(), 200);

@@ -23,7 +23,7 @@ Un solo render: `renderFeed` parametrizado por contenedor.
 - [ ] Desktop intacto (rieles + feed en `#right`).
 - [ ] `renderFeed(target)` sirve a ambos; helper puro `nextSheetState()` con test failable; `node --check` + serve OK.
 
-## ⬜ M2 · Capas y detalle en móvil
+## ✅ M2 · Capas y detalle en móvil
 **Tipo:** AFK · **Blocked by:** M1.
 **Qué construir:** En móvil, el control de Capas se abre como overlay y el detalle de un marcador se
 muestra en la hoja; KPI header compacto. Reusar `capasHtml`/`wireCapas` scopeados a contenedor.
