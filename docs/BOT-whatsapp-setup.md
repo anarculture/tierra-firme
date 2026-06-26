@@ -1,63 +1,68 @@
-# Handoff: poner a recibir el buzón de WhatsApp (monitorVE)
+# Handoff: configurar WhatsApp en Meta para el buzón de monitorVE
 
-> Para un compañero. **Pásale este archivo entero a tu Claude Code** (dentro del repo `monitorVE`).
-> Meta: el bot de WhatsApp recibe lo que la gente manda (voz/foto/texto) y lo vuelca a `ingest/inbox/`.
-> Solo es **recepción** — la destilación (`/sitrep`) es otro paso.
+> Para el compañero que maneja la cuenta de Meta. **No hay terminal ni código aquí** — solo el
+> panel de Meta. Tú reúnes las credenciales y conectas el webhook; el dev (con su Claude) levanta
+> el bot y te pasa una URL. Coordinan así:
 >
-> WhatsApp **no sondea** como Telegram: Meta entrega por POST a un HTTPS público, así que hace falta
-> exponer el bot con un túnel. Dividido en lo que **TÚ (humano)** haces en Meta y lo que **CLAUDE**
-> hace en la terminal. Orden: A → B → C.
+> 1. Tú haces la **PARTE A** (reunir credenciales) y se las pasas al dev.
+> 2. El dev levanta el bot y te devuelve una **URL de webhook**.
+> 3. Tú haces la **PARTE B** (pegar la URL) y la **PARTE C** (probar).
+
+El buzón recibe lo que la gente manda por WhatsApp (voz, fotos, texto) y lo guarda para que luego
+se destile. Esto solo deja **lista la conexión de WhatsApp**.
 
 ---
 
-## PARTE A — Humano (datos de tu app de Meta/WhatsApp)
-Ten a mano (de la app que ya tienes registrada):
-- `WA_TOKEN` — token permanente (System User). Para bajar la media (voz/fotos).
-- `WA_APP_SECRET` — el *App Secret*. **Obligatorio**: valida la firma de Meta.
-- `WA_VERIFY_TOKEN` — invéntalo (cualquier string). Lo repites en B y C; debe coincidir.
-- El número de WhatsApp Business de la app.
+## PARTE A — Reunir las credenciales (panel de Meta)
+
+En [developers.facebook.com](https://developers.facebook.com) → tu app (la que ya tienes registrada)
+→ producto **WhatsApp**. Reúne estos 4 datos y pásaselos al dev:
+
+1. **Token de acceso permanente** (`WA_TOKEN`)
+   - Para algo estable, se crea desde **Business Settings → Users → System Users**: creá (o usá) un
+     system user, asignále la app, y generá un token con los permisos
+     `whatsapp_business_messaging` y `whatsapp_business_management`.
+   - *(El token temporal de la pantalla "API Setup" sirve para probar pero caduca en 24 h — mejor el permanente.)*
+
+2. **App Secret** (`WA_APP_SECRET`)
+   - **App → Settings → Basic → App Secret** (botón *Show*). Es obligatorio: con él se valida que
+     los mensajes vienen de verdad de Meta y no de un impostor.
+
+3. **Verify token** (`WA_VERIFY_TOKEN`)
+   - **Te lo inventás vos** (cualquier palabra/frase, ej. `monitorve-2026`). No es de Meta. Lo usás
+     en la PARTE B y se lo pasás al dev — tienen que poner el mismo.
+
+4. **Número de WhatsApp Business** de la app (el que la gente va a mensajear).
+
+> Pasáselos al dev por un canal seguro (no por chat público). El `WA_TOKEN` y el `WA_APP_SECRET`
+> son secretos — quien los tenga puede actuar como tu número.
 
 ---
 
-## PARTE B — Claude (terminal). Pégale esto a tu Claude:
+## PARTE B — Conectar el webhook (cuando el dev te pase la URL)
 
-> Estoy en el repo `monitorVE`. Quiero poner a correr el buzón de WhatsApp
-> (`ingest/whatsapp_buzon.py`, escucha en :8788) y exponerlo con un túnel de Cloudflare para que Meta
-> le entregue los webhooks. Haz, parando si algún paso falla:
->
-> 1. Verifica el bot sin red: `python3 ingest/whatsapp_buzon.py --selftest` → debe imprimir `selftest OK`.
-> 2. Instala `cloudflared` (paquete oficial para mi distro).
-> 3. Arranca el bot (pídeme los 3 valores; **WA_APP_SECRET es obligatorio**):
->    `WA_VERIFY_TOKEN=… WA_TOKEN=… WA_APP_SECRET=… python3 ingest/whatsapp_buzon.py`
->    (déjalo corriendo en background o tmux).
-> 4. Exponlo: `cloudflared tunnel --url http://localhost:8788`
->    → copia la URL pública que imprime (`https://algo.trycloudflare.com`).
-> 5. **Verifica** (gate): con esa URL y el verify token,
->    `curl 'https://algo.trycloudflare.com/?hub.mode=subscribe&hub.verify_token=EL_TOKEN&hub.challenge=ping'`
->    debe responder exactamente `ping`.
+El dev te devuelve una URL tipo `https://algo.trycloudflare.com`. En el panel:
+
+**WhatsApp → Configuration → Webhook → Edit:**
+- **Callback URL**: la URL que te pasó el dev.
+- **Verify token**: el mismo `WA_VERIFY_TOKEN` que inventaste en la PARTE A.
+- Guardá. Meta hace una verificación automática; si el token coincide, queda **Verified ✓**.
+  (Si falla: la URL no está corriendo, o el verify token no coincide con el del dev.)
+
+Luego, en **Webhook fields**, **Subscribe** al campo **`messages`**.
 
 ---
 
-## PARTE C — Humano (conectar Meta)
-En la app de Meta → **WhatsApp → Configuration → Webhook**:
-- **Callback URL**: la URL del túnel (paso 4).
-- **Verify token**: el mismo `WA_VERIFY_TOKEN`.
-- **Subscribe** al campo **`messages`**.
+## PARTE C — Probar
 
-Al guardar, Meta hace el GET de verificación (el mismo del curl) y queda suscrito.
-
-**Prueba final:** manda una **nota de voz** al número. Confirma:
-- línea nueva en `ingest/inbox/<fecha>.jsonl`,
-- el `.ogg` en `ingest/inbox/media/`.
-
-Listo: el caos entra por WhatsApp → inbox.
+Mandá una **nota de voz** al número de WhatsApp Business. Avisale al dev: él confirma que el mensaje
+llegó al buzón (aparece un archivo nuevo del lado del bot). Si llegó, está funcionando.
 
 ---
 
 ## Notas
-- **`WA_APP_SECRET` siempre.** Sin él el bot corre pero no valida la firma → cualquiera con la URL
-  inyecta registros falsos (el bot avisa con ⚠). No lo dejes así.
-- **`inbox/` tiene PII** (teléfonos). Está gitignored: nunca al repo, nunca público.
-- **URL temporal:** la de `cloudflared tunnel --url` cambia en cada corrida (hay que re-pegarla en
-  Meta). Para una URL **fija** se usa un *named tunnel* sobre un dominio — paso aparte, cuando esto ya funcione.
-- **Telegram** (si lo quieren también): no necesita túnel — `export TELEGRAM_BOT_TOKEN=… && python3 ingest/telegram_buzon.py`.
+- **La URL es temporal:** mientras se prueba, la URL del dev cambia cada vez que reinicia el bot —
+  habrá que re-pegarla en la PARTE B. Para una URL **fija** hace falta un dominio (paso aparte, después).
+- **Privacidad:** lo que recibe el buzón incluye el teléfono de quien escribe (dato sensible). Se
+  guarda en privado entre verificadores, nunca público. El borrador que se publique no lleva
+  nombres ni teléfonos de personas.
