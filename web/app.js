@@ -38,9 +38,12 @@ const state = { map: null, groups: {}, loaded: {}, health: {} };
 
 function initMap() {
   const map = L.map("map", { zoomControl: true }).setView([8.4, -66.4], 6);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+  const tiles = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
     attribution: "© OpenStreetMap, © CARTO", subdomains: "abcd", maxZoom: 19
-  }).addTo(map);
+  });
+  // Tiles requieren red; si fallan, los marcadores vectoriales siguen visibles sobre el fondo oscuro.
+  tiles.on("tileerror", () => { if (!state.tileError) { state.tileError = true; renderSources(); } });
+  tiles.addTo(map);
   state.map = map;
 }
 
@@ -217,7 +220,8 @@ function renderSources() {
     }
     return `<span class="shealth"><span class="dot ${cls}"></span>${esc(d.label)}: ${txt}</span>`;
   });
-  el("sources").innerHTML = `<span class="shealth"><b>Fuentes</b></span>` + parts.join("");
+  const tile = state.tileError ? `<span class="shealth"><span class="dot stale"></span>mapa: tiles sin conexión</span>` : "";
+  el("sources").innerHTML = `<span class="shealth"><b>Fuentes</b></span>` + tile + parts.join("");
 }
 
 function openSheet(title, html) {

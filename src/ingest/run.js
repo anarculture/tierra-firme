@@ -5,8 +5,9 @@ import { fileURLToPath } from "node:url";
 import * as sismosve from "./sismosve.js";
 import * as usgs from "./usgs.js";
 import * as ayudave from "./ayudave.js";
-import * as acopio from "./acopiovenezuela.js";
 import * as terremoto from "./terremotovenezuela.js";
+// acopiovenezuela: en pausa — sus centros ya entran vía AyudaVE (source: acopiovenezuela.vercel.app)
+// y no expone /api ni __NEXT_DATA__ estable. Re-activar si se confirma un endpoint.
 
 const BUNDLE_DIR = fileURLToPath(new URL("../../data/bundles", import.meta.url));
 
@@ -23,8 +24,7 @@ async function buildReplicas() {
 
 async function buildCentros() {
   const a = await safe(() => ayudave.fetchRegistros(), "ayudave");
-  const b = await safe(() => acopio.fetchRegistros(), "acopiovenezuela");
-  return { categoria: "centro", sources: ["ayudave", "acopiovenezuela"], items: [...a, ...b], fetchedAt: new Date().toISOString() };
+  return { categoria: "centro", source: "ayudave", items: a, fetchedAt: new Date().toISOString() };
 }
 
 async function buildDanos() {

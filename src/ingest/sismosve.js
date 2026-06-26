@@ -31,7 +31,7 @@ export function normalize(raw) {
 
 /** @returns {Promise<import("../model/index.js").Registro[]>} */
 export async function fetchRegistros() {
-  const r = await fetch(URL_RECENT, { signal: AbortSignal.timeout(12000) });
+  const r = await fetch(URL_RECENT, { headers: { "user-agent": "monitorVE/1.0 (humanitarian)" }, signal: AbortSignal.timeout(12000) });
   if (!r.ok) throw new Error("HTTP " + r.status);
   return normalize(await r.json());
 }
