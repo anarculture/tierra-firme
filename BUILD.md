@@ -80,6 +80,10 @@ Por cada `Sx` en orden:
 - **Check:** `node:test` sobre `normalize(fixtureSismosVE)` → `Registro` (categoria `replica`, coords, fetchedAt); `curl /api/replicas` devuelve `items` array. (El fetch en vivo es smoke, no el gate.)
 
 ### [ ] S2 — Mapa nivel 1: choropleth SVG de 24 estados  *(rails de: mapa país)*
+> NOTA: la **consola situacional** (ADR 0003) ya entrega el mapa Leaflet+CARTO dark con
+> **marcadores tipados por capa** (epicentros/réplicas/acopios/daños/refugios/hospitales),
+> toggles+conteo+frescura, feed, detalle al click y salud de fuentes. Falta de S2: el
+> **choropleth por estado** (severidad) y el **modo offline SVG**.
 - **Objetivo:** mapa del país interactivo, dark, offline (sin tiles).
 - **Archivos:** `web/estados.svg` (paths de los 24 estados, dominio público/OSM), `web/app.js` (pantalla mapa + bind intensidad), `web/styles.css` (usar escala de severidad).
 - **AC:** SVG tiñe cada estado por intensidad desde un agregado (réplicas/daños/centros por estado); tap → resumen del estado; **a11y: mostrar el valor, no solo color**.

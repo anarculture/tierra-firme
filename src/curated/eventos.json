@@ -1,0 +1,19 @@
+{
+  "_doc": "Eventos sísmicos principales (doblete 24-jun-2026). Hechos verificables (USGS/Funvisis), epicentros aproximados. Anillo = estimación de área afectada (no exacta). Entrada curada con procedencia.",
+  "items": [
+    {
+      "sourceId": "curado", "categoria": "epicentro",
+      "payload": { "mag": 7.5, "depth": 10, "place": "entre Morón y Yumare (Carabobo)", "time": "2026-06-24T18:05 (local)", "ring_km": 60, "rol": "principal" },
+      "coords": { "lat": 10.51, "lng": -68.34 },
+      "fuenteOrigen": "USGS / Funvisis", "verificadoEl": "2026-06-26",
+      "nota": "epicentro aprox.; anillo = estimación de área afectada"
+    },
+    {
+      "sourceId": "curado", "categoria": "epicentro",
+      "payload": { "mag": 7.2, "depth": 13, "place": "cerca de San Felipe (Yaracuy)", "time": "2026-06-24T18:04 (local)", "ring_km": 40, "rol": "precursor" },
+      "coords": { "lat": 10.34, "lng": -68.74 },
+      "fuenteOrigen": "USGS / Funvisis", "verificadoEl": "2026-06-26",
+      "nota": "epicentro aprox.; 39 s antes del principal"
+    }
+  ]
+}

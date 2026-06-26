@@ -97,3 +97,65 @@ body { margin: 0; background: var(--bg); color: var(--text); font: var(--t-md)/1
 .qrow:last-child { border-bottom: 0; }
 .qmag { font: var(--t-md) var(--mono); color: var(--warn); min-width: 56px; }
 .qplace { color: var(--text); font-size: var(--t-sm); }
+
+/* ---- consola situacional (ADR 0003) ---- */
+html, body { height: 100%; }
+body { display: grid; grid-template-rows: auto 1fr auto; overflow: hidden; }
+
+#topbar { display: flex; align-items: center; gap: var(--s4); padding: var(--s2) var(--s4); border-bottom: 1px solid var(--border); background: var(--surface); min-height: 48px; }
+.brand { font: 700 var(--t-md) var(--font); letter-spacing: -.02em; white-space: nowrap; }
+.kpis { display: flex; gap: var(--s4); overflow-x: auto; flex: 1; scrollbar-width: thin; }
+.kpi { display: flex; flex-direction: column; line-height: 1.15; white-space: nowrap; }
+.kpi b { font: var(--t-md) var(--mono); }
+.kpi small { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; }
+.k-crit { color: var(--crit); } .k-warn { color: var(--warn); } .k-info { color: var(--info); } .k-ok { color: var(--ok); }
+.topnav { display: flex; gap: var(--s2); }
+.tbtn { background: var(--surface-2); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius-sm); padding: 6px 10px; font-size: var(--t-sm); cursor: pointer; white-space: nowrap; }
+.tbtn:hover { border-color: #2e3850; }
+.only-mobile { display: none; }
+
+#stage { display: flex; min-height: 0; }
+#map { flex: 1; height: 100%; background: var(--bg); z-index: 1; }
+.rail { width: 280px; background: var(--surface); border-right: 1px solid var(--border); overflow-y: auto; padding: var(--s3); }
+#right { border-right: 0; border-left: 1px solid var(--border); width: 320px; }
+.rail h3 { font-size: var(--t-xs); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: var(--s3) 0 var(--s2); }
+
+#sources { display: flex; align-items: center; gap: var(--s4); padding: 6px var(--s4); border-top: 1px solid var(--border); background: var(--surface); font-size: var(--t-xs); color: var(--muted); overflow-x: auto; }
+.shealth { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.dot.fresh { background: var(--ok); } .dot.aging { background: var(--warn); } .dot.stale { background: var(--crit); } .dot.none { background: var(--muted); }
+
+.layer { display: flex; align-items: center; gap: var(--s2); padding: 8px 6px; border-radius: var(--radius-sm); cursor: pointer; }
+.layer:hover { background: var(--surface-2); }
+.layer input { accent-color: var(--accent); }
+.layer .sym { width: 16px; text-align: center; }
+.layer .lname { flex: 1; font-size: var(--t-sm); }
+.layer .lcount { font: var(--t-xs) var(--mono); color: var(--muted); }
+
+.feed-item { padding: 8px 0; border-bottom: 1px solid var(--border); }
+.feed-item:last-child { border-bottom: 0; }
+.feed-mag { font: var(--t-md) var(--mono); color: var(--warn); }
+.detail h4 { margin: 0 0 var(--s2); }
+
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 1000; display: grid; place-items: end center; }
+.overlay[hidden] { display: none; }
+.sheet { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius) var(--radius) 0 0; width: min(680px, 100%); max-height: 85vh; overflow-y: auto; padding: var(--s4); }
+.sheet-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s3); }
+.sheet-hd b { font-size: var(--t-lg); }
+.x { background: none; border: 0; color: var(--muted); font-size: 22px; cursor: pointer; line-height: 1; }
+
+.mk { background: none; border: 0; display: grid; place-items: center; line-height: 1; font-weight: 700; text-shadow: 0 0 4px #000, 0 0 2px #000; }
+.leaflet-container { background: var(--bg); font: var(--t-sm) var(--font); }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+.leaflet-bar a { background: var(--surface-2); color: var(--text); border-color: var(--border); }
+.leaflet-control-attribution { background: rgba(11,14,20,.7) !important; }
+.leaflet-control-attribution, .leaflet-control-attribution a { color: var(--muted) !important; }
+
+@media (max-width: 860px) {
+  .rail { position: fixed; top: 48px; bottom: 28px; z-index: 500; width: 82%; max-width: 320px; transition: transform .2s ease; }
+  #left { left: 0; transform: translateX(-100%); }
+  #right { right: 0; left: auto; transform: translateX(100%); }
+  body.show-left #left { transform: none; }
+  body.show-right #right { transform: none; }
+  .only-mobile { display: inline-block; }
+}

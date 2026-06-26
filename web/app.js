@@ -1,125 +1,214 @@
-/* SPA monitorVE — hash router, dark minimalist editorial (ADR 0002).
-   Lee de /api/* (web/api.js). Escritura (resolución) = Supabase (S10). */
+/* monitorVE — consola situacional (ADR 0003). El mapa es la app. Leaflet global (L).
+   Densidad sobre estética · marcadores tipados por _kind · degradación elegante (útil con cero datos). */
 import { get } from "./api.js";
 
-const PILARES = [
-  { id: "panel", t: "Panel vital", d: "Contactos de urgencia", ready: true },
-  { id: "personas", t: "Personas", d: "Buscar desaparecidos / localizados", slice: "S8" },
-  { id: "directorio", t: "Centros y donaciones", d: "Dónde ayudar y a dónde donar", slice: "S4" },
-  { id: "mapa", t: "Mapa del país", d: "Daños y centros por estado", slice: "S2" },
-  { id: "servicios", t: "Servicios", d: "Telemedicina, apoyo, estructural", ready: true },
-  { id: "tablero", t: "Tablero", d: "Cifras y réplicas", ready: true }
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const dial = (s) => "tel:" + String(s).replace(/[^0-9*#+]/g, "");
+const MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+function hace(iso) {
+  if (!iso) return "sin datos";
+  if (iso === "curado") return "curado";
+  const t = new Date(iso).getTime(); if (isNaN(t)) return esc(iso);
+  const m = Math.round((Date.now() - t) / 60000);
+  if (m < 1) return "ahora"; if (m < 60) return `hace ${m} min`;
+  const h = Math.round(m / 60); if (h < 24) return `hace ${h} h`;
+  const d = new Date(iso); return `${d.getUTCDate()} ${MES[d.getUTCMonth()]}`;
+}
+function frescura(iso) {
+  if (!iso || iso === "curado") return iso === "curado" ? "fresh" : "none";
+  const m = (Date.now() - new Date(iso).getTime()) / 60000;
+  if (isNaN(m)) return "none";
+  return m < 60 ? "fresh" : m < 360 ? "aging" : "stale";
+}
+const el = (id) => document.getElementById(id);
+
+/* Capas: cada _kind con símbolo/color propio. Capa apagada = sin fetch (worldmonitor). */
+const LAYERS = [
+  { key: "epicentro", label: "Epicentros", endpoint: "eventos", color: "#e5484d", sym: "★", on: true, rings: true },
+  { key: "replica", label: "Réplicas", endpoint: "replicas", color: "#e0a33e", sym: "●", on: true },
+  { key: "acopio", label: "Centros de acopio", endpoint: "centros", color: "#4c8dff", sym: "▣", on: false },
+  { key: "refugio", label: "Refugios", endpoint: "refugios", color: "#3fb27f", sym: "⌂", on: false },
+  { key: "dano", label: "Daños", endpoint: "danos", color: "#b5179e", sym: "▲", on: false },
+  { key: "hospital", label: "Hospitales", endpoint: "hospitales", color: "#e6e9ef", sym: "＋", on: false }
 ];
 
-const PATHS = {
-  back: "M15 18l-6-6 6-6",
-  phone: "M22 16.9v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 3 5.2 2 2 0 0 1 5 3h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L9 10.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.8 2z",
-  chevron: "M9 18l6-6-6-6"
-};
-const ico = (n) => `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${PATHS[n]}"/></svg>`;
-const dial = (s) => "tel:" + String(s).replace(/[^0-9*#+]/g, "");
-const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
-const fmtFecha = (iso) => { const d = new Date(iso); return isNaN(d) ? esc(iso) : `${d.getUTCDate()} ${MES[d.getUTCMonth()]}`; };
+const state = { map: null, groups: {}, loaded: {}, health: {} };
 
-const TIPO_LABEL = { telemedicina: "Telemedicina", psicologico: "Apoyo psicológico", estructural: "Ingeniería estructural", legal: "Legal", transporte: "Transporte", veterinaria: "Veterinaria" };
-function srvRow(it) {
-  const phone = !!it.contacto;
-  const href = phone ? dial(it.contacto) : it.link || "#";
-  const ext = phone ? "" : ' target="_blank" rel="noopener"';
-  const right = phone ? `<span class="num">${esc(it.contacto)}</span>` : `<span class="go">${ico("chevron")}</span>`;
-  return `<a class="row" href="${href}"${ext}>
-    <span class="row-ic">${ico(phone ? "phone" : "chevron")}</span>
-    <span class="row-main"><b>${esc(it.titulo)}</b>${right}</span>
-    <span class="src">${esc(it.comoContactar)} · ${esc(it.fuenteOrigen)}</span>
-  </a>`;
+function initMap() {
+  const map = L.map("map", { zoomControl: true }).setView([8.4, -66.4], 6);
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    attribution: "© OpenStreetMap, © CARTO", subdomains: "abcd", maxZoom: 19
+  }).addTo(map);
+  state.map = map;
 }
 
-const root = () => document.getElementById("app");
-
-function shell(title, body, opts = {}) {
-  return `
-    <header class="hd">
-      ${opts.back ? `<a class="back" href="#/" aria-label="Volver">${ico("back")}</a>` : ""}
-      <div><h1>${esc(title)}</h1>${opts.sub ? `<p>${esc(opts.sub)}</p>` : ""}</div>
-    </header>
-    <main class="screen">${body}</main>
-    <footer class="ft">monitorVE · iniciativa comunitaria, <b>no oficial</b>. Verificá por tus medios.</footer>`;
-}
-
-const screens = {
-  home() {
-    const cards = PILARES.map((p) => `
-      <a class="card" href="#/${p.id}">
-        <div><b>${esc(p.t)}</b><small>${esc(p.d)}</small></div>
-        <span class="go">${p.ready ? ico("chevron") : `<i class="soon">${p.slice}</i>`}</span>
-      </a>`).join("");
-    return shell("monitorVE", `
-      <p class="lede">Índice de la crisis sísmica · 24-jun-2026.</p>
-      <div class="grid">${cards}</div>`, { sub: "¿Qué necesitás?" });
-  },
-
-  async panel() {
-    let items = [];
-    try { items = (await get("/api/panel-vital")).items || []; } catch { /* offline → lista vacía */ }
-    const rows = items.map((it) => `
-      <a class="row" href="${dial(it.contacto)}">
-        <span class="row-ic">${ico("phone")}</span>
-        <span class="row-main"><b>${esc(it.titulo)}</b><span class="num">${esc(it.contacto)}</span></span>
-        <span class="src">${esc(it.fuenteOrigen)} · verificado ${fmtFecha(it.verificadoEl)}</span>
-      </a>`).join("");
-    return shell("Panel vital", `
-      <p class="lede">Tocá para llamar. Líneas de emergencia.</p>
-      <div class="list">${rows || `<div class="empty">Sin contactos cargados.</div>`}</div>`,
-      { back: true, sub: "Contactos de urgencia" });
-  },
-
-  async tablero() {
-    let rep = { items: [], source: "", fetchedAt: null };
-    let oaf = { items: [] };
-    try { rep = await get("/api/replicas"); } catch { /* offline */ }
-    try { oaf = await get("/api/replicas-oaf"); } catch { /* offline */ }
-    const items = rep.items || [];
-    const last = items.slice(0, 8).map((r) => `
-      <div class="qrow"><span class="qmag">M${esc(r.payload?.mag ?? "?")}</span><span class="qplace">${esc(r.payload?.place || "—")}</span></div>`).join("");
-    const oafRows = (oaf.items || []).map((o) => `<div class="kv"><span>${esc(o.titulo)}</span><b>${esc(o.valor)}</b></div>`).join("");
-    return shell("Tablero", `
-      <div class="metric-card">
-        <div class="metric">${items.length}</div>
-        <div class="metric-lab">réplicas en la ventana${rep.source ? ` · ${esc(rep.source)}` : ""}</div>
-        ${rep.fetchedAt ? `<div class="src">actualizado ${fmtFecha(rep.fetchedAt)}</div>` : ""}
-      </div>
-      ${oafRows ? `<div class="section">Pronóstico (USGS OAF)</div><div class="card kvs">${oafRows}</div>` : ""}
-      ${items.length ? `<div class="section">Últimas réplicas</div><div class="card">${last}</div>`
-        : `<div class="empty">Sin réplicas en la ventana, o la fuente no está disponible ahora.</div>`}`,
-      { back: true, sub: "Cifras y réplicas" });
-  },
-
-  async servicios() {
-    let items = [];
-    try { items = (await get("/api/servicios")).items || []; } catch { /* offline */ }
-    const groups = {};
-    for (const it of items) (groups[it.tipo] ||= []).push(it);
-    const body = Object.keys(groups).map((tp) => `
-      <div class="section">${esc(TIPO_LABEL[tp] || tp)}</div>
-      <div class="list">${groups[tp].map(srvRow).join("")}</div>`).join("")
-      || `<div class="empty">Sin servicios cargados.</div>`;
-    return shell("Servicios", body, { back: true, sub: "Cómo contactarlos" });
-  },
-
-  soon(p) {
-    return shell(p.t, `<div class="empty">${esc(p.d)}.<br><span class="soon-lg">En construcción · ${p.slice}</span></div>`, { back: true });
+function addMarker(group, def, item) {
+  const c = item.coords; if (!c || c.lat == null || c.lng == null) return false;
+  const mag = item.payload?.mag;
+  const isEpi = def.key === "epicentro";
+  // Marcador tipado: el glifo del _kind (coincide con la leyenda), tamaño ≈ magnitud.
+  const size = isEpi ? Math.max(20, (mag || 6) * 3) : Math.max(13, (mag || 4) * 2.4);
+  const icon = L.divIcon({
+    className: "mk",
+    html: `<span style="color:${def.color};font-size:${size}px">${def.sym}</span>`,
+    iconSize: [size, size], iconAnchor: [size / 2, size / 2]
+  });
+  const m = L.marker([c.lat, c.lng], { icon, title: item.payload?.place || def.label });
+  m.on("click", () => showDetail(def, item));
+  m.addTo(group);
+  if (def.rings && item.payload?.ring_km) {
+    L.circle([c.lat, c.lng], { radius: item.payload.ring_km * 1000, color: def.color, weight: 1, fill: false, dashArray: "4 6", opacity: 0.5 }).addTo(group);
   }
-};
-
-async function render() {
-  const id = location.hash.replace(/^#\/?/, "") || "home";
-  if (id === "home") return void (root().innerHTML = screens.home());
-  if (screens[id]) return void (root().innerHTML = await screens[id]());
-  const p = PILARES.find((x) => x.id === id);
-  root().innerHTML = p ? screens.soon(p) : screens.home();
+  return true;
 }
 
-window.addEventListener("hashchange", render);
-render();
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+async function loadLayer(def) {
+  if (state.loaded[def.key]) return state.loaded[def.key];
+  let body = { items: [] };
+  try { body = await get("/api/" + def.endpoint); } catch { /* offline → vacío */ }
+  const items = body.items || [];
+  const group = L.layerGroup();
+  let plotted = 0;
+  for (const it of items) if (addMarker(group, def, it)) plotted++;
+  state.groups[def.key] = group;
+  state.loaded[def.key] = { items, plotted, fetchedAt: body.fetchedAt || (def.endpoint === "eventos" ? "curado" : null) };
+  state.health[def.key] = state.loaded[def.key];
+  return state.loaded[def.key];
+}
+
+async function toggleLayer(def, on) {
+  if (!on) { if (state.groups[def.key]) state.map.removeLayer(state.groups[def.key]); return null; }
+  const r = await loadLayer(def);
+  state.groups[def.key].addTo(state.map);
+  return r;
+}
+
+async function renderKPIs() {
+  let crisis = { items: [] }, oaf = { items: [] }, rep = { items: [] };
+  try { crisis = await get("/api/crisis"); } catch {}
+  try { oaf = await get("/api/replicas-oaf"); } catch {}
+  try { rep = await get("/api/replicas"); } catch {}
+  const kpis = [];
+  for (const it of crisis.items || []) {
+    const cls = it.k === "Fallecidos" ? "k-crit" : it.k === "Heridos" ? "k-warn" : "";
+    kpis.push(`<div class="kpi" title="${esc(it.fuente)} · ${esc(it.nota || "")}"><b class="${cls}">${esc(it.v)}</b><small>${esc(it.k)}</small></div>`);
+  }
+  kpis.push(`<div class="kpi"><b class="k-warn">${(rep.items || []).length}</b><small>Réplicas (ventana)</small></div>`);
+  for (const o of oaf.items || []) kpis.push(`<div class="kpi"><b class="k-info">${esc(o.valor)}</b><small>${esc(o.titulo)}</small></div>`);
+  kpis.push(`<div class="kpi"><b>${hace(rep.fetchedAt)}</b><small>Actualizado</small></div>`);
+  el("kpis").innerHTML = kpis.join("");
+}
+
+function renderLeft() {
+  const rows = LAYERS.map((d) => `
+    <label class="layer">
+      <input type="checkbox" data-layer="${d.key}" ${d.on ? "checked" : ""}>
+      <span class="sym" style="color:${d.color}">${d.sym}</span>
+      <span class="lname">${esc(d.label)}</span>
+      <span class="lcount" id="lc-${d.key}">—</span>
+    </label>`).join("");
+  el("left").innerHTML = `<h3>Capas</h3>${rows}
+    <h3>Leyenda</h3>
+    <div class="lede" style="font-size:12px">Tamaño del punto ≈ magnitud. Anillo punteado = estimación de área afectada (epicentros). Cada dato lleva su fuente.</div>`;
+  el("left").querySelectorAll("input[data-layer]").forEach((inp) => {
+    inp.addEventListener("change", async (e) => {
+      const def = LAYERS.find((x) => x.key === e.target.dataset.layer);
+      const r = await toggleLayer(def, e.target.checked);
+      if (r) el("lc-" + def.key).textContent = r.plotted + (r.items.length > r.plotted ? `/${r.items.length}` : "");
+      renderSources();
+    });
+  });
+}
+
+async function renderFeed() {
+  let rep = { items: [] };
+  try { rep = await get("/api/replicas"); } catch {}
+  const items = (rep.items || []).slice(0, 12);
+  const body = items.length
+    ? items.map((r) => `<div class="feed-item"><span class="feed-mag">M${esc(r.payload?.mag ?? "?")}</span> ${esc(r.payload?.place || "—")}<div class="src">${esc(r.sourceId)} · ${hace(r.payload?.time || r.fetchedAt)}</div></div>`).join("")
+    : `<div class="empty">Sin actividad sísmica en la ventana, o la fuente no está disponible ahora.</div>`;
+  el("right").innerHTML = `<h3>Feed · últimas réplicas</h3>${body}`;
+}
+
+function showDetail(def, item) {
+  const p = item.payload || {};
+  const rows = [];
+  if (p.mag != null) rows.push(["Magnitud", "M" + p.mag]);
+  if (p.depth != null) rows.push(["Profundidad", p.depth + " km"]);
+  if (p.place) rows.push(["Lugar", p.place]);
+  if (p.time) rows.push(["Hora", p.time]);
+  if (item.coords) rows.push(["Coords", `${item.coords.lat}, ${item.coords.lng}`]);
+  const src = item.fuenteOrigen || item.sourceId || "—";
+  el("right").innerHTML = `
+    <div class="detail">
+      <h4><span style="color:${def.color}">${def.sym}</span> ${esc(def.label.replace(/s$/, ""))}</h4>
+      <div class="card">${rows.map(([k, v]) => `<div class="kv"><span class="k">${esc(k)}</span><span class="v">${esc(v)}</span></div>`).join("")}</div>
+      ${item.nota ? `<div class="src" style="margin-top:8px">${esc(item.nota)}</div>` : ""}
+      <div class="src">Fuente: ${esc(src)}${item.verificadoEl ? ` · verificado ${esc(item.verificadoEl)}` : ""}</div>
+      <button class="tbtn" style="margin-top:12px" id="back-feed">← Volver al feed</button>
+    </div>`;
+  el("back-feed").addEventListener("click", renderFeed);
+  if (item.coords) state.map.panTo([item.coords.lat, item.coords.lng]);
+}
+
+function renderSources() {
+  const parts = LAYERS.map((d) => {
+    const h = state.health[d.key];
+    let cls = "none", txt = "sin cargar";
+    if (h) {
+      if (h.fetchedAt === "curado") { cls = "fresh"; txt = "curado"; }
+      else if (!h.items.length) { cls = "none"; txt = "sin datos"; }
+      else { cls = frescura(h.fetchedAt); txt = hace(h.fetchedAt); }
+    }
+    return `<span class="shealth"><span class="dot ${cls}"></span>${esc(d.label)}: ${txt}</span>`;
+  });
+  el("sources").innerHTML = `<span class="shealth"><b>Fuentes</b></span>` + parts.join("");
+}
+
+function openSheet(title, html) {
+  const ov = el("overlay");
+  ov.innerHTML = `<div class="sheet"><div class="sheet-hd"><b>${esc(title)}</b><button class="x" aria-label="Cerrar">×</button></div>${html}</div>`;
+  ov.hidden = false;
+  ov.querySelector(".x").onclick = () => (ov.hidden = true);
+  ov.onclick = (e) => { if (e.target === ov) ov.hidden = true; };
+}
+async function openPanelVital() {
+  let items = []; try { items = (await get("/api/panel-vital")).items || []; } catch {}
+  const rows = items.map((it) => `<a class="row" href="${dial(it.contacto)}"><span class="row-main"><b>${esc(it.titulo)}</b><span class="num">${esc(it.contacto)}</span></span><span class="src">${esc(it.fuenteOrigen)} · verificado ${esc(it.verificadoEl)}</span></a>`).join("");
+  openSheet("Panel vital", `<div class="list">${rows || `<div class="empty">Sin contactos.</div>`}</div>`);
+}
+async function openServicios() {
+  let items = []; try { items = (await get("/api/servicios")).items || []; } catch {}
+  const rows = items.map((it) => {
+    const ph = !!it.contacto; const href = ph ? dial(it.contacto) : it.link || "#"; const ext = ph ? "" : ' target="_blank" rel="noopener"';
+    return `<a class="row" href="${href}"${ext}><span class="row-main"><b>${esc(it.titulo)}</b>${ph ? `<span class="num">${esc(it.contacto)}</span>` : ""}</span><span class="src">${esc(it.comoContactar)} · ${esc(it.fuenteOrigen)}</span></a>`;
+  }).join("");
+  openSheet("Servicios", `<div class="list">${rows || `<div class="empty">Sin servicios.</div>`}</div>`);
+}
+
+function renderTopnav() {
+  el("topnav").innerHTML = `
+    <button class="tbtn only-mobile" id="nav-left">☰ Capas</button>
+    <button class="tbtn only-mobile" id="nav-right">Feed</button>
+    <button class="tbtn" id="nav-panel">Panel vital</button>
+    <button class="tbtn" id="nav-serv">Servicios</button>`;
+  el("nav-panel").onclick = openPanelVital;
+  el("nav-serv").onclick = openServicios;
+  el("nav-left").onclick = () => { document.body.classList.remove("show-right"); document.body.classList.toggle("show-left"); };
+  el("nav-right").onclick = () => { document.body.classList.remove("show-left"); document.body.classList.toggle("show-right"); };
+}
+
+async function boot() {
+  initMap();
+  renderLeft();
+  renderTopnav();
+  await Promise.all([renderKPIs(), renderFeed()]);
+  for (const d of LAYERS.filter((x) => x.on)) {
+    const r = await toggleLayer(d, true);
+    if (r) el("lc-" + d.key).textContent = r.plotted + (r.items.length > r.plotted ? `/${r.items.length}` : "");
+  }
+  renderSources();
+  setTimeout(() => state.map && state.map.invalidateSize(), 200);
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+boot();

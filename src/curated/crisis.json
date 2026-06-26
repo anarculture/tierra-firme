@@ -1,0 +1,8 @@
+{
+  "_doc": "KPIs de la crisis para la barra de estado. Cifras preliminares CON rango+fuente+fecha (nunca un absoluto que insinúe conteo oficial). Réplicas y OAF se suman dinámicamente en la UI.",
+  "items": [
+    { "k": "Fallecidos", "v": "164–235", "fuente": "Protección Civil / Min. Salud", "fecha": "2026-06-26", "nota": "preliminar" },
+    { "k": "Heridos", "v": "~1.520", "fuente": "autoridades", "fecha": "2026-06-26", "nota": "preliminar" },
+    { "k": "Desaparecidos", "v": "variable", "fuente": "plataformas ciudadanas", "fecha": "2026-06-26", "nota": "sin dedup cross-source — ver Personas" }
+  ]
+}
