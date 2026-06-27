@@ -25,6 +25,27 @@ test("geocode: estado Miranda sin red → fallback de estado", async () => {
   assert.ok(inVE(coords.lat, coords.lng), `Miranda fuera de bbox: ${JSON.stringify(coords)}`);
 });
 
+test("geocode: dirección no resuelve → cae a nivel municipio (no a estado)", async () => {
+  const realFetch = global.fetch;
+  // fake: la query con dirección no encuentra nada; la query solo-municipio sí.
+  global.fetch = async (url) => ({
+    ok: true,
+    json: async () => (/landmark/i.test(url) ? [] : [{ lat: "10.5", lon: "-66.9" }]),
+  });
+  try {
+    const cache = {};
+    const coords = await geocode("Calle landmark frente a X", "Miranda", "Sucre", cache, {
+      state: { networkDown: false },
+    });
+    assert.equal(coords.source, "municipio");
+    assert.equal(coords.confidence, "media");
+    assert.ok(inVE(coords.lat, coords.lng), `municipio fuera de bbox: ${JSON.stringify(coords)}`);
+    assert.ok(cache["__muni__|miranda|sucre"], "debe cachear el municipio");
+  } finally {
+    global.fetch = realFetch;
+  }
+});
+
 test("geocode: cache hit se devuelve tal cual", async () => {
   const cache = {};
   const c1 = await geocode("Dir X", "Miranda", "Sucre", cache, { state: { networkDown: true } });

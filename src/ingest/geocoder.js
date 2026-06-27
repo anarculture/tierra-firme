@@ -1,5 +1,5 @@
 /* Geocodificación de centros de acopio (AyudaVE los entrega con coords:null).
-   Cascada: cache → Nominatim (OSM) → centroide de estado → null.
+   Cascada: cache → Nominatim (dirección → municipio) → centroide de estado → null.
    Nominatim: 1 req/s, User-Agent obligatorio, su ToS EXIGE cachear (data/geocode-cache.json).
    Degrada con gracia: si Nominatim no responde, usa el centroide de estado — el flujo NO depende de la red.
    La llamada en vivo a Nominatim es opt-in via env GEOCODE_NOMINATIM=1 (por defecto OFF: todo cae a
@@ -25,6 +25,10 @@ const normEstado = (s) => String(s || "").replace(/\(.*?\)/g, "").trim().toLower
 // Construye la clave de cache de una dirección (estable entre corridas).
 export const makeKey = (estado, municipio, address) =>
   `${estado}|${municipio}|${address}`.toLowerCase().trim();
+
+// Clave de cache a nivel municipio (compartida por todos los centros del mismo municipio).
+const muniKey = (estado, municipio) =>
+  `__muni__|${normEstado(estado)}|${String(municipio || "").toLowerCase().trim()}`;
 
 let _centroids = null; // cache en memoria
 let _normIndex = null; // nombre-normalizado → {lat,lng}
@@ -73,7 +77,8 @@ async function queryNominatim(address, estado, municipio) {
   return { lat, lng };
 }
 
-/** Geocodifica una dirección. Cascada: cache → Nominatim → centroide de estado → null.
+/** Geocodifica una dirección. Cascada: cache → Nominatim(dirección) → Nominatim(municipio)
+ *  → centroide de estado → null.
  *  @param {object} cache  mapa key→coords (mutable; se persiste en enrichCentros)
  *  @param {{networkDown?:boolean,calledNominatim?:boolean}} opts.state  estado compartido del batch
  *  @returns {Promise<{lat:number,lng:number,source:string,confidence:string}|null>} */
@@ -89,6 +94,23 @@ export async function geocode(address, estado, municipio, cache = {}, opts = {})
         const coords = { lat: hit.lat, lng: hit.lng, source: "nominatim", confidence: "alta" };
         cache[key] = coords;
         return coords;
+      }
+      // Dirección exacta no resolvió (landmark / "frente a" / sin número). Cae a nivel municipio:
+      // el centro del municipio es mucho mejor que el del estado entero. Cacheado por municipio
+      // → 1 sola petición por municipio aunque lo compartan decenas de centros.
+      if (municipio) {
+        const mk = muniKey(estado, municipio);
+        let mc = cache[mk];
+        if (!mc) {
+          if (state?.calledNominatim) await sleep(1000); // 2da petición del batch → respeta 1 req/s
+          const mhit = await queryNominatim(null, estado, municipio);
+          if (state) state.calledNominatim = true;
+          if (mhit) {
+            mc = { lat: mhit.lat, lng: mhit.lng, source: "municipio", confidence: "media" };
+            cache[mk] = mc;
+          }
+        }
+        if (mc) return { ...mc };
       }
     } catch {
       if (state) state.networkDown = true; // sin red → fallback para el resto del batch
@@ -111,7 +133,7 @@ export async function enrichCentros(centros, cacheFile = DEFAULT_CACHE) {
 
   const nominatimEnabled = process.env.GEOCODE_NOMINATIM === "1";
   const state = { networkDown: !nominatimEnabled, calledNominatim: false };
-  const counts = { nominatim: 0, cache: 0, estado: 0, sinCoords: 0, ya: 0 };
+  const counts = { nominatim: 0, municipio: 0, cache: 0, estado: 0, sinCoords: 0, ya: 0 };
 
   for (const centro of centros) {
     if (centro.coords) { counts.ya++; continue; }
@@ -124,6 +146,7 @@ export async function enrichCentros(centros, cacheFile = DEFAULT_CACHE) {
     if (!coords) counts.sinCoords++;
     else if (wasCached) counts.cache++;
     else if (coords.source === "nominatim") counts.nominatim++;
+    else if (coords.source === "municipio") counts.municipio++;
     else counts.estado++;
     if (state.calledNominatim) await sleep(1000); // ToS Nominatim: máx 1 req/s
   }
@@ -134,7 +157,7 @@ export async function enrichCentros(centros, cacheFile = DEFAULT_CACHE) {
   } catch (e) { console.warn("  ! geocode-cache no persistido: " + e.message); }
 
   console.log(
-    `  geocode: nominatim=${counts.nominatim} cache=${counts.cache} estado=${counts.estado} sin-coords=${counts.sinCoords}` +
+    `  geocode: nominatim=${counts.nominatim} municipio=${counts.municipio} cache=${counts.cache} estado=${counts.estado} sin-coords=${counts.sinCoords}` +
       (state.networkDown ? (nominatimEnabled ? " (nominatim caído → fallback)" : " (nominatim off)") : "")
   );
   return centros;
