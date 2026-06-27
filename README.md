@@ -4,7 +4,12 @@
 Agrega, deduplica y destila lo que otras webs ya recolectan; añade panel vital, catálogo de
 servicios y pronóstico de réplicas. **No es fuente oficial.**
 
-> **Estado: SCAFFOLD.** Solo shells con `TODO(Sx)`. La implementación la mapea `/dudamel` → `BUILD.md`.
+> **Estado.** `main` integra: UI mobile, intake (buzón Telegram/WhatsApp), capa de escritura
+> Supabase (F0) y panel de revisión del operador → publica sitreps (P1). El bot de respuestas v2
+> (Cayapa) está **en curso** en la rama `feat/bot-v2-respuestas` (WIP, pendiente `/security-review`).
+>
+> **Llegaste nuevo?** Empieza por `npm test` (debe estar verde) y lee **`docs/WORKFLOW.md`** para el
+> flujo multi-agente (1 rama `agent/<slice>` ↔ 1 issue; GitHub Issues = fuente de verdad).
 
 ## Decisiones de estructura (ley)
 Ver `CONTEXT.md`, `docs/adr/`, `CATALOGO-y-PLAN.md` y el plan en `~/.claude/plans/`.
