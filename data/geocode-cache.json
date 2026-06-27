@@ -232,5 +232,317 @@
     "lng": -64.6388381,
     "source": "nominatim",
     "confidence": "alta"
+  },
+  "__muni__|bolívar|bolívar": {
+    "lat": 8.1028532,
+    "lng": -63.5469562,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|falcón|punto fijo": {
+    "lat": 11.6931716,
+    "lng": -70.1917178,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|bolívar|ciudad guayana": {
+    "lat": 8.3223763,
+    "lng": -62.6896622,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|anzoátegui|barcelona": {
+    "lat": 10.1325951,
+    "lng": -64.6819583,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|anzoátegui|anzoategui": {
+    "lat": 10.1799801,
+    "lng": -64.6562206,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|zulia|cabimas": {
+    "lat": 10.395075,
+    "lng": -71.4414049,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|distrito capital|caracas": {
+    "lat": 10.5060934,
+    "lng": -66.9146008,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|anzoátegui|pariaguan": {
+    "lat": 8.844488,
+    "lng": -64.7141001,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|zulia|maracaibo": {
+    "lat": 10.6498095,
+    "lng": -71.6443596,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|miranda|baruta": {
+    "lat": 10.4350067,
+    "lng": -66.8734682,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|táchira|san cristóbal": {
+    "lat": 7.7756663,
+    "lng": -72.2214154,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|bolívar|upata": {
+    "lat": 8.0073377,
+    "lng": -62.3977917,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|zulia|ciudad ojeda, zulia": {
+    "lat": 10.2004123,
+    "lng": -71.3100065,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|carabobo|valencia": {
+    "lat": 10.170026,
+    "lng": -68.0003987,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|anzoátegui|el tigre anzoategui": {
+    "lat": 8.8708586,
+    "lng": -64.2627093,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|lara|barquisimeto": {
+    "lat": 10.0774374,
+    "lng": -69.3222293,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|lara|cabudare": {
+    "lat": 10.0260507,
+    "lng": -69.2436557,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|táchira|táchira": {
+    "lat": 7.809267,
+    "lng": -72.4444077,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|anzoátegui|el tigre": {
+    "lat": 8.8862119,
+    "lng": -64.2488754,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|la guaira|vargas": {
+    "lat": 10.6158785,
+    "lng": -66.8441127,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|barinas|barinas": {
+    "lat": 8.6182737,
+    "lng": -70.2274065,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|miranda|miranda": {
+    "lat": 10.497338,
+    "lng": -66.8414055,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__||varios": {
+    "lat": 10.2129422,
+    "lng": -67.4851098,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|miranda|miranda, cristobal rojas": {
+    "lat": 10.2460394,
+    "lng": -66.8570693,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|miranda|miranda, independencia": {
+    "lat": 10.3409506,
+    "lng": -67.0410982,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|bolívar|bolivar, municipio piar": {
+    "lat": 8.0168512,
+    "lng": -62.4057702,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|miranda|miranda, baruta": {
+    "lat": 10.4397933,
+    "lng": -66.8703491,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|bolívar|bolivar, municipio caroni": {
+    "lat": 8.3698891,
+    "lng": -62.6633347,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|aragua|la victoria": {
+    "lat": 10.2276838,
+    "lng": -67.3246357,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|bolívar|bolivar, municipio heres": {
+    "lat": 8.1028532,
+    "lng": -63.5469562,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|anzoátegui|el tigrito (guanipa)": {
+    "lat": 8.8859812,
+    "lng": -64.1505038,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|anzoátegui|puerto la cruz": {
+    "lat": 10.2028617,
+    "lng": -64.6307626,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|carabobo|puerto cabello": {
+    "lat": 10.4677932,
+    "lng": -68.0436682,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|anzoátegui|anzoategui , barcelona": {
+    "lat": 10.1073096,
+    "lng": -64.6899227,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|bolívar|caroní": {
+    "lat": 8.2882238,
+    "lng": -62.7186398,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|bolívar|ciudad bolívar": {
+    "lat": 8.1028532,
+    "lng": -63.5469562,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|aragua|maracay": {
+    "lat": 10.2375144,
+    "lng": -67.5890216,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__||moron": {
+    "lat": 10.4861731,
+    "lng": -68.2027171,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|monagas|monagas": {
+    "lat": 9.7497132,
+    "lng": -63.153082,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__||tinaquillo": {
+    "lat": 9.9177602,
+    "lng": -68.3075027,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|miranda|el hatillo": {
+    "lat": 10.4236769,
+    "lng": -66.825252,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|monagas|maturín": {
+    "lat": 9.7422774,
+    "lng": -63.1888854,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|trujillo|trujillo": {
+    "lat": 9.3688567,
+    "lng": -70.4334599,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|mérida|mérida": {
+    "lat": 8.5816963,
+    "lng": -71.1658075,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|táchira|san antonio": {
+    "lat": 7.7952554,
+    "lng": -72.0655099,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|táchira|tariba": {
+    "lat": 7.8208151,
+    "lng": -72.2228003,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|trujillo|valera": {
+    "lat": 9.3148173,
+    "lng": -70.6081655,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|carabobo|san diego": {
+    "lat": 10.2299896,
+    "lng": -67.9617968,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|bolívar|puerto ordaz": {
+    "lat": 8.2750351,
+    "lng": -62.7558263,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|anzoátegui|anzoátegui": {
+    "lat": 10.1799801,
+    "lng": -64.6562206,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|zulia|sierra maestra, san francisco, zulia": {
+    "lat": 10.5818947,
+    "lng": -71.6352958,
+    "source": "municipio",
+    "confidence": "media"
+  },
+  "__muni__|miranda|caracas (el hatillo)": {
+    "lat": 10.4282748,
+    "lng": -66.8403174,
+    "source": "municipio",
+    "confidence": "media"
   }
 }
