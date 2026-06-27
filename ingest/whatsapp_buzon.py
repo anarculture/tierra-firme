@@ -16,11 +16,12 @@ Uso:
 ponytail: intake abierto (cualquiera que escriba al número entra). Si hay spam,
 filtra por wa_id. Server síncrono stdlib — el volumen de crisis no necesita async.
 """
-import hashlib, hmac, json, os, sys, urllib.request
+import hashlib, hmac, json, os, re, sys, urllib.request
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 from inbox import INBOX, MEDIA, append  # contrato del inbox compartido
+from reply import maybe_reply  # v2: responde si REPLY_ENABLED (default off)
 
 VERIFY_TOKEN = os.environ.get("WA_VERIFY_TOKEN", "")
 TOKEN = os.environ.get("WA_TOKEN", "")
@@ -106,6 +107,11 @@ class Handler(BaseHTTPRequestHandler):
                     for rec in parse_meta(change.get("value", {})):
                         append(rec)
                         print(f"  + {rec['ts'][11:16]} {rec['from']}: {rec['kind']} {(rec['text'] or '')[:50]}")
+                        # from = "Nombre (telefono)" | "telefono"; el paréntesis es el wa_id exacto
+                        m = re.search(r"\((\d{6,})\)", rec["from"] or "") or re.fullmatch(r"\d{6,}", rec["from"] or "")
+                        if m:
+                            audio = os.path.join(INBOX, rec["media"]) if rec["media"] and rec["kind"] in ("voice", "audio") else None
+                            maybe_reply(rec["text"], "whatsapp", m.group(1) if m.groups() else m.group(0), audio)
         except Exception as e:  # ponytail: descarga síncrona; si Meta reintentó, puede duplicar línea — dedup luego
             print("error procesando webhook:", e)
 

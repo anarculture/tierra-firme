@@ -17,6 +17,7 @@ endpoint público. Sin transcripción acá: guarda el .ogg; /sitrep lo transcrib
 import json, os, sys, time, urllib.parse, urllib.request
 from datetime import datetime, timezone
 from inbox import INBOX, MEDIA, append  # contrato del inbox compartido
+from reply import maybe_reply  # v2: responde si REPLY_ENABLED (default off)
 
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 BASE = f"https://api.telegram.org/bot{TOKEN}"
@@ -87,6 +88,8 @@ def poll():
             if msg:
                 rec = record(msg)
                 append(rec)
+                audio = os.path.join(INBOX, rec["media"]) if rec["media"] and rec["kind"] in ("voice", "audio") else None
+                maybe_reply(rec["text"], "telegram", msg.get("chat", {}).get("id"), audio)
                 snippet = (rec["text"] or "")[:50]
                 print(f"  + {rec['ts'][11:16]} {rec['from']}: {rec['kind']} {snippet}")
             os.makedirs(INBOX, exist_ok=True)
