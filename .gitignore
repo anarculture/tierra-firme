@@ -8,3 +8,8 @@ dist/
 *.log
 .DS_Store
 .claude/
+
+# PII / tooling — repo público, nunca pushear
+.codegraph/
+docs/WhatsApp Chat*/
+docs/puntos_ayuda_live_db.csv
