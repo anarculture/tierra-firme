@@ -44,17 +44,21 @@ def send_whatsapp(to, text):
         return r.status
 
 
-def maybe_reply(text, channel, dest, audio_path=None):
+def maybe_reply(text, channel, dest, audio_path=None, image_path=None):
     """Si REPLY_ENABLED, responde por el canal: consulta de acopio (responder) o,
-    si no, el eco destilado del mensaje (destilador). Audio sin texto se transcribe.
+    si no, el eco destilado del mensaje (destilador). Audio sin texto se transcribe;
+    foto sin texto la lee el VLM (destila_imagen ya da el acuse, no re-destila).
     channel: 'telegram'|'whatsapp'; dest: chat_id|wa_id. Devuelve el reply o None."""
     if not REPLY_ENABLED:
         return None
     try:  # la capa de respuesta NUNCA debe tumbar el buzón de intake
-        if (not text or not text.strip()) and audio_path:
-            from transcribe import transcribe  # lazy: whisper solo si llega audio
-            text = transcribe(audio_path)
-        reply = responder.responder(text) or destilador.destila(text)
+        if (not text or not text.strip()) and image_path:
+            reply = destilador.destila_imagen(image_path)  # foto: el VLM ya da el acuse
+        else:
+            if (not text or not text.strip()) and audio_path:
+                from transcribe import transcribe  # lazy: whisper solo si llega audio
+                text = transcribe(audio_path)
+            reply = responder.responder(text) or destilador.destila(text)
         if not reply:
             return None
         if channel == "telegram":
@@ -87,6 +91,11 @@ def selftest():
     sent.clear()
     out = maybe_reply("falta agua en Catia", "telegram", 7)
     assert out and "Recibido" in out and sent[-1][:2] == ("tg", 7), (out, sent)
+    # foto sin texto -> VLM da el acuse directo (no pasa por responder/destila)
+    destilador.destila_imagen = lambda p: "✅ Recibido — daño (sin verificar)" if p else None
+    sent.clear()
+    out = maybe_reply(None, "telegram", 5, None, "/x.jpg")
+    assert out and "Recibido" in out and sent[-1][:2] == ("tg", 5), (out, sent)
     # nada útil -> ni responder ni destila -> sin envío
     sent.clear()
     assert maybe_reply("hola buenas", "telegram", 1) is None and not sent

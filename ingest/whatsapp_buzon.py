@@ -112,7 +112,8 @@ class Handler(BaseHTTPRequestHandler):
                         m = re.search(r"\((\d{6,})\)", rec["from"] or "") or re.fullmatch(r"\d{6,}", rec["from"] or "")
                         if m:
                             audio = os.path.join(INBOX, rec["media"]) if rec["media"] and rec["kind"] in ("voice", "audio") else None
-                            maybe_reply(rec["text"], "whatsapp", m.group(1) if m.groups() else m.group(0), audio)
+                            image = os.path.join(INBOX, rec["media"]) if rec["media"] and rec["kind"] == "photo" else None
+                            maybe_reply(rec["text"], "whatsapp", m.group(1) if m.groups() else m.group(0), audio, image)
         except Exception as e:  # ponytail: descarga síncrona; si Meta reintentó, puede duplicar línea — dedup luego
             print("error procesando webhook:", e)
 

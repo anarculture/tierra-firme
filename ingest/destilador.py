@@ -15,7 +15,7 @@ Uso:
   GEMINI_API_KEY=... python3 destilador.py "hay falta de agua en Catia, pásenlo"
   python3 destilador.py --selftest   # sin red
 """
-import json, os, sys, urllib.request
+import base64, json, os, sys, urllib.request
 
 API_KEY = os.environ.get("GEMINI_API_KEY", "")
 BASE = os.environ.get("ECHO_BASE_URL", "https://generativelanguage.googleapis.com/v1beta")
@@ -28,6 +28,16 @@ SYSTEM = (
     "quien lo envió: empezá con '✅ Recibido —' y cerrá con '(sin verificar)'. "
     "NO incluyas nombres ni teléfonos de personas. Si el mensaje NO trae información "
     "útil de crisis (saludo, spam, pregunta suelta), respondé exactamente: NADA"
+)
+
+# Español neutro (no voseo): el bot le habla a Venezuela, no a Argentina.
+VISION_SYSTEM = (
+    "Eres Tierra Firme, bot de la emergencia por el sismo en Venezuela. Te reenvían una "
+    "CAPTURA o FOTO (screenshot de WhatsApp, lista de acopio, daño). Transcribe el texto "
+    "legible y resume en 1-2 líneas qué necesidad o hecho de crisis muestra y la zona si "
+    "aparece. Es un acuse para quien lo envió: empieza con '✅ Recibido —' y cierra con "
+    "'(sin verificar)'. NO incluyas nombres ni teléfonos. Si no muestra info útil de "
+    "crisis, responde exactamente: NADA"
 )
 
 
@@ -55,8 +65,31 @@ def destila(text):
     return out
 
 
+def _chat_img(path):
+    """Gemini nativo generateContent con imagen inline → string. Lanza si falla."""
+    mime = "image/png" if path.lower().endswith(".png") else "image/jpeg"
+    b64 = base64.b64encode(open(path, "rb").read()).decode()
+    parts = [{"inline_data": {"mime_type": mime, "data": b64}}]
+    body = json.dumps({"systemInstruction": {"parts": [{"text": VISION_SYSTEM}]},
+                       "contents": [{"parts": parts}]}).encode()
+    req = urllib.request.Request(f"{BASE}/models/{MODEL}:generateContent?key={API_KEY}",
+                                 data=body, headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        data = json.load(r)
+    cands = data.get("candidates")
+    return "".join(p.get("text", "") for p in cands[0]["content"]["parts"]).strip() if cands else ""
+
+
+def destila_imagen(path):
+    """Foto/captura → eco 'esto entendí (sin verificar)', o None si no hay nada útil."""
+    if not path or not os.path.exists(path) or not API_KEY:
+        return None
+    out = _chat_img(path)
+    return None if not out or out.strip().rstrip(".").upper() == "NADA" else out
+
+
 def selftest():
-    global _chat, API_KEY
+    global _chat, _chat_img, API_KEY
     API_KEY = "x"
     _chat = lambda t: ("✅ Recibido — falta de agua en Catia (sin verificar)."
                        if "agua" in t.lower() else "NADA")
@@ -64,6 +97,13 @@ def selftest():
     assert r and "Catia" in r and "sin verificar" in r.lower(), r
     assert destila("hola buenas") is None           # _chat -> NADA -> None
     assert destila("") is None                       # vacío -> None (no llama LLM)
+    # imagen: __file__ existe (no abre red, _chat_img stub); rutas/NADA -> None
+    _chat_img = lambda p: "✅ Recibido — daño en edificio, Chacao (sin verificar)."
+    ri = destila_imagen(__file__)
+    assert ri and "Chacao" in ri, ri
+    _chat_img = lambda p: "NADA"
+    assert destila_imagen(__file__) is None          # NADA -> None
+    assert destila_imagen("/no/existe.jpg") is None   # ruta inexistente -> None (no llama LLM)
     API_KEY = ""
     assert destila("falta agua urgente") is None     # sin key -> None
     print("selftest OK")

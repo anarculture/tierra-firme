@@ -89,7 +89,8 @@ def poll():
                 rec = record(msg)
                 append(rec)
                 audio = os.path.join(INBOX, rec["media"]) if rec["media"] and rec["kind"] in ("voice", "audio") else None
-                maybe_reply(rec["text"], "telegram", msg.get("chat", {}).get("id"), audio)
+                image = os.path.join(INBOX, rec["media"]) if rec["media"] and rec["kind"] == "photo" else None
+                maybe_reply(rec["text"], "telegram", msg.get("chat", {}).get("id"), audio, image)
                 snippet = (rec["text"] or "")[:50]
                 print(f"  + {rec['ts'][11:16]} {rec['from']}: {rec['kind']} {snippet}")
             os.makedirs(INBOX, exist_ok=True)
