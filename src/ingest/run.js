@@ -6,6 +6,8 @@ import * as sismosve from "./sismosve.js";
 import * as usgs from "./usgs.js";
 import * as ayudave from "./ayudave.js";
 import * as terremoto from "./terremotovenezuela.js";
+import * as crisisvenezuela from "./crisisvenezuela.js";
+import * as ayudared from "./ayudaredve.js";
 import * as geocoder from "./geocoder.js";
 // acopiovenezuela: en pausa — sus centros ya entran vía AyudaVE (source: acopiovenezuela.vercel.app)
 // y no expone /api ni __NEXT_DATA__ estable. Re-activar si se confirma un endpoint.
@@ -31,12 +33,22 @@ async function buildCentros() {
 }
 
 async function buildDanos() {
-  const items = await safe(() => terremoto.fetchRegistros(), "terremotovenezuela");
-  return { categoria: "dano", source: "terremotovenezuela", items, fetchedAt: new Date().toISOString() };
+  // crisisvenezuela = daños corroborados (texto libre + procedencia); terremoto de fallback.
+  let items = await safe(() => crisisvenezuela.fetchRegistros(), "crisisvenezuela");
+  let source = "crisisvenezuela";
+  if (!items.length) { items = await safe(() => terremoto.fetchRegistros(), "terremotovenezuela (fallback)"); source = "terremotovenezuela"; }
+  return { categoria: "dano", source, items, fetchedAt: new Date().toISOString() };
+}
+
+async function buildDemanda() {
+  // Ayuda Venezuela Red: zonas + necesidades (DEMANDA estructurada, no verificada).
+  // Solo captura interna — NO se publica en el API público hasta resolver licencia.
+  const items = await safe(() => ayudared.fetchRegistros(), "ayuda-venezuela-red");
+  return { categoria: "zona", source: "ayuda-venezuela-red", items, fetchedAt: new Date().toISOString() };
 }
 
 // TODO(Sx): añadir builders restantes (personas, refugios, hospitales, mascotas) en sus slices.
-const BUNDLES = { replicas: buildReplicas, centros: buildCentros, danos: buildDanos };
+const BUNDLES = { replicas: buildReplicas, centros: buildCentros, danos: buildDanos, demanda: buildDemanda };
 
 async function main() {
   await mkdir(BUNDLE_DIR, { recursive: true });
