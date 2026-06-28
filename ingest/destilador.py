@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Destilador por-mensaje — el eco de Cayapa.
+"""Destilador por-mensaje — el eco de Tierra Firme.
 
 Dado el texto crudo de UN reenvío (cadena, reporte, audio ya transcrito), devuelve
 un acuse corto con lo que el bot entendió, marcado SIN VERIFICAR. Es la respuesta
@@ -22,7 +22,7 @@ BASE = os.environ.get("ECHO_BASE_URL", "https://generativelanguage.googleapis.co
 MODEL = os.environ.get("ECHO_MODEL", "gemini-2.5-flash-lite")
 
 SYSTEM = (
-    "Sos Cayapa, bot de la emergencia por el sismo en Venezuela. Alguien te reenvía "
+    "Sos Tierra Firme, bot de la emergencia por el sismo en Venezuela. Alguien te reenvía "
     "un mensaje crudo (cadena, reporte, o audio transcrito). Resumí en 1-2 líneas qué "
     "necesidad o hecho de crisis reporta y la zona si se menciona. Es un acuse para "
     "quien lo envió: empezá con '✅ Recibido —' y cerrá con '(sin verificar)'. "

@@ -1,59 +1,51 @@
-# monitorVE
+# Tierra Firme
 
-Índice/espejo + centro de mando de la crisis sísmica de Venezuela (doblete M7.2/M7.5, 24-jun-2026).
-Agrega, deduplica y destila lo que otras webs ya recolectan; añade panel vital, catálogo de
-servicios y pronóstico de réplicas. **No es fuente oficial.**
+Bot de WhatsApp para la crisis sísmica de Venezuela (doblete M7.2/M7.5, 24-jun-2026).
+Reenviás lo que llega (cadenas, audios, fotos, capturas) y Tierra Firme **centraliza el
+caos y lo destila en información funcional: qué hace falta, dónde y cuánto** — para que
+los recursos se asignen bien y la ayuda llegue donde de verdad se necesita. **No es fuente oficial.**
 
-> **Estado.** `main` integra: UI mobile, intake (buzón Telegram/WhatsApp), capa de escritura
-> Supabase (F0) y panel de revisión del operador → publica sitreps (P1). El bot de respuestas v2
-> (Cayapa) está **en curso** en la rama `feat/bot-v2-respuestas` (WIP, pendiente `/security-review`).
+> **Norte.** Tierra Firme es la **puerta de entrada WhatsApp única** del ecosistema de
+> respuesta: sensor de demanda WhatsApp-nativo (reenvíos → necesidad/oferta estructurada,
+> dedup, geocode) que **enruta** lo que no le toca a la herramienta que ya existe.
+> Plan de funcionamiento completo: **[`TIERRA-FIRME.md`](TIERRA-FIRME.md)**.
 >
-> **Llegaste nuevo?** Empieza por `npm test` (debe estar verde) y lee **`docs/WORKFLOW.md`** para el
-> flujo multi-agente (1 rama `agent/<slice>` ↔ 1 issue; GitHub Issues = fuente de verdad).
+> **Llegaste nuevo?** `npm test` (debe estar verde), luego leé `TIERRA-FIRME.md`.
 
-## Decisiones de estructura (ley)
-Ver `CONTEXT.md`, `docs/adr/`, `CATALOGO-y-PLAN.md` y el plan en `~/.claude/plans/`.
-- Somos **índice/espejo**, no sistema de registro. Las otras webs son **Fuentes** (`sources.manifest.json`).
-- **Única intake** = señal de resolución ("ya apareció").
-- **Capa propia** = clústeres de dedup + resolución + entradas curadas. Nada más.
+## Loop central
 
-## Stack
-Vanilla JS (sin build) + Node stdlib (`http`/`test`) + JSON estático para lectura + Supabase para la
-capa de escritura. Boring, server-light, corre en red mala. Cero deps externas en el scaffold.
+`reenvío → destila (LLM) → dedup + geocode → compuerta humana → torre de control / export`
+
+Nada público sin un humano que verifica. PII (nombres/teléfonos) fuera de la salida pública.
 
 ## Estructura
+
 ```
-sources.manifest.json   Fuentes (declarativo, sin adaptadores)
-src/model/              Tipos/constantes del dominio (Persona, Reportante, Localización, Clúster…)
-src/ingest/             Adaptadores READ-ONLY por Fuente + run.js (orquestador)
-src/dedup/              Clústeres persona×localización (enlazar, no fusionar; sesgo a separar)
-src/resolucion/         Única intake: markResolved()
-src/api/server.js       Lectura: sirve web/ + /api/* (stubs)
-src/curated/            Entradas curadas (panel vital, servicios, donaciones)
-web/                    SPA shell (mobile-first, offline)
-supabase/migrations/    Esquema (stub, sin datos)
+ingest/                 Bot: buzón WhatsApp/Telegram, destilador (eco), transcripción de voz
+  whatsapp_buzon.py       Webhook Meta Cloud API → inbox
+  telegram_buzon.py       Bot Telegram → inbox (mismo contrato de inbox)
+  destilador.py           Eco por-mensaje vía Gemini (acuse al que reenvía)
+  reply.py / responder.py Capa de respuesta (gateada, default off)
+  transcribe.py           Voz → texto (faster-whisper, es-VE)
+scripts/
+  destila.js              inbox/<fecha>.jsonl → borradores de sitrep (LLM)
+  analiza.js              inbox → necesidades/ofertas/gaps/alertas (análisis)
+  revisar-server.js       Panel del operador (compuerta humana)
+src/ingest/geocoder.js  Geocodifica contra el catálogo de centros
+data/bundles/centros.json   Catálogo de centros geocodificados (lo que el bot cruza)
+web/revisar.html        Panel de revisión del operador
 ```
 
-## Diseño (front)
-Minimalist editorial (Notion/Linear) en **dark mode**, mobile-first, anti AI-slop. Dirección y
-trade-offs en `docs/adr/0002-direccion-de-diseno.md`. Tokens (única fuente de color/espacio) en
-`web/styles.css :root`. Mapa de dos niveles (SVG estados + Leaflet/CARTO dark) en `web/MAP.md`.
-Los slices de UI de dudamel son **verticales** (back→api→front): cada uno rellena el shell con
-estos tokens, no inventa look.
+## Stack
 
-## Comandos (gates)
+Vanilla JS + Node stdlib + Python (intake/voz). Gemini (`gemini-2.5-flash-lite`, endpoint nativo)
+para destilar. Boring, server-light, corre en red mala.
+
+## Comandos
+
 ```bash
-npm test          # node:test — smoke failable (debe pasar)
-npm run build     # valida JSON declarativos (failable)
-npm run dev       # levanta api + web stub en http://localhost:8787
-npm run ingest    # orquestador (no-op en scaffold)
+npm test                 # node:test — debe pasar
+npm run destila          # destila el inbox del día → borradores
+npm run revisar          # levanta el panel del operador
+node scripts/analiza.js  # análisis necesidades/ofertas/gaps
 ```
-
-## Smoke manual (end-to-end)
-1. `npm test` → verde.
-2. `npm run build` → "build OK".
-3. `npm run dev`, abrir http://localhost:8787 → se ven los 6 pilares y el footer marca `api: ok (stub)`.
-4. `curl localhost:8787/api/health` → `{"ok":true,"scaffold":true}`.
-5. `npm run ingest` → log "0 adaptadores cableados (scaffold)".
-
-Cuando los 5 pasan, el scaffold está sano y `/dudamel` puede mapear el trabajo faltante.

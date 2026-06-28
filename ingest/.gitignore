@@ -1,3 +1,4 @@
 # Dump crudo con PII — privado entre verificadores, nunca al repo
 inbox/
 __pycache__/
+.wa-session/
