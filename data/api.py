@@ -21,6 +21,9 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 OWN   = {"name": "CC-BY-SA-4.0", "attribution": "Tierra Firme", "source": "tierra-firme"}
 ACOPIO = {"name": "CC-BY-4.0", "attribution": "acopiove.org", "source": "acopiove"}
 SISMO = {"name": "public-domain", "attribution": "sismosve / USGS", "source": "sismosve"}
+# Aliado con permiso explícito; data crowdsourced → no verificada (cada registro lleva verificado:false).
+ALIADO = {"name": "CC-BY-SA-4.0", "attribution": "Ayuda Venezuela Red (ayuda-venezuela-red.vercel.app), con permiso",
+          "source": "ayuda-venezuela-red", "verificado": False}
 # Obra combinada: CC-BY-SA-4.0 (share-alike del ecosistema). Atribución obligatoria.
 API_LICENSE = "CC-BY-SA-4.0"
 
@@ -37,6 +40,7 @@ POLICY = {
     "missing":   {"file": "missing.json",            "license": OWN,    "facet": "status",
                   "drop": ["contact", "resolutionNote", "resolutionPhotoUrl"]},  # PII: tel familiar fuera
     "patients":  {"file": "patients.json",           "license": OWN,    "gate": True},  # data médica no verificada
+    "demanda":   {"file": "bundles/demanda.json",     "license": ALIADO, "facet": "payload.estado"},  # zonas+necesidades (no verificada)
 }
 
 app = FastAPI(

@@ -120,10 +120,12 @@ NO para respuestas de directorio. Lección para manejar data de este tipo: **cla
   nuestro loop (follow-on, aún no aplicado).
 
 **Qué hacemos (decisión):**
-- ✅ **Captura interna** → `src/ingest/ayudaredve.js` alimenta `bundles/demanda.json` (`buildDemanda`),
+- ✅ **Captura** → `src/ingest/ayudaredve.js` alimenta `bundles/demanda.json` (`buildDemanda`),
   cada zona con sus necesidades embebidas y `payload.verificado=false` (leads sin confirmar).
-- 🚫 **NO se publica en el API público `/v1`** ni se mezcla con datos verificados **hasta resolver
-  licencia/atribución con los operadores.** Bloqueante real, pendiente de acción humana.
+- ✅ **Publicado en `/v1/demanda`** — el operador es **aliado y dio permiso explícito**; se sirve con
+  atribución (`Ayuda Venezuela Red, con permiso`). Sirve al bot y a otros consumidores del API.
+- ⚠️ Sigue marcada **`verificado=false`** en cada registro (escrituras abiertas en origen): son leads,
+  no se funden con datos verificados sin esa marca de procedencia.
 
 ---
 
