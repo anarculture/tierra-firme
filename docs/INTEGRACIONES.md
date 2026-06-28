@@ -73,6 +73,37 @@ Envelope paginado: `{ items, total, page, limit }`.
 
 ---
 
+## 3b. crisisvenezuela (crisis-pulse) — FEED SITUACIONAL, no directorio
+
+- **Base:** `https://crisisvenezuela.org/api/v1/facts` · read-only, sin auth, **CC-BY-4.0**
+  (atribución: `crisisvenezuela.org + fuentes originales`). Formatos: json / geojson / csv.
+- **Verificado en vivo 2026-06-28:** 10,935 hechos. Params: `categoria, estado, municipio, nivel,
+  tipo_necesidad, bbox, desde, min_fuentes, fuente, excluir_fuente, limite, offset, formato`.
+- **Naturaleza (verificado, importante):** NO es un directorio estructurado. Cada "fact" es
+  **texto libre** (`descripcion`) de una fuente (tweet/web), con **procedencia** (`fuentes[]` con URL)
+  y **corroboración** (`n_fuentes`). Campos: `id, categoria, nivel, municipio, estado, zona,
+  lat, lon, descripcion, tipo_necesidad, atrapados, n_fuentes, fuentes[], fecha`.
+  - `categoria` es **flexible y ruidosa**: `acopio` incluye noticias mal-tageadas (ej. "equipos USAR
+    de Murcia"); `daño` mezcla daño estructural con menciones sísmicas. Pocos traen coords.
+
+**Qué tomamos (decisión):**
+- ✅ **Solo `categoria=daño&min_fuentes=2`** (843 hechos) → alimenta `bundles/danos.json`,
+  reemplazando a terremotovenezuela (que da 503). Adaptador: `src/ingest/crisisvenezuela.js`
+  (primario en `buildDanos`, terremoto de fallback). Preserva `descripcion/nFuentes/fuentes`.
+- ❌ **`acopio`** → NO. Es texto libre, no centros usables; **acopiove** ya da el directorio
+  estructurado (name/address/recibe/contacto). Solape parcial de fuente (acopiovzla.com, RefugioVE…)
+  pero sin estructura que aporte.
+- ❌ **`necesidad`** → NO por ahora. Solapa nuestros `reports` **a nivel de evento** (mismo hecho,
+  distinto registro, sin llave para dedup). Es más completo/corroborado, pero requiere diseño de
+  merge-por-evento antes de ingerir.
+
+**Futuro (anotado):** es la mejor **capa de conciencia situacional + corroboración** disponible
+(qué se reporta, con cuántas fuentes, con qué links). Útil para `/sitrep` y contexto NL del bot,
+NO para respuestas de directorio. Lección para manejar data de este tipo: **clave = corroboración
+(`n_fuentes`) + procedencia (`fuentes[]`)**, y el reto = **dedup por evento** entre fuentes sin ID común.
+
+---
+
 ## 4. Relación con nuestro API público (`data/api.py`)
 
 - **`/v1` nuestro** = publica NUESTROS snapshots (índice/espejo, CC-BY-SA-4.0). `GET /v1/ruteo` ES la tabla de handoff.
