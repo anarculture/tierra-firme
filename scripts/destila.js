@@ -17,11 +17,16 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import assert from "node:assert";
+import { geocode } from "../src/ingest/geocoder.js";
 
 const ROOT = new URL("..", import.meta.url);
 const INBOX = (date) => fileURLToPath(new URL(`ingest/inbox/${date}.jsonl`, ROOT));
 const DRAFTS = fileURLToPath(new URL("data/sitrep-drafts.json", ROOT));
+const CACHE = fileURLToPath(new URL("data/geocode-cache.json", ROOT));
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const BASE_URL = process.env.DESTILA_BASE_URL || "http://localhost:11434/v1"; // Ollama local
 const API_KEY = process.env.DESTILA_API_KEY || ""; // Ollama no lo necesita; DashScope/OpenRouter sí
 const MODEL = process.env.DESTILA_MODEL || "qwen2.5:7b";
@@ -99,7 +104,29 @@ async function destilar(dump) {
   if (choice?.finish_reason === "length") console.error("⚠ salida truncada (max_tokens) — subí max_tokens o partí el inbox");
   const text = choice?.message?.content;
   if (!text) throw new Error("respuesta sin contenido");
-  return JSON.parse(text).items || [];
+  let parsed;
+  try { parsed = JSON.parse(text); }
+  catch { throw new Error(`salida del LLM no es JSON válido: ${text.slice(0, 200)}`); }
+  return Array.isArray(parsed.items) ? parsed.items : [];
+}
+
+/** Geocode = el paso del medio del loop (destila→geocode→revisar). Adjunta coords a
+ *  cada borrador por su zona, para que el panel/torre de control lo ubique. Cascada
+ *  OFFLINE por default (cache → centroide de estado, instantáneo, determinista); pega
+ *  a Nominatim solo si GEOCODE_NOMINATIM=1. Muta items, persiste el cache compartido. */
+export async function geocodeDrafts(items, cacheFile = CACHE) {
+  let cache = {};
+  try { cache = JSON.parse(await readFile(cacheFile, "utf8")); } catch { /* sin cache previa */ }
+  const state = { networkDown: process.env.GEOCODE_NOMINATIM !== "1", calledNominatim: false };
+  for (const it of items) {
+    if (it.coords || !it.zona) continue;
+    state.calledNominatim = false;
+    // zona libre (parroquia/ciudad/estado) → la pasamos como estado y municipio.
+    it.coords = await geocode(null, it.zona, it.zona, cache, { state });
+    if (state.calledNominatim) await sleep(1000); // ToS Nominatim: máx 1 req/s
+  }
+  try { await writeFile(cacheFile, JSON.stringify(cache, null, 2)); } catch { /* best-effort */ }
+  return items;
 }
 
 async function main() {
@@ -115,13 +142,14 @@ async function main() {
   if (conTexto < total) console.error(`${total - conTexto} mensaje(s) con media sin texto (voz/foto) — no destilados. TODO: transcribe.py / OCR.`);
 
   const fresh = await destilar(dump);
+  await geocodeDrafts(fresh); // adjunta coords por zona (offline por default)
   const existing = existsSync(DRAFTS) ? JSON.parse(await readFile(DRAFTS, "utf8")) : { items: [] };
   const { items, added } = mergeDrafts(existing, fresh);
   await writeFile(DRAFTS, JSON.stringify({ items }, null, 2) + "\n");
   console.log(`destilados ${added} borrador(es) nuevo(s) de ${conTexto} mensaje(s) → data/sitrep-drafts.json (total: ${items.length}). Revisá: npm run revisar`);
 }
 
-function selftest() {
+async function selftest() {
   const recs = parseInbox(
     '{"ts":"2026-06-26T08:01:00Z","from":"Ana","kind":"text","text":"Sin agua en Catia hace 3 días"}\n' +
     'línea corrupta no-json\n' +
@@ -141,10 +169,21 @@ function selftest() {
   ]);
   assert.equal(m.added, 1, "solo el item nuevo y completo se agrega");
   assert.equal(m.items.length, 2);
+
+  // geocode offline (sin red): zona = estado conocido → centroide; desconocida → null.
+  const tmpCache = join(tmpdir(), "tf-destila-selftest-cache.json");
+  const [g1, g2] = await geocodeDrafts(
+    [{ titulo: "a", texto: "b", fuenteOrigen: "c", zona: "Miranda" },
+     { titulo: "d", texto: "e", fuenteOrigen: "f", zona: "Narnia" }],
+    tmpCache,
+  );
+  assert.ok(g1.coords && typeof g1.coords.lat === "number", "zona estado conocido → coords");
+  assert.equal(g1.coords.source, "estado");
+  assert.equal(g2.coords, null, "zona desconocida → null (no inventa ubicación)");
   console.log("selftest OK");
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  if (process.argv.includes("--selftest")) selftest();
+  if (process.argv.includes("--selftest")) selftest().catch((e) => { console.error(String(e.message || e)); process.exit(1); });
   else main().catch((e) => { console.error(String(e.message || e)); process.exit(1); });
 }
