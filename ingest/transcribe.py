@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Transcribe un audio (ogg/mp3/...) a texto con faster-whisper. Lo usa /sitrep.
 
-Uso (con el venv de monitorVE):
-  ~/Code/monitorVE/.venv/bin/python transcribe.py <audio> [modelo]
+Uso (con el venv de Tierra Firme):
+  ~/Code/tierra-firme/.venv/bin/python transcribe.py <audio> [modelo]
 
 Modelo por defecto 'small'. Para audio de campo ruidoso, 'medium' transcribe
 mejor pero es más lento en CPU. Idioma forzado a español (es-VE).

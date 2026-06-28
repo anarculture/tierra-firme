@@ -63,7 +63,7 @@ y suma al ruido que combatimos.
 
 ## Fases
 
-- **0 — Consolidar + rebrand:** apagar sesión forkeada vieja, borrar husk `~/Code/monitorVE`, repointar codegraph; rebrand monitorVE→Tierra Firme (README, nombre bot, mensajes); podar el espejo abandonado (`web/` mapa, `src/dedup`, `src/resolucion`, `src/model`, `supabase/`).
+- **0 — Consolidar (hecho):** rebrand completo, espejo abandonado podado, una sola pipeline.
 - **1 — Demand-sensing MVP:** endurecer ingest→destila→geocode→compuerta→torre de control exportable (base ya existe).
 - **2 — Bidireccional + anti-ruido:** features A, C, D.
 - **3 — Interop / puerta única:** features E, B; export/API a plataformas de oferta.

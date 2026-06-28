@@ -1,6 +1,6 @@
 /* Panel de revisión (OPERADOR, LOCAL). Cierra el loop: borrador (/sitrep → data/sitrep-drafts.json)
    → revisar/editar → publicar a src/curated/sitreps.json (reusa merge de publica-sitrep).
-   El servidor PÚBLICO (src/api/server.js) sigue read-only; esto es una herramienta local del operador
+   Es una herramienta local del operador
    (bind 127.0.0.1). Gate humano = acá se aprueba antes de publicar.
    Auth: por defecto sin auth (local). Si lo vas a tunelizar para revisar desde el teléfono,
    seteá REVISAR_TOKEN: exige HTTP Basic (cualquier usuario, el token como contraseña). */

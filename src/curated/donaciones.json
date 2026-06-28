@@ -1,6 +1,0 @@
-{
-  "_doc": "Entradas curadas — Canales de donación verificados. Capa propia (Q6). Shell vacío.",
-  "_schema": { "org": "", "tipo": "banco|movil|cripto|intl|gofundme", "datos": "", "linkOficial": "", "confianza": "oficial|org|comunitario", "fuenteOrigen": "", "verificadoEl": "YYYY-MM-DD" },
-  "_todo": "TODO(Sx): poblar desde plan §Donaciones (Cáritas, DVC, AJE, We Love/GoFundMe, GlobalGiving, Direct Relief, IRC...).",
-  "items": []
-}

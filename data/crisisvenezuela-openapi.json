@@ -1,0 +1,263 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "API de datos del terremoto de Venezuela — crisis-pulse",
+    "version": "1.0.0",
+    "summary": "API pública de solo lectura del conjunto de datos agregado del terremoto.",
+    "description": "API REST de solo lectura sobre los hechos corroborados (daños estructurales, puntos de acopio y necesidades) tras el terremoto de Venezuela del 24 de junio de 2026.\n\nCómo se construyen los datos (transparencia): (1) Agregamos fuentes públicas — prensa, redes sociales y plataformas ciudadanas (p. ej. terremotovenezuela.com, acopiove, RedQuipu), conservando la URL de cada ítem. (2) Un modelo de IA tría y normaliza cada reporte: decide si es relevante, lo clasifica (daño/acopio/necesidad), extrae municipio, estado, zona, estructura y tipo de necesidad, y lo resume en una frase. (3) Geolocalización: si el reporte trae coordenadas se usan directamente (coord_origen=explicita); si no, la IA extrae un nombre de lugar y un geocodificador OSM/Nominatim lo resuelve a un punto aproximado (coord_origen=geocodificada). (4) Corroboración: el mismo hecho contado por varias fuentes se fusiona con SimHash en un solo registro, con n_fuentes = cuántas fuentes distintas lo confirman, conservando todas las fuentes en fuentes[].\n\nNaturaleza y límites: es un agregado de fuentes abiertas en emergencia; puede contener errores o reportes sin confirmar y NO reemplaza a las autoridades oficiales — trátelo como inteligencia de fuentes abiertas, con su procedencia para verificar.\n\nProcedencia y anti-circular: cada registro conserva sus fuentes originales para dar crédito y para que otros equipos —incluidos los de los sitios que originan los datos— consuman la API sin reingestar su propia información (ver el filtro excluir_fuente).\n\nUso justo: para descargas masivas use los volcados estáticos /facts.json o /colapsos.csv en lugar de golpear este endpoint.",
+    "license": { "name": "CC-BY-4.0", "url": "https://creativecommons.org/licenses/by/4.0/" },
+    "contact": { "name": "crisisvenezuela.org", "url": "https://crisisvenezuela.org/api" }
+  },
+  "servers": [
+    { "url": "https://crisisvenezuela.org", "description": "Producción" }
+  ],
+  "paths": {
+    "/api/v1/facts": {
+      "get": {
+        "operationId": "listarHechos",
+        "summary": "Lista los hechos corroborados, con filtros combinables.",
+        "description": "Devuelve los hechos (daños, acopios, necesidades) ordenados del más reciente al más antiguo. Todos los parámetros son opcionales y combinables. Términos técnicos universales (bbox, offset, valores de formato) se mantienen en inglés.",
+        "parameters": [
+          {
+            "name": "categoria",
+            "in": "query",
+            "description": "Filtra por categoría. Lista separada por comas. Valores: daño (info estructural), acopio (centro de ayuda), necesidad (solicitud). Un valor inválido devuelve 400.",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": { "type": "array", "items": { "type": "string", "enum": ["daño", "acopio", "necesidad"] } },
+            "example": "acopio,necesidad"
+          },
+          {
+            "name": "estado",
+            "in": "query",
+            "description": "Filtra por estado (entidad federal). Lista separada por comas, sin distinción de mayúsculas/minúsculas. Coincidencia exacta con el campo estado del registro.",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": { "type": "array", "items": { "type": "string" } },
+            "example": "Distrito Capital,Miranda"
+          },
+          {
+            "name": "municipio",
+            "in": "query",
+            "description": "Filtra por municipio. Lista separada por comas, sin distinción de mayúsculas/minúsculas.",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": { "type": "array", "items": { "type": "string" } },
+            "example": "Chacao,Libertador"
+          },
+          {
+            "name": "nivel",
+            "in": "query",
+            "description": "Filtra por nivel de daño (solo aplica a registros de categoría daño). Lista separada por comas. Valores típicos: colapso_total, severo, parcial, dano.",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": { "type": "array", "items": { "type": "string", "enum": ["colapso_total", "severo", "parcial", "dano"] } },
+            "example": "colapso_total,severo"
+          },
+          {
+            "name": "tipo_necesidad",
+            "in": "query",
+            "description": "Filtra por tipo de necesidad (solo aplica a registros de categoría necesidad). Lista separada por comas. Ej: agua, comida, medicinas, insumos, voluntarios, sangre, rescate, refugio, ropa, otro.",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": { "type": "array", "items": { "type": "string" } },
+            "example": "agua,medicinas"
+          },
+          {
+            "name": "coord_origen",
+            "in": "query",
+            "description": "Filtra por procedencia de las coordenadas. Lista separada por comas. explicita = las coordenadas vinieron con el dato (metadatos de la fuente original, p. ej. terremotovenezuela.com / acopiove, o indicadas en el post) -> precisas. geocodificada = nuestro pipeline las derivó (IA extrae un nombre de lugar -> geocodificador Nominatim) -> aproximadas.",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": { "type": "array", "items": { "type": "string", "enum": ["explicita", "geocodificada"] } },
+            "example": "explicita"
+          },
+          {
+            "name": "fuente",
+            "in": "query",
+            "description": "Conserva solo los registros que tengan al menos una fuente en la lista. Lista separada por comas. Coincide sin distinción de mayúsculas por nombre de la fuente y por subcadena del dominio (host), de modo que 'terremotovenezuela.com' coincide con esa plataforma.",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": { "type": "array", "items": { "type": "string" } },
+            "example": "elnacional.com"
+          },
+          {
+            "name": "excluir_fuente",
+            "in": "query",
+            "description": "Anti-circular: descarta los registros cuyas fuentes estén TODAS en la lista de exclusión. Un registro sigue apareciendo si además tiene otra fuente no excluida. Pensado para que un sitio de origen consuma la API sin re-ingerir sus propios datos. Mismo criterio de coincidencia que 'fuente'.",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": { "type": "array", "items": { "type": "string" } },
+            "example": "terremotovenezuela.com"
+          },
+          {
+            "name": "bbox",
+            "in": "query",
+            "description": "Caja delimitadora geográfica: minLon,minLat,maxLon,maxLat (4 números). Conserva solo registros con coordenadas dentro de la caja. Un valor inválido devuelve 400.",
+            "required": false,
+            "schema": { "type": "string", "pattern": "^-?\\d+(\\.\\d+)?,-?\\d+(\\.\\d+)?,-?\\d+(\\.\\d+)?,-?\\d+(\\.\\d+)?$" },
+            "example": "-67.5,10.0,-66.5,10.7"
+          },
+          {
+            "name": "desde",
+            "in": "query",
+            "description": "Marca de tiempo ISO 8601. Conserva solo registros con fecha (última vez visto) mayor o igual a este instante. Un valor inválido devuelve 400.",
+            "required": false,
+            "schema": { "type": "string", "format": "date-time" },
+            "example": "2026-06-25T00:00:00Z"
+          },
+          {
+            "name": "min_fuentes",
+            "in": "query",
+            "description": "Número mínimo de fuentes distintas (n_fuentes) que debe tener el registro.",
+            "required": false,
+            "schema": { "type": "integer", "minimum": 1 },
+            "example": 2
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "description": "Cantidad máxima de registros a devolver. Por defecto 1000; máximo 5000 (se recorta).",
+            "required": false,
+            "schema": { "type": "integer", "default": 1000, "minimum": 0, "maximum": 5000 },
+            "example": 100
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Número de registros a saltar (paginación). Por defecto 0.",
+            "required": false,
+            "schema": { "type": "integer", "default": 0, "minimum": 0 },
+            "example": 0
+          },
+          {
+            "name": "formato",
+            "in": "query",
+            "description": "Formato de salida. json (por defecto): sobre con metadatos + datos. geojson: FeatureCollection (solo registros con coordenadas). csv: tabla con cabecera (las fuentes se aplanan a una columna 'nombre(url);nombre(url)').",
+            "required": false,
+            "schema": { "type": "string", "enum": ["json", "geojson", "csv"], "default": "json" },
+            "example": "geojson"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de hechos en el formato solicitado.",
+            "headers": {
+              "Cache-Control": { "schema": { "type": "string" }, "description": "public, max-age=60, s-maxage=120" },
+              "Access-Control-Allow-Origin": { "schema": { "type": "string" }, "description": "*" }
+            },
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/RespuestaJSON" } },
+              "application/geo+json": { "schema": { "$ref": "#/components/schemas/ColeccionGeoJSON" } },
+              "text/csv": { "schema": { "type": "string" } }
+            }
+          },
+          "400": {
+            "description": "Parámetro inválido.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "405": {
+            "description": "Método no permitido (solo se admite GET).",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "503": {
+            "description": "Conjunto de datos no disponible temporalmente.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Fuente": {
+        "type": "object",
+        "description": "Una fuente del hecho. La lista 'fuentes' está deduplicada por url (o por nombre cuando no hay url).",
+        "properties": {
+          "fuente": { "type": "string", "description": "Nombre/handle de la fuente, ya limpiado (sin '@' inicial; para direcciones puente 'x@dominio' se conserva solo 'x')." },
+          "url": { "type": "string", "description": "Enlace a la publicación original (puede ser cadena vacía)." }
+        }
+      },
+      "Hecho": {
+        "type": "object",
+        "description": "Un hecho corroborado.",
+        "properties": {
+          "id": { "type": "string", "description": "Identificador estable del hecho, formado por el slug del municipio más la huella SimHash del texto. Se mantiene constante mientras el hecho no cambie, por lo que puede usarse como clave para actualizar o deduplicar registros del lado del consumidor.", "example": "chacao-2879654398988377755" },
+          "categoria": { "type": "string", "enum": ["daño", "acopio", "necesidad"], "description": "Tipo de hecho. 'daño' = reporte de daño o colapso estructural; 'acopio' = punto o centro de recolección de ayuda; 'necesidad' = solicitud de un recurso." },
+          "nivel": { "type": ["string", "null"], "description": "Nivel de daño, presente solo cuando la categoría es 'daño'. Valores: 'colapso_total', 'severo', 'parcial' o 'dano' (genérico). Se infiere del texto mediante reglas. Es null en las categorías acopio y necesidad." },
+          "estructura": { "type": ["string", "null"], "description": "Nombre específico del edificio o estructura cuando se logró identificar (p. ej. 'Edificio San Judas Tadeo'). Es null cuando el reporte es a nivel de zona y no nombra una estructura concreta." },
+          "municipio": { "type": "string", "description": "Municipio del hecho (nombre legible para mostrar). Puede venir vacío en hechos que no tienen municipio asignado." },
+          "estado": { "type": "string", "description": "Estado o entidad federal del hecho. Si el reporte no lo trae, se completa con el estado del municipio según el gazetteer." },
+          "zona": { "type": "string", "description": "Zona, sector o referencia local (barrio, urbanización, avenida). Texto libre; puede estar vacío." },
+          "lat": { "type": ["number", "null"], "description": "Latitud en WGS84, o null si el hecho no está geolocalizado. La precisión depende de coord_origen." },
+          "lon": { "type": ["number", "null"], "description": "Longitud en WGS84, o null si el hecho no está geolocalizado. La precisión depende de coord_origen." },
+          "coord_origen": { "type": "string", "enum": ["explicita", "geocodificada", ""], "description": "Procedencia de lat/lon. 'explicita' = las coordenadas vinieron con el dato (catálogo de la fuente original como terremotovenezuela.com o acopiove, o indicadas explícitamente en el post): alta precisión. 'geocodificada' = no venían con el dato y el pipeline las derivó (la IA extrajo un nombre de lugar y un geocodificador OSM/Nominatim lo resolvió a un punto): son APROXIMADAS, pueden caer en el centroide del área o estar desplazadas. Cadena vacía si no aplica o se desconoce. Para máxima precisión filtra coord_origen=explicita." },
+          "descripcion": { "type": "string", "description": "El hecho resumido en una frase, normalizado por un modelo de IA a partir del o los posts originales." },
+          "tipo_necesidad": { "type": ["string", "null"], "description": "Recurso solicitado, presente solo cuando la categoría es 'necesidad': agua, comida, medicinas, insumos, voluntarios, sangre, rescate, refugio, ropa u otro. Es null en las demás categorías." },
+          "atrapados": { "type": "boolean", "description": "true si el texto menciona personas atrapadas o bajo escombros. Es un indicio de fuentes abiertas, NO una confirmación oficial: verifícalo antes de actuar." },
+          "n_fuentes": { "type": "integer", "description": "Número de fuentes DISTINTAS que confirman el hecho (deduplicadas por url; si no hay url, por autor). 1 = un solo reporte; un valor mayor indica más corroboración. Los reportes del mismo hecho se fusionan por SimHash. Igual a la longitud de 'fuentes'." },
+          "fuentes": { "type": "array", "items": { "$ref": "#/components/schemas/Fuente" }, "description": "Procedencia completa: todas las fuentes distintas del hecho, deduplicadas por url. Úsala para dar crédito a la fuente original y para deduplicar contra tus propios datos; combínala con el filtro excluir_fuente para no reingestar lo tuyo." },
+          "fecha": { "type": "string", "format": "date-time", "description": "Última vez que se vio o actualizó el hecho (ISO 8601). Es el campo por el que se ordena la respuesta (más reciente primero) y contra el que filtra el parámetro 'desde'." },
+          "primera_vez": { "type": "string", "format": "date-time", "description": "Primera vez que se detectó el hecho (ISO 8601)." }
+        },
+        "required": ["id", "categoria", "municipio", "estado", "descripcion", "n_fuentes", "fuentes", "fecha"]
+      },
+      "Meta": {
+        "type": "object",
+        "properties": {
+          "cantidad": { "type": "integer", "description": "Número de registros devueltos en esta página." },
+          "total": { "type": "integer", "description": "Total de registros tras aplicar los filtros (antes de limite/offset)." },
+          "generado": { "type": "string", "format": "date-time", "description": "Instante de generación de la respuesta." },
+          "licencia": { "type": "string", "example": "CC-BY-4.0" },
+          "atribucion": { "type": "string", "example": "crisisvenezuela.org + fuentes originales" },
+          "consulta": { "type": "object", "description": "Eco de los parámetros validados que se aplicaron.", "additionalProperties": true }
+        }
+      },
+      "RespuestaJSON": {
+        "type": "object",
+        "properties": {
+          "meta": { "$ref": "#/components/schemas/Meta" },
+          "datos": { "type": "array", "items": { "$ref": "#/components/schemas/Hecho" } }
+        }
+      },
+      "RasgoGeoJSON": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string", "enum": ["Feature"] },
+          "geometry": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string", "enum": ["Point"] },
+              "coordinates": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2, "description": "[lon, lat]" }
+            }
+          },
+          "properties": { "$ref": "#/components/schemas/Hecho", "description": "El registro completo sin lat/lon (van en geometry)." }
+        }
+      },
+      "ColeccionGeoJSON": {
+        "type": "object",
+        "description": "FeatureCollection GeoJSON (RFC 7946) con solo los registros geolocalizados. 'meta' es un miembro extranjero informativo.",
+        "properties": {
+          "type": { "type": "string", "enum": ["FeatureCollection"] },
+          "meta": { "$ref": "#/components/schemas/Meta" },
+          "features": { "type": "array", "items": { "$ref": "#/components/schemas/RasgoGeoJSON" } }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string", "description": "Mensaje de error legible." }
+        },
+        "required": ["error"]
+      }
+    }
+  }
+}

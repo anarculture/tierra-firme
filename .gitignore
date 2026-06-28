@@ -13,3 +13,7 @@ dist/
 .codegraph/
 docs/WhatsApp Chat*/
 docs/puntos_ayuda_live_db.csv
+# PII: nombres/teléfonos de personas buscadas y pacientes — nunca al repo público
+data/puntos_ayuda_live_db.csv
+data/missing.json
+data/patients.json

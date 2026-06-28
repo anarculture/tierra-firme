@@ -17,5 +17,5 @@ no dato de terceros).
 | VOLUNTARIOS | 3 normal | #2ECC71 | users | Voluntarios disponibles |
 
 Nota: prioridad 1=crítico, 2=urgente, 3=normal. Ajustar a tu modelo si hace falta
-(p. ej. monitorVE separa `suministro` vs `operativo` en necesidades — TRANSPORTE/
+(p. ej. Tierra Firme separa `suministro` vs `operativo` en necesidades — TRANSPORTE/
 VOLUNTARIOS/RECOLECTOR caen en "operativo").

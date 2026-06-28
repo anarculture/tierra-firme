@@ -1,6 +1,6 @@
 /* Fuente: USGS FDSNWS — catálogo de réplicas (fallback de SismosVE).
    Caja Yaracuy–Carabobo–La Guaira, ventana del evento us6000t7zp. Read-only.
-   El pronóstico OAF NO tiene JSON limpio → vive en src/curated/replicas-oaf.json. */
+   El pronóstico OAF NO tiene JSON limpio. */
 const BOX = "minlatitude=9&maxlatitude=12&minlongitude=-70&maxlongitude=-66";
 const URL = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2026-06-24&endtime=2026-06-30&minmagnitude=3.5&${BOX}`;
 
@@ -21,7 +21,7 @@ export function normalize(geojson) {
 
 /** @returns {Promise<import("../model/index.js").Registro[]>} */
 export async function fetchRegistros() {
-  const r = await fetch(URL, { headers: { "user-agent": "monitorVE/1.0 (humanitarian)" }, signal: AbortSignal.timeout(15000) });
+  const r = await fetch(URL, { headers: { "user-agent": "tierra-firme/1.0 (humanitarian)" }, signal: AbortSignal.timeout(15000) });
   if (!r.ok) throw new Error("HTTP " + r.status);
   return normalize(await r.json());
 }

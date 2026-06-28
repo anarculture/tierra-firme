@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Buzón de WhatsApp (Meta Cloud API) para monitorVE — paridad con telegram_buzon.
+"""Buzón de WhatsApp (Meta Cloud API) para Tierra Firme — paridad con telegram_buzon.
 
 Recibe por webhook lo que la gente manda al número de WhatsApp Business (texto, voz,
 foto, video, documento) y lo vuelca crudo al inbox compartido para que /sitrep lo
@@ -45,7 +45,7 @@ def _download(media_id, dest):
     with urllib.request.urlopen(req, timeout=30) as r:
         url = json.load(r)["url"]
     req2 = urllib.request.Request(url, headers={"Authorization": f"Bearer {TOKEN}",
-                                                "User-Agent": "monitorVE-buzon"})
+                                                "User-Agent": "tierra-firme-buzon"})
     os.makedirs(os.path.dirname(dest), exist_ok=True)
     with urllib.request.urlopen(req2, timeout=60) as r, open(dest, "wb") as f:
         f.write(r.read())

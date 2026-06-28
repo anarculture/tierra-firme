@@ -1,6 +1,6 @@
 {
   "_doc": "Manifiesto declarativo de Fuentes. SIN adaptadores (los adaptadores viven en src/ingest/). Cada entrada describe qué aporta y cómo expone el dato. TODO(Sx): cablear adapter por fuente.",
-  "_ley": "Somos índice/espejo: read-only sobre estas Fuentes. Ver CONTEXT.md + docs/adr/0001 + plan.",
+  "_ley": "Catálogo de Fuentes externas (read-only) que alimentan el generador de centros/réplicas en src/ingest/. Ver TIERRA-FIRME.md.",
   "fuentes": [
     { "id": "ayudave", "nombre": "AyudaVE", "url": "https://ayudahumanitariavenezuela.com", "categoria": ["persona", "centro", "localizacion"], "aporta": "personas, centros, hospitalizados (su /api expone JSON)", "exposicion": "api-json", "confianza": "comunitario", "estado": "activa", "adapter": null },
     { "id": "venezuelareporta", "nombre": "Venezuela Reporta", "url": "https://venezuelareporta.org", "categoria": ["persona"], "aporta": "AGREGADOR MAESTRO de personas (dedup, búsqueda cédula/zona). Federar vía hola@buscados.org", "exposicion": "federacion", "confianza": "comunitario", "estado": "activa", "adapter": null },

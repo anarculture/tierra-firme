@@ -1,12 +1,12 @@
-# Esquema de trabajo — monitorVE + GitHub (multi-agente)
+# Esquema de trabajo — Tierra Firme + GitHub (multi-agente)
 
 > Regla de oro contra la confusión: **un proceso por worktree, una rama por slice, main solo lo toca el coordinador.**
 
 ## Espacio físico (nada ensucia `~/Code`)
 
-- Todo el proyecto vive en `~/Code/monitorVE`. **Prohibido** crear hermanos `~/Code/monitorVE-*`.
+- Todo el proyecto vive en `~/Code/tierra-firme`. **Prohibido** crear hermanos `~/Code/tierra-firme-*`.
 - Cada agente trabaja en su propio worktree **dentro** del repo:
-  `~/Code/monitorVE/.claude/worktrees/<slice>` — `.claude/` está gitignored, así que los worktrees no se publican ni aparecen en `~/Code`.
+  `~/Code/tierra-firme/.claude/worktrees/<slice>` — `.claude/` está gitignored, así que los worktrees no se publican ni aparecen en `~/Code`.
 - Crear así (o con el tool EnterWorktree del harness, que ya usa esa ruta):
 
   ```sh
@@ -17,7 +17,7 @@
 
 - `main` — integración. **Siempre verde** (`npm test`). Nadie codea aquí; solo el coordinador mergea.
 - `agent/<slice>` — una rama por slice. **1 rama ↔ 1 issue de GitHub** (ej. `agent/c4-export` ↔ #10).
-- El worktree raíz (`~/Code/monitorVE`, rama `main`) es del **coordinador**. Los agentes nunca codean ahí.
+- El worktree raíz (`~/Code/tierra-firme`, rama `main`) es del **coordinador**. Los agentes nunca codean ahí.
 
 ## Flujo por slice (loop del agente)
 
@@ -37,7 +37,7 @@ Antes de mergear: correr **`/security-review`** del diff.
 ## Tracker
 
 - **GitHub Issues = única fuente de verdad.** Labels: `afk` · `hitl` · `blocked` · `fase-a/b/c` · `in-progress`.
-- `ISSUES.md` / `BUILD.md` quedan como histórico; no se mantienen.
+- Los antiguos `ISSUES.md` / `BUILD.md` se eliminaron; el tracker vive solo en GitHub Issues.
 
 ## Coordinador (rol)
 

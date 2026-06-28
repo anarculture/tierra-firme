@@ -5,15 +5,11 @@
   "type": "module",
   "description": "Tierra Firme — bot de WhatsApp que destila el caos de reenvíos de la crisis sísmica VE (24-jun-2026) en qué hace falta, dónde y cuánto.",
   "scripts": {
-    "build": "node scripts/build.js",
     "test": "node --test",
-    "dev": "node src/api/server.js",
-    "start": "node src/api/server.js",
     "ingest": "node src/ingest/run.js",
-    "sb:health": "node scripts/sb-health.js",
     "revisar": "node scripts/revisar-server.js",
     "destila": "node scripts/destila.js"
   },
-  "comment": "Sin dependencias externas: vanilla JS + Node stdlib. Las deps (p.ej. @supabase/supabase-js) se añaden cuando una capa las use — TODO(Sx).",
+  "comment": "Sin dependencias externas: vanilla JS + Node stdlib. Las deps se añaden cuando una capa las use — TODO(Sx).",
   "engines": { "node": ">=20" }
 }
