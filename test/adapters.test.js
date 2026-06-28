@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { normalize as nAyuda } from "../src/ingest/ayudave.js";
 import { normalize as nTerr } from "../src/ingest/terremotovenezuela.js";
 import { normalize as nCrisis } from "../src/ingest/crisisvenezuela.js";
+import { normalize as nAyudaRed } from "../src/ingest/ayudaredve.js";
 
 test("ayudave.normalize: centro con coords string → Registro", () => {
   const out = nAyuda([{ name: "Iglesia X", estado: "Falcón", coords: "11.4,-69.6", needs: [] }]);
@@ -39,8 +40,24 @@ test("crisisvenezuela.normalize: fact daño → Registro dano con procedencia", 
   assert.deepEqual(out[0].coords, { lat: 10.61, lng: -66.85 });  // ojo: campo 'lon' del API
 });
 
+test("ayudaredve.normalize: zona une sus necesidades, marca verificado=false", () => {
+  const zonas = [{ id: "z1", nombre: "Bomberos Yaracuy", estado: "Yaracuy", municipio: "San Felipe",
+    severidad: "critica", personas_afectadas: "12000", latitud: "10.33", longitud: "-68.75" }];
+  const neces = [{ zona_id: "z1", categoria: "agua", articulo: "Agua potable", cantidad: "500", prioridad: "urgente" },
+                 { zona_id: "OTRA", categoria: "ropa", articulo: "x", cantidad: "1", prioridad: "alta" }];
+  const out = nAyudaRed(zonas, neces);
+  assert.equal(out.length, 1);
+  assert.equal(out[0].categoria, "zona");
+  assert.equal(out[0].payload.verificado, false);          // crowdsourced sin auth
+  assert.equal(out[0].payload.personasAfectadas, 12000);   // string → int
+  assert.equal(out[0].payload.necesidades.length, 1);      // solo la de z1
+  assert.equal(out[0].payload.necesidades[0].categoria, "agua");
+  assert.deepEqual(out[0].coords, { lat: 10.33, lng: -68.75 });
+});
+
 test("normalize tolera vacío", () => {
   assert.deepEqual(nAyuda(null), []);
   assert.deepEqual(nTerr({}), []);
   assert.deepEqual(nCrisis({}), []);
+  assert.deepEqual(nAyudaRed(null), []);
 });

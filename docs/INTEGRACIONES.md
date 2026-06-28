@@ -104,6 +104,29 @@ NO para respuestas de directorio. Lección para manejar data de este tipo: **cla
 
 ---
 
+## 3c. Ayuda Venezuela Red — DEMANDA estructurada (baja confianza)
+
+- **Base:** `https://ayuda-venezuela-red.vercel.app/api` · read-only, **sin auth**. Next.js/Vercel.
+- **Verificado en vivo 2026-06-28:** `GET /api/zonas` (29 zonas) + `GET /api/necesidades` (323, enum
+  `categoria`: rescate/agua/medicinas/alimentos/higiene/ropa/refugio; `prioridad` urgente/alta).
+  `GET /api/envios` vacío. Join limpio `necesidades.zona_id → zonas.id`.
+- **Naturaleza:** es la **otra punta del ruteo** — DEMANDA (zonas afectadas + qué necesitan), y a
+  diferencia de crisisvenezuela viene **estructurada** (enums, cantidades). Complementa acopiove (oferta),
+  no lo solapa.
+- ⚠️ **Dos candados (verificados):**
+  1. **Escrituras abiertas sin auth** (`OPTIONS` permite POST/PUT/DELETE) → crowdsourced **no verificado**.
+  2. **Sin licencia declarada** (ni ToS ni CC en el sitio).
+- **Geo:** solo 2/29 zonas traen lat/lng; el resto tiene estado/municipio/ciudad → geocodeable con
+  nuestro loop (follow-on, aún no aplicado).
+
+**Qué hacemos (decisión):**
+- ✅ **Captura interna** → `src/ingest/ayudaredve.js` alimenta `bundles/demanda.json` (`buildDemanda`),
+  cada zona con sus necesidades embebidas y `payload.verificado=false` (leads sin confirmar).
+- 🚫 **NO se publica en el API público `/v1`** ni se mezcla con datos verificados **hasta resolver
+  licencia/atribución con los operadores.** Bloqueante real, pendiente de acción humana.
+
+---
+
 ## 4. Relación con nuestro API público (`data/api.py`)
 
 - **`/v1` nuestro** = publica NUESTROS snapshots (índice/espejo, CC-BY-SA-4.0). `GET /v1/ruteo` ES la tabla de handoff.
