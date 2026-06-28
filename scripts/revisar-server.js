@@ -1,13 +1,27 @@
 /* Panel de revisión (OPERADOR, LOCAL). Cierra el loop: borrador (/sitrep → data/sitrep-drafts.json)
    → revisar/editar → publicar a src/curated/sitreps.json (reusa merge de publica-sitrep).
    El servidor PÚBLICO (src/api/server.js) sigue read-only; esto es una herramienta local del operador
-   (bind 127.0.0.1, sin auth para MVP). Gate humano = acá se aprueba antes de publicar. */
+   (bind 127.0.0.1). Gate humano = acá se aprueba antes de publicar.
+   Auth: por defecto sin auth (local). Si lo vas a tunelizar para revisar desde el teléfono,
+   seteá REVISAR_TOKEN: exige HTTP Basic (cualquier usuario, el token como contraseña). */
 import { createServer } from "node:http";
 import { readFile, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
+import { timingSafeEqual } from "node:crypto";
 import { merge } from "./publica-sitrep.js";
+
+const TOKEN = process.env.REVISAR_TOKEN || "";
+/** Sin TOKEN: modo local (true siempre). Con TOKEN: exige Basic con esa contraseña (compare timing-safe). */
+function authed(req) {
+  if (!TOKEN) return true;
+  const h = req.headers.authorization || "";
+  const raw = h.startsWith("Basic ") ? Buffer.from(h.slice(6), "base64").toString() : "";
+  const got = Buffer.from(raw.slice(raw.indexOf(":") + 1)); // todo tras el primer ":" = contraseña
+  const exp = Buffer.from(TOKEN);
+  return got.length === exp.length && timingSafeEqual(got, exp);
+}
 
 const STORE = fileURLToPath(new URL("../src/curated/sitreps.json", import.meta.url));
 const DRAFTS = fileURLToPath(new URL("../data/sitrep-drafts.json", import.meta.url));
@@ -28,6 +42,10 @@ const readJson = async (f, def) => (existsSync(f) ? JSON.parse(await readFile(f,
 
 async function main() {
   createServer(async (req, res) => {
+    if (!authed(req)) {
+      res.writeHead(401, { "www-authenticate": 'Basic realm="revisar"' });
+      return res.end("auth requerida (REVISAR_TOKEN)");
+    }
     const u = new URL(req.url, `http://${req.headers.host}`);
     if (u.pathname === "/api/drafts") {
       res.writeHead(200, { "content-type": "application/json" });

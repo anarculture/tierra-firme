@@ -1,3 +1,9 @@
+> ⚠️ **HISTÓRICO — modelo viejo de monitorVE (índice/clústeres/matches).** El producto
+> actual es **Tierra Firme** (puerta WhatsApp = sensor de demanda + enrutado). Dedup de
+> personas y señales de resolución salieron de scope y se enrutan a LocalizadosVzla/BuscaChat.
+> El modelo vigente está en **[TIERRA-FIRME.md](TIERRA-FIRME.md)**. Este archivo se conserva
+> como referencia del vocabulario original, no describe el sistema que se construye hoy.
+
 # monitorVE — Índice de crisis (terremoto VE, 24-jun-2026)
 
 Capa de consolidación sobre el ecosistema fragmentado de webs de la crisis: agrega,
