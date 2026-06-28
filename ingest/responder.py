@@ -43,14 +43,18 @@ _INTENT_ACOPIO = ("acopio", "donar", "dono", "donde dono", "donde hay", "donde q
 # intención "buscar persona": desaparecidos.
 _INTENT_PERSONA = ("desaparecid", "busco a", "no aparece", "paradero", "ubicar a",
                    "perdid", "se perdio", "estoy buscando")
+# intención "demanda": qué se necesita / qué falta en una zona afectada.
+_INTENT_DEMANDA = ("que se necesita", "que necesitan", "que hace falta", "que falta",
+                   "necesidades en", "que requieren", "donde se necesita", "donde ayudar",
+                   "como ayudar", "zona afectada", "zonas afectadas")
 
 # palabras que NO son lugar — se descartan al extraer la zona de la consulta.
 _STOP = {"donde", "dond", "hay", "queda", "puedo", "centro", "centros", "acopio",
          "donar", "dono", "comida", "agua", "ropa", "medicina", "medicinas",
-         "necesito", "busco", "quiero", "para", "esta", "este", "como", "cual",
+         "necesito", "necesita", "necesitan", "quiero", "para", "esta", "este", "como", "cual",
          "sector", "calle", "avenida", "entre", "frente", "edificio", "local",
          "municipio", "parroquia", "zona", "cerca", "punto", "ayuda", "buenas",
-         "refugio", "albergue", "donde"}
+         "refugio", "albergue", "donde", "hace", "falta", "requieren", "afectada", "afectadas"}
 # extra para extraer NOMBRE en consulta de persona.
 _STOP_PERSONA = _STOP | {"desaparecido", "desaparecida", "persona", "familiar",
                          "paradero", "ubicar", "aparece", "perdido", "perdida",
@@ -191,6 +195,59 @@ def _fmt_personas(rows):
     return "\n".join(out)
 
 
+# ---------- demanda (zonas afectadas + qué necesitan) ----------
+
+_DEMANDA = None  # cache lazy del bundle demanda.json
+
+
+def _demanda_local():
+    """Zonas afectadas con sus necesidades (bundle de Ayuda Venezuela Red, vía ingesta).
+    Son leads SIN verificar (verificado=false en cada payload)."""
+    global _DEMANDA
+    if _DEMANDA is None:
+        p = _resolve_local("demanda.json")
+        items = json.load(open(p, encoding="utf-8")).get("items", []) if p else []
+        _DEMANDA = [x.get("payload", {}) for x in items]
+    return _DEMANDA
+
+
+def buscar_zonas(text, limit=2):
+    """Zonas afectadas cuyo nombre/ubicación menciona algún token-lugar de la consulta."""
+    q = _norm(text)
+    place_tokens = [t for t in re.findall(r"[a-z]{4,}", q) if t not in _STOP]
+    if not place_tokens:
+        return []
+    scored = []
+    for z in _demanda_local():
+        hay = _norm(f"{z.get('nombre','')} {z.get('estado','')} {z.get('municipio','')} {z.get('ciudad','')}")
+        score = sum(1 for t in place_tokens if t in hay)
+        if score:
+            scored.append((score, z))
+    scored.sort(key=lambda sz: sz[0], reverse=True)
+    return [z for _s, z in scored[:limit]]
+
+
+def _fmt_demanda(zonas):
+    """Lista qué necesita cada zona (urgente primero) y cruza con acopiove (dónde llevar)."""
+    out = []
+    for z in zonas:
+        sev = z.get("severidad", "")
+        out.append(f"🆘 *{z.get('nombre','(zona)')}*" + (f" — severidad {sev}" if sev else "") + " necesita:")
+        needs = sorted(z.get("necesidades", []), key=lambda n: 0 if n.get("prioridad") == "urgente" else 1)
+        for n in needs[:6]:
+            art = n.get("articulo") or n.get("categoria") or ""
+            pri = n.get("prioridad", "")
+            out.append(f"  • {n.get('categoria','')}: {art}" + (f" — *{pri}*" if pri else ""))
+        # cruce con acopiove: dónde llevar la ayuda cerca de esa zona.
+        cerca = buscar_centros(f"{z.get('municipio','')} {z.get('estado','')}", limit=2)
+        if cerca:
+            out.append("  📍 dónde llevar ayuda cerca:")
+            for c in cerca:
+                out.append(f"    – {c.get('name','')}" + (f" ({c['loc']})" if c.get("loc") else ""))
+    out.append("\n⚠️ Reportes de la comunidad, *sin verificar*. Confirmá antes de movilizar.")
+    return "\n".join(out)
+
+
 # ---------- ResponseGrid: empujar demanda (APAGADO por defecto) ----------
 
 def push_need(text, category=None, priority="medium"):
@@ -234,6 +291,12 @@ def responder(text):
             return _fmt_personas(rows)
         return ("No encontré a esa persona en los registros vivos. Pasá nombre completo y zona, "
                 "o reportala en desaparecidosvenezuela.com.")
+    if any(_norm(k) in q for k in _INTENT_DEMANDA):
+        zonas = buscar_zonas(text)
+        if zonas:
+            return _fmt_demanda(zonas)
+        return ("No tengo necesidades reportadas para esa zona ahora. "
+                "Decime el estado o municipio, o probá una zona cercana.")
     if any(_norm(k) in q for k in _INTENT_ACOPIO):
         matches = buscar_centros(text)
         if not matches:
@@ -245,8 +308,8 @@ def responder(text):
 
 def selftest():
     os.environ["TF_OFFLINE"] = "1"  # determinista: solo data local, sin red
-    global _LOCAL
-    _LOCAL = None
+    global _LOCAL, _DEMANDA
+    _LOCAL = None; _DEMANDA = None
     # emergencia gana sobre todo (offline: sin teléfonos vivos, pero 171 siempre)
     r = responder("hay gente atrapada, es una emergencia")
     assert r and "171" in r, r
@@ -259,6 +322,10 @@ def selftest():
     # persona offline -> respuesta honesta (sin red, no fabrica)
     r = responder("busco a mi tio Juan Perez, está desaparecido")
     assert r and "no encontre" in _norm(r), r
+    # demanda: qué se necesita en una zona reportada (Yaracuy está en el bundle)
+    r = responder("¿qué se necesita en Yaracuy?")
+    assert r and "sin verificar" in _norm(r), r          # cruza demanda, marca no-verificado
+    assert r and ("necesita" in _norm(r) or ":" in r), r
     # no-consulta (reporte de intake) -> None, el bot calla y deja a /sitrep
     assert responder("necesitamos tapabocas en Perlamar") is None
     assert responder("hola buenas") is None
