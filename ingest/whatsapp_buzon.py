@@ -9,8 +9,9 @@ que esto es un server. Expón el puerto con `cloudflared tunnel --url http://loc
 Uso:
   export WA_VERIFY_TOKEN=<el que pongas en la config del webhook de Meta>
   export WA_TOKEN=<token permanente de la app / system user>   # para bajar media
-  export WA_APP_SECRET=<app secret>                            # valida la firma (opcional)
-  python3 whatsapp_buzon.py            # corre el webhook en :8788
+  export WA_APP_SECRET=<app secret>                            # valida la firma (OBLIGATORIO salvo --dev)
+  python3 whatsapp_buzon.py            # corre el webhook en :8788 (exige WA_APP_SECRET)
+  python3 whatsapp_buzon.py --dev      # local sin firma: acepta webhooks sin validar
   python3 whatsapp_buzon.py --selftest # prueba sin red
 
 ponytail: intake abierto (cualquiera que escriba al número entra). Si hay spam,
@@ -125,13 +126,17 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def run():
+    dev = "--dev" in sys.argv  # firma off solo si el operador lo pide explícito
     if not VERIFY_TOKEN:
         sys.exit("Falta WA_VERIFY_TOKEN (debe coincidir con la config del webhook de Meta).")
+    if not APP_SECRET and not dev:
+        sys.exit("Falta WA_APP_SECRET: sin firma cualquiera con la URL del túnel inyecta al inbox. "
+                 "Seteá el app secret de Meta, o corré con --dev para aceptar sin validar (solo local).")
     print(f"Webhook WhatsApp en http://localhost:{PORT}  -> {INBOX}  (Ctrl+C para parar)")
     if not TOKEN:
         print("  (sin WA_TOKEN: no baja media; solo texto/captions)")
     if not APP_SECRET:
-        print("  ⚠ sin WA_APP_SECRET: NO se valida la firma — cualquiera con la URL puede inyectar. Solo dev.")
+        print("  ⚠ --dev sin WA_APP_SECRET: NO se valida la firma — cualquiera con la URL puede inyectar. Solo local.")
     # threading: la descarga de media no bloquea el siguiente webhook (append es 1 write, atómico)
     ThreadingHTTPServer(("", PORT), Handler).serve_forever()
 
