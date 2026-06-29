@@ -45,13 +45,18 @@ async function buildDanos() {
 }
 
 async function buildDemanda() {
-  // Ayuda Venezuela Red + hub help_request: DEMANDA estructurada, no verificada.
-  // Solo captura interna — NO se publica en el API público hasta resolver licencia.
-  let items = await safe(() => ayudared.fetchRegistros(), "ayuda-venezuela-red");
-  let source = "ayuda-venezuela-red";
-  const h = await safe(() => hub.fetchRegistros("help_request"), "hub help_request");
-  if (h.length) { items = items.concat(h); source += "+hub"; }
-  return { categoria: "zona", source, items, fetchedAt: new Date().toISOString() };
+  // Ayuda Venezuela Red: zonas + necesidades (DEMANDA estructurada, no verificada).
+  // Aliado con permiso → SÍ se publica en /v1/demanda (licencia ALIADO). Solo este source:
+  // mezclar hub (sin licencia) aquí lo serviría bajo la atribución del aliado. Va a demanda-hub.
+  const items = await safe(() => ayudared.fetchRegistros(), "ayuda-venezuela-red");
+  return { categoria: "zona", source: "ayuda-venezuela-red", items, fetchedAt: new Date().toISOString() };
+}
+
+async function buildDemandaHub() {
+  // hub help_request: misma categoría (zona) pero SIN licencia declarada → captura INTERNA.
+  // Bundle aparte, NO en POLICY, para no publicarlo en /v1 bajo atribución ajena (ver hub.js).
+  const items = await safe(() => hub.fetchRegistros("help_request"), "hub help_request");
+  return { categoria: "zona", source: "terremotovenezuela-hub", items, fetchedAt: new Date().toISOString() };
 }
 
 async function buildOferta() {
@@ -63,7 +68,7 @@ async function buildOferta() {
 
 // TODO(Sx): añadir builders restantes (personas, refugios, hospitales, mascotas) en sus slices.
 //   hub también expone missing_person/checkin (categoria persona, con nombre) → va al slice de personas, no aquí.
-const BUNDLES = { replicas: buildReplicas, centros: buildCentros, danos: buildDanos, demanda: buildDemanda, oferta: buildOferta };
+const BUNDLES = { replicas: buildReplicas, centros: buildCentros, danos: buildDanos, demanda: buildDemanda, "demanda-hub": buildDemandaHub, oferta: buildOferta };
 
 async function main() {
   await mkdir(BUNDLE_DIR, { recursive: true });
