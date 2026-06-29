@@ -12,4 +12,7 @@ dist/
 # PII / tooling — repo público, nunca pushear
 .codegraph/
 docs/WhatsApp Chat*/
-docs/puntos_ayuda_live_db.csv
+# snapshots de ingesta con PII — locales, alimentan el API (redactado/gated al servir)
+data/missing.json
+data/patients.json
+data/puntos_ayuda_live_db.csv
