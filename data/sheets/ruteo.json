@@ -1,0 +1,2104 @@
+[
+  {
+    "dominio": "lo-la-has-visto-48680439362.us-west1.run.app",
+    "nombre": "¿La has visto? · Generador de fichas",
+    "url": "https://lo-la-has-visto-48680439362.us-west1.run.app/",
+    "que_hace": "Crea una ficha/poster de persona desaparecida (foto, nombre, último lugar y teléfono) lista para descargar y compartir en redes. Todo en tu navegador, sin guardar datos.",
+    "categorias": [
+      "Herramienta"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "recursos-herramientas.csv"
+    ]
+  },
+  {
+    "dominio": "24junve.statuslocal.net",
+    "nombre": "24JunVE",
+    "url": "https://24junve.statuslocal.net",
+    "que_hace": "Mapa de eventos",
+    "categorias": [
+      "Edificios"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "acopiove.org",
+    "nombre": "Acopio VE",
+    "url": "https://acopiove.org/",
+    "que_hace": "Directorio de acopios, voluntarios intérpretes, bot de whatsapp",
+    "categorias": [
+      "Acopios",
+      "Albergues"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv",
+      "acopios-refugios.csv"
+    ]
+  },
+  {
+    "dominio": "acopiovzla.com",
+    "nombre": "Acopio VZLA",
+    "url": "https://acopiovzla.com",
+    "que_hace": "Directorio de acopios",
+    "categorias": [
+      "Acopios",
+      "Albergues"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "acopios-refugios.vercel.app",
+    "nombre": "Acopios-Refugios",
+    "url": "https://acopios-refugios.vercel.app/",
+    "que_hace": "Informacion de centros de acopio y refugio",
+    "categorias": [
+      "Acopios",
+      "Albergues"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv",
+      "acopios-refugios.csv"
+    ]
+  },
+  {
+    "dominio": "aidvenezuela.net",
+    "nombre": "Aid Venezuela (NUEVO)",
+    "url": "https://aidvenezuela.net",
+    "que_hace": "Reporte/agregador",
+    "categorias": [
+      "Desaparecidos"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "ajevenezuela.org",
+    "nombre": "ajevenezuela.org",
+    "url": "https://ajevenezuela.org/ayuda-venezuela",
+    "que_hace": "",
+    "categorias": [
+      "Donaciones"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "alumnusb.org",
+    "nombre": "AlumnUSB",
+    "url": "https://alumnusb.org/ayuda-tras-terremoto/",
+    "que_hace": "Recolección de fondos. Organización que rinde cuentas a la legislación estadounidense y es auditada por el IRS",
+    "categorias": [
+      "Donaciones",
+      "Herramienta"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "recursos-herramientas.csv"
+    ]
+  },
+  {
+    "dominio": "respuestave.org",
+    "nombre": "API para desarrolladores y agentes",
+    "url": "https://respuestave.org/desarrolladores",
+    "que_hace": "",
+    "categorias": [
+      "Herramienta"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "apoyo.salu.pro",
+    "nombre": "Apoyo Salud",
+    "url": "https://apoyo.salu.pro",
+    "que_hace": "Apoyo salud",
+    "categorias": [
+      "Hospitales"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "aquiestoy.xyz",
+    "nombre": "Aquí Estoy",
+    "url": "https://aquiestoy.xyz/",
+    "que_hace": "Personas reportadas en hospitales",
+    "categorias": [
+      "Herramienta"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "recursos-herramientas.csv"
+    ]
+  },
+  {
+    "dominio": "auxilioven.org",
+    "nombre": "Auxilio Ven",
+    "url": "https://auxilioven.org",
+    "que_hace": "Cruza hospitales vs desaparecidos",
+    "categorias": [
+      "Hospitales"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "redh.avapre.com",
+    "nombre": "Avapre Venezuela",
+    "url": "https://redh.avapre.com/",
+    "que_hace": "Hub de ayuda rapida y requests de centros medicos",
+    "categorias": [
+      "Hospitales"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "ayudaencamino.com",
+    "nombre": "Ayuda en Camino",
+    "url": "https://ayudaencamino.com/",
+    "que_hace": "Para centralizar la ayuda",
+    "categorias": [
+      "Directorio"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "ayudahumanitariavenezuela.com",
+    "nombre": "AYUDA HUMANITARIA VENEZUELA",
+    "url": "https://ayudahumanitariavenezuela.com/",
+    "que_hace": "Centralización de todos los datos + Panel administrativo de centro de acopios + inventarios y solicitudes de donación",
+    "categorias": [
+      "Acopios",
+      "Albergues",
+      "Desaparecidos",
+      "Donaciones",
+      "Edificios",
+      "Herramienta",
+      "Hospitales",
+      "Mascotas",
+      "Niños",
+      "Rescates"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "recursos-herramientas.csv"
+    ]
+  },
+  {
+    "dominio": "recursos-venezuela.netlify.app",
+    "nombre": "Ayuda Terremoto Venezuela",
+    "url": "https://recursos-venezuela.netlify.app",
+    "que_hace": "Agregador verificado: plataformas de búsqueda, instrucciones de supervivencia, canales de donación. Links a GlobalGiving, UNICEF y Cruz Roja.",
+    "categorias": [
+      "Directorio"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-activas.csv"
+    ]
+  },
+  {
+    "dominio": "ayudave.com",
+    "nombre": "Ayuda VE (DROSS)",
+    "url": "https://ayudave.com",
+    "que_hace": "Mapa reportar/insumos/ayuda",
+    "categorias": [
+      "Acopios",
+      "Directorio"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "ayudaparavenezuela.com",
+    "nombre": "ayudaparavenezuela.com",
+    "url": "https://ayudaparavenezuela.com",
+    "que_hace": "Centros de acopio",
+    "categorias": [
+      "Acopios",
+      "Albergues",
+      "Donaciones"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "donorbox.org",
+    "nombre": "Bomberos UCV",
+    "url": "https://donorbox.org/emergency-relief-for-venezuela-s-earthquake-survivors",
+    "que_hace": "La Fundación de Bomberos de la UCV creó una página de donaciones para adquirir equipos de rescate críticos para entrega inmediata en Caracas y ponerlos directamente en manos de los equipos que están respondiendo a este desastre.",
+    "categorias": [
+      "Donaciones",
+      "Edificios",
+      "ONG"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "ongs.csv"
+    ]
+  },
+  {
+    "dominio": "t.me",
+    "nombre": "Bot de Telegram",
+    "url": "https://t.me/busqueda_vzla_temblor_bot",
+    "que_hace": "Búsqueda de personas en hospitales por cédula/apellido",
+    "categorias": [
+      "Herramienta"
+    ],
+    "activo": true,
+    "api": "Consume: https://github.com/venezuela-war-room/api",
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv",
+      "recursos-herramientas.csv"
+    ]
+  },
+  {
+    "dominio": "github.com",
+    "nombre": "Buscador Unificado VZLA (NUEVO)",
+    "url": "https://github.com/joeyrubio/buscador-unificado-vzla",
+    "que_hace": "Proyecto para UNIFICAR data desaparecidos/ubicados",
+    "categorias": [
+      "Desaparecidos"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv",
+      "plataformas-activas.csv"
+    ]
+  },
+  {
+    "dominio": "busquedavzla.netlify.app",
+    "nombre": "Busqueda VZLA",
+    "url": "https://busquedavzla.netlify.app",
+    "que_hace": "Buscador",
+    "categorias": [
+      "Desaparecidos"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "caritasvenezuela.org",
+    "nombre": "Caritas",
+    "url": "https://caritasvenezuela.org/donaciones/",
+    "que_hace": "Donaciones ONG",
+    "categorias": [
+      "Donaciones"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "app.appcentinela.com",
+    "nombre": "Centinela (NUEVO)",
+    "url": "https://app.appcentinela.com",
+    "que_hace": "Reporte de danos",
+    "categorias": [
+      "Edificios"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "kevinesaa.github.io",
+    "nombre": "Centraliza Ayuda Venezuela",
+    "url": "https://kevinesaa.github.io/centraliza-ayuda-venezuela",
+    "que_hace": "Portal; codigo abierto",
+    "categorias": [
+      "Directorio"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "centrorecursosvenezuela.netlify.app",
+    "nombre": "Centro Recursos Venezuela",
+    "url": "https://centrorecursosvenezuela.netlify.app",
+    "que_hace": "Portal de recursos",
+    "categorias": [
+      "Directorio"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "centro-de-acopio-ven.vercel.app",
+    "nombre": "centro-de-acopio-ven.vercel.app",
+    "url": "https://centro-de-acopio-ven.vercel.app",
+    "que_hace": "",
+    "categorias": [
+      "Acopios"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "centrosayudavenezuela.org",
+    "nombre": "Centros de Acopio Venezuela",
+    "url": "https://centrosayudavenezuela.org/",
+    "que_hace": "",
+    "categorias": [
+      "Acopios"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "civisvenezuela.com",
+    "nombre": "CIVIS Venezuela",
+    "url": "https://civisvenezuela.com",
+    "que_hace": "Plataforma de apoyo ciudadano para emergencia: búsqueda de personas desaparecidas, reportes de daños, mapa de riesgos, puntos de abastecimiento, réplicas/sismos, números de emergencia y atención por WhatsApp con agentes de IA",
+    "categorias": [
+      "Desaparecidos"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv",
+      "plataformas-activas.csv"
+    ]
+  },
+  {
+    "dominio": "www2.cruzroja.es",
+    "nombre": "Cruz Roja Española",
+    "url": "https://www2.cruzroja.es/-/ayuda-terremoto-venezuela-2026",
+    "que_hace": "Canal oficial. Bizum al 33512 o SMS VENEZUELA al 38092 (6 íntegros). Coordinación con Cruz Roja Venezolana.",
+    "categorias": [
+      "Donaciones"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-activas.csv"
+    ]
+  },
+  {
+    "dominio": "pejucat.es",
+    "nombre": "Cuenta de donaciones de PEJUCAT",
+    "url": "https://pejucat.es/",
+    "que_hace": "Colecta donaciones: BIzum 11976 - Fundación Meals4Hope - ES47 0081 0065 1400 0214 7418",
+    "categorias": [
+      "Donaciones"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "demanoenmano.vercel.app",
+    "nombre": "De Mano En Mano",
+    "url": "https://demanoenmano.vercel.app/",
+    "que_hace": "Qué ayuda se necesita en tiempo real: hospitales y refugios verificados",
+    "categorias": [
+      "Acopios",
+      "Hospitales"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "desaparecidosterremotovenezuela.com",
+    "nombre": "Desaparecidos Terremoto",
+    "url": "https://desaparecidosterremotovenezuela.com/",
+    "que_hace": "reportar y encontrar desaparecidos",
+    "categorias": [
+      "Desaparecidos"
+    ],
+    "activo": true,
+    "api": "Si (disponibilizando)",
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv",
+      "plataformas-activas.csv"
+    ]
+  },
+  {
+    "dominio": "desaparecidosvenezuela.com",
+    "nombre": "Desaparecidos Venezuela",
+    "url": "https://www.desaparecidosvenezuela.com/",
+    "que_hace": "Buscar personas tras el terremoto 2026.",
+    "categorias": [
+      "Desaparecidos"
+    ],
+    "activo": true,
+    "api": "SI (no oficial)",
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "maquinasyoperadores.com",
+    "nombre": "Directorio de maquinaria pesada",
+    "url": "https://maquinasyoperadores.com/",
+    "que_hace": "Site para registrar información de empresas o individuos que cuenten con maquinaria pesada que puedan prestar ayuda moviendo escombros.",
+    "categorias": [
+      "Herramienta"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "recursos-herramientas.csv"
+    ]
+  },
+  {
+    "dominio": "tuia911.com",
+    "nombre": "Directorio para reportar niños desaparecidos",
+    "url": "https://tuia911.com",
+    "que_hace": "",
+    "categorias": [
+      "Niños"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "ninos.csv"
+    ]
+  },
+  {
+    "dominio": "dividendovoluntario.org",
+    "nombre": "Dividendo Voluntario",
+    "url": "https://dividendovoluntario.org",
+    "que_hace": "Donaciones",
+    "categorias": [
+      "Donaciones"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "donarseguro.com",
+    "nombre": "Donar Seguro",
+    "url": "https://donarseguro.com",
+    "que_hace": "Donaciones",
+    "categorias": [
+      "Donaciones"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "encuentralos.tecnosoft.dev",
+    "nombre": "Encuéntralos",
+    "url": "https://encuentralos.tecnosoft.dev/",
+    "que_hace": "Base de datos de personas desaparecidas tras el sismo, con filtros por estado y estatus (localizado / sin localizar) y generación de carteles para compartir.",
+    "categorias": [
+      "Desaparecidos"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "encuentralosvzla.com",
+    "nombre": "Encuentralos VZLA",
+    "url": "https://encuentralosvzla.com",
+    "que_hace": "Reporte de menores",
+    "categorias": [
+      "Desaparecidos"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "encuentramevzla.com",
+    "nombre": "Encuentrame Vzla",
+    "url": "https://encuentramevzla.com/",
+    "que_hace": "Personas reportadas en hospitales",
+    "categorias": [
+      "Hospitales"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv",
+      "plataformas-activas.csv"
+    ]
+  },
+  {
+    "dominio": "enlazavenezuela.com",
+    "nombre": "enlazavenezuela.com",
+    "url": "https://enlazavenezuela.com",
+    "que_hace": "",
+    "categorias": [
+      "Directorio"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "familias-hospital.vercel.app",
+    "nombre": "Familias-Hospital",
+    "url": "https://familias-hospital.vercel.app",
+    "que_hace": "Conecta familias con hospitales",
+    "categorias": [
+      "Hospitales"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "btc.academiasucab.com",
+    "nombre": "Fondo BTC UCAB",
+    "url": "https://btc.academiasucab.com/fondo-emergencia-sismo-vzla-2026",
+    "que_hace": "Fondo emergencia en BTC",
+    "categorias": [
+      "Donaciones"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "asistencia-medica-fvivemas.web.app",
+    "nombre": "Fvivemas: Localización y Asistencia Médica",
+    "url": "https://asistencia-medica-fvivemas.web.app/",
+    "que_hace": "Plataforma solidaria de búsqueda de pacientes hospitalizados y reporte de emergencias",
+    "categorias": [
+      "Herramienta"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "recursos-herramientas.csv"
+    ]
+  },
+  {
+    "dominio": "instagram.com",
+    "nombre": "Grupo Venemergencia",
+    "url": "https://www.instagram.com/CREEA.VE/",
+    "que_hace": "Impresiones 3D para apoyar las labores de emergencia y atención",
+    "categorias": [
+      "Acopios",
+      "Donaciones"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-activas.csv"
+    ]
+  },
+  {
+    "dominio": "hazlohoy.org",
+    "nombre": "Hazlo Hoy",
+    "url": "https://hazlohoy.org/terremoto-caracas/",
+    "que_hace": "Centralizacion de datos y reportes del terremoto",
+    "categorias": [
+      "Acopios",
+      "Albergues",
+      "Desaparecidos",
+      "Donaciones"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "terremoto.hazlohoy.org",
+    "nombre": "Hazlo Hoy · Venezuela Ayuda",
+    "url": "https://terremoto.hazlohoy.org/",
+    "que_hace": "Hub de coordinación de emergencia: donar, buscar o reportar desaparecidos, pedir ayuda, reportar edificios dañados, marcar 'estoy a salvo', ofrecerse como voluntario y mapa interactivo.",
+    "categorias": [
+      "Acopios",
+      "Desaparecidos",
+      "Edificios",
+      "Rescates"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "heroesvenezuela.com",
+    "nombre": "Heroes Venezuela",
+    "url": "https://heroesvenezuela.com",
+    "que_hace": "A traves de geolocalización, conecta ayudantes con personas que requieren ayuda en logistica, insumos, etc.",
+    "categorias": [
+      "Acopios"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "hogarbambi.org",
+    "nombre": "Hogar Bambi",
+    "url": "https://hogarbambi.org/donar-ahora/",
+    "que_hace": "Donaciones y están solicitando insumos",
+    "categorias": [
+      "Acopios",
+      "Donaciones"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "hospitalesenvenezuela.com",
+    "nombre": "Hospitales en Venezuela",
+    "url": "https://hospitalesenvenezuela.com",
+    "que_hace": "Ingresos hospitalarios",
+    "categorias": [
+      "Hospitales"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "huellascan.com",
+    "nombre": "Huellas Can",
+    "url": "https://www.huellascan.com/terremoto",
+    "que_hace": "reportar y encontrar mascotas",
+    "categorias": [
+      "Desaparecidos",
+      "Mascotas"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv",
+      "mascotas.csv"
+    ]
+  },
+  {
+    "dominio": "infanciaprotegidavzla.netlify.app",
+    "nombre": "Infancia Protegida Vzla",
+    "url": "https://infanciaprotegidavzla.netlify.app/",
+    "que_hace": "Llevar registro y seguirle el rastro a los niños no acompañandos",
+    "categorias": [
+      "Niños"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "infoayudavenezuela.site",
+    "nombre": "Info Ayuda Venezuela",
+    "url": "https://infoayudavenezuela.site",
+    "que_hace": "Info de acopios",
+    "categorias": [
+      "Acopios",
+      "Albergues"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "info-central-terremoto-venezuela.com",
+    "nombre": "Info Central Terremoto VE",
+    "url": "https://info-central-terremoto-venezuela.com",
+    "que_hace": "Portal central",
+    "categorias": [
+      "Directorio"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "infosaludsismovzla2026.com",
+    "nombre": "Info Salud Sismo VZLA",
+    "url": "http://infosaludsismovzla2026.com/",
+    "que_hace": "Registro y búsqueda de personas que ingresaron a unidades hospitalarias",
+    "categorias": [
+      "Hospitales",
+      "Niños"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "habitable.lovable.app",
+    "nombre": "Ingenieros por Venezuela",
+    "url": "https://habitable.lovable.app",
+    "que_hace": "Ingenieros voluntarios para evaluar los reportes de daños",
+    "categorias": [
+      "Edificios"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "vzlaayuda.com",
+    "nombre": "Listado de personas que ofrecen sus servicios por zonas",
+    "url": "https://vzlaayuda.com",
+    "que_hace": "Pedir ayuda general (inspecciónes, medicinas, transporte, comida, alojamiento)",
+    "categorias": [
+      "Albergues",
+      "Donaciones"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "localizadosvenezuela.com",
+    "nombre": "Localizados VE",
+    "url": "https://localizadosvenezuela.com/",
+    "que_hace": "Reportar personas localizadas",
+    "categorias": [
+      "Desaparecidos"
+    ],
+    "activo": true,
+    "api": "SI - API publica",
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "venezuela-quake-damage-map.onrender.com",
+    "nombre": "Mapa de calor de daños por el terremoto",
+    "url": "https://venezuela-quake-damage-map.onrender.com/",
+    "que_hace": "Identificar zonas afectadas",
+    "categorias": [
+      "Edificios"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "mapadenecesidadesvzla.com",
+    "nombre": "Mapa de Necesidades",
+    "url": "https://mapadenecesidadesvzla.com/",
+    "que_hace": "Un mapa en vivo de lo que se necesita tras el terremoto, zona por zona. Sirve para que la ayuda llegue a donde de verdad falta, y no se acumule donde ya está cubierto. Cada punto lo verifica un centro de acopio antes de mostrarse, para que la información sea confiable.",
+    "categorias": [
+      "Acopios",
+      "Servicios básicos"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "dondeayudarvzla.com",
+    "nombre": "MAPA INTERACTIVO DE CENTROS DE ACOPIO",
+    "url": "https://dondeayudarvzla.com",
+    "que_hace": "Centraliza los centros de acopio y mejora la visibilidad",
+    "categorias": [
+      "Donaciones"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "mascotasporvenezuela.com",
+    "nombre": "Mascotas por Venezuela",
+    "url": "https://www.mascotasporvenezuela.com/",
+    "que_hace": "Mascotas perdidas",
+    "categorias": [
+      "Mascotas"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv",
+      "mascotas.csv"
+    ]
+  },
+  {
+    "dominio": "mbuscan.com",
+    "nombre": "mBuscan",
+    "url": "https://mbuscan.com",
+    "que_hace": "Plataforma ciudadana sin login",
+    "categorias": [
+      "Desaparecidos"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "data.humdata.org",
+    "nombre": "Microsoft AI for Good (HDX) (NUEVO)",
+    "url": "https://data.humdata.org",
+    "que_hace": "Dataset danos edificios Catia La Mar",
+    "categorias": [
+      "Edificios",
+      "Oficial"
+    ],
+    "activo": true,
+    "api": "SI - Datos abiertos",
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "mirandaconecta.site",
+    "nombre": "Miranda Conecta",
+    "url": "https://mirandaconecta.site/",
+    "que_hace": "",
+    "categorias": [
+      "Directorio"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "busca.nexosignal.co",
+    "nombre": "Niños de Pie",
+    "url": "https://busca.nexosignal.co/",
+    "que_hace": "Registro de niños rescatados y no acompañados",
+    "categorias": [
+      "Niños"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "ninos.csv"
+    ]
+  },
+  {
+    "dominio": "nueveonce.com",
+    "nombre": "nueveonce.com",
+    "url": "https://www.nueveonce.com",
+    "que_hace": "",
+    "categorias": [
+      "Directorio"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "pacientesterremotovzla.lovable.app",
+    "nombre": "Pacientes Terremoto VZLA",
+    "url": "https://pacientesterremotovzla.lovable.app",
+    "que_hace": "Pacientes en hospitales",
+    "categorias": [
+      "Hospitales"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "paho.org",
+    "nombre": "PAHO/OMS Venezuela Response",
+    "url": "https://www.paho.org/en/venezuela-earthquake-response",
+    "que_hace": "Respuesta oficial sanitaria. Situación epidemiológica. Coordinación internacional.",
+    "categorias": [
+      "Oficial"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-activas.csv"
+    ]
+  },
+  {
+    "dominio": "patasacasa.com",
+    "nombre": "Patas a Casa",
+    "url": "https://patasacasa.com/",
+    "que_hace": "Reporta y búsqueda de mascotas para que vuelvan con su familia",
+    "categorias": [
+      "Desaparecidos",
+      "Mascotas"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv",
+      "mascotas.csv"
+    ]
+  },
+  {
+    "dominio": "patitasasalvovenezuela.org",
+    "nombre": "Patitas a Salvo. Mascotas perdidas y encontradas",
+    "url": "https://patitasasalvovenezuela.org",
+    "que_hace": "MASCOTAS PERDIDAS Y/O ENCONTRADAS",
+    "categorias": [
+      "Mascotas"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "mascotas.csv"
+    ]
+  },
+  {
+    "dominio": "migenteve.com",
+    "nombre": "Patitas a Salvo. Mascotas perdidas y encontradas",
+    "url": "https://migenteve.com/",
+    "que_hace": "Reportar mascotas perdidas y encontradas o con necesidad médica",
+    "categorias": [
+      "Mascotas"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "mascotas.csv"
+    ]
+  },
+  {
+    "dominio": "psfvenezuela.wordpress.com",
+    "nombre": "Psic. Sin Fronteras Venezuela",
+    "url": "https://psfvenezuela.wordpress.com/",
+    "que_hace": "Asistencia psicosocial a personas afectadas por crisis y duelos.",
+    "categorias": [
+      "Salud mental"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "puntodeapoyovenezuela.com",
+    "nombre": "Punto de apoyo Venezuela",
+    "url": "https://www.puntodeapoyovenezuela.com/",
+    "que_hace": "Mapa colaborativo para marcar puntos de apoyo (suministros, centros de acopio, hospitales, WiFi Libre, energía, etc), pueden marcar tanto para solicitar como para ofrecer.",
+    "categorias": [
+      "Acopios",
+      "Albergues",
+      "Hospitales"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "reconectavenezuela.com",
+    "nombre": "ReconectaVenezuela",
+    "url": "https://reconectavenezuela.com",
+    "que_hace": "Internet satelital gratis",
+    "categorias": [
+      "Servicios básicos"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "recursos-terremoto-venezuela.netlify.app",
+    "nombre": "Recursos Terremoto Venezuela",
+    "url": "https://recursos-terremoto-venezuela.netlify.app/",
+    "que_hace": "Agrupar informacion",
+    "categorias": [
+      "Herramienta"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv",
+      "recursos-herramientas.csv"
+    ]
+  },
+  {
+    "dominio": "redayudavenezuela.com",
+    "nombre": "Red Ayuda Venezuela",
+    "url": "https://redayudavenezuela.com/",
+    "que_hace": "Plataforma ciudadana con contadores en vivo y mapa interactivo para reportar personas a salvo, atrapadas, peligros, necesidades, voluntarios y mascotas; incluye sismos USGS y directorio de hospitales y emergencias.",
+    "categorias": [
+      "Mascotas"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv",
+      "mascotas.csv"
+    ]
+  },
+  {
+    "dominio": "redsonadoras.com",
+    "nombre": "Red Sonadoras",
+    "url": "https://redsonadoras.com",
+    "que_hace": "Hasta Encontrarles' buscador",
+    "categorias": [
+      "Desaparecidos"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "ayudavenezuela2026.com",
+    "nombre": "Red Venezuela Activa",
+    "url": "https://ayudavenezuela2026.com/",
+    "que_hace": "Conecta necesidades con quienes pueden ayudar: registro de voluntarios y profesionales, casos urgentes, albergues y sus necesidades, mapa en vivo y movilización por WhatsApp. Enlaza a las plataformas de personas no localizadas.",
+    "categorias": [
+      "Directorio"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv",
+      "plataformas-activas.csv"
+    ]
+  },
+  {
+    "dominio": "redquipu.com",
+    "nombre": "RedQuipu",
+    "url": "https://redquipu.com/",
+    "que_hace": "Plataforma central' (consolida iniciativas)",
+    "categorias": [
+      "Directorio"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "refugio-ve.vercel.app",
+    "nombre": "Refugio VE. Mapa de refugios y centro de acopio",
+    "url": "https://refugio-ve.vercel.app/",
+    "que_hace": "Web con mapas para localizar centro de acopio y refugio",
+    "categorias": [
+      "Acopios",
+      "Albergues"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "refugiosvenezuela.com",
+    "nombre": "refugiosvenezuela.com",
+    "url": "https://refugiosvenezuela.com",
+    "que_hace": "Refugios/albergues",
+    "categorias": [
+      "Albergues"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "refugiovenezuela.com",
+    "nombre": "refugiovenezuela.com",
+    "url": "http://refugiovenezuela.com",
+    "que_hace": "",
+    "categorias": [
+      "Albergues"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "reliefweb.int",
+    "nombre": "ReliefWeb Venezuela Situation",
+    "url": "https://reliefweb.int/report/venezuela-bolivarian-republic/venezuela-earthquake-situation-overview-25-june-2026",
+    "que_hace": "Informe OCHA. Fuente humanitaria de referencia. Se actualiza con datos de campo.",
+    "categorias": [
+      "Oficial"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-activas.csv"
+    ]
+  },
+  {
+    "dominio": "reportavenezuela.org",
+    "nombre": "Reporta Venezuela (org) (NUEVO)",
+    "url": "https://reportavenezuela.org",
+    "que_hace": "Reporte de danos",
+    "categorias": [
+      "Edificios"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "zonasafectadasvenezuela.app",
+    "nombre": "Reporta Venezuela (Zonas Afectadas)",
+    "url": "https://zonasafectadasvenezuela.app",
+    "que_hace": "Mapa en vivo; consume API de 7uanF",
+    "categorias": [
+      "Directorio",
+      "Edificios"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "survey123.arcgis.com",
+    "nombre": "Reporte de Daños Post-Terremoto ESRI",
+    "url": "https://survey123.arcgis.com/share/c2174c0d7e6c4f3a9da9e527521cb522",
+    "que_hace": "Reportes daños",
+    "categorias": [
+      "Edificios"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "ve.crafter.run",
+    "nombre": "Reporte VE",
+    "url": "https://ve.crafter.run/",
+    "que_hace": "Reporte para falta de ayuda y servicios básicos (luz, agua, insumos)",
+    "categorias": [
+      "Servicios básicos"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "reportevenezuela.com",
+    "nombre": "Reporte Venezuela",
+    "url": "https://reportevenezuela.com/",
+    "que_hace": "Reporte y búsqueda de Personas en hospitales y refugios",
+    "categorias": [
+      "Albergues",
+      "Desaparecidos",
+      "Hospitales"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "rescateinfantilvenezuela.com",
+    "nombre": "RESCATE VENEZUELA - Niños y Niñas Rescatados",
+    "url": "https://rescateinfantilvenezuela.com",
+    "que_hace": "Registro de niños hospitalizados o desaparecidos",
+    "categorias": [
+      "Niños"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "ninos.csv"
+    ]
+  },
+  {
+    "dominio": "rescate-ve.vercel.app",
+    "nombre": "rescate-ve.vercel.app",
+    "url": "https://rescate-ve.vercel.app",
+    "que_hace": "",
+    "categorias": [
+      "Rescates"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "responsegrid.app",
+    "nombre": "ResponseGrid",
+    "url": "https://responsegrid.app/",
+    "que_hace": "",
+    "categorias": [
+      "Acopios"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-activas.csv"
+    ]
+  },
+  {
+    "dominio": "riave-deploy.vercel.app",
+    "nombre": "RIAVE (NUEVO)",
+    "url": "https://riave-deploy.vercel.app",
+    "que_hace": "Reporte",
+    "categorias": [
+      "Edificios"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "savethechildren.es",
+    "nombre": "Save the Children",
+    "url": "https://www.savethechildren.es/donacion-ong/terremoto-en-venezuela-2026",
+    "que_hace": "Donación a la respuesta de emergencia para la niñez afectada.",
+    "categorias": [
+      "Donaciones"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-activas.csv"
+    ]
+  },
+  {
+    "dominio": "sectorve.com",
+    "nombre": "Sector Ve",
+    "url": "https://sectorve.com/",
+    "que_hace": "Organiza de manera organizada con agentes de IA ifnromacion actualizada organzialdola por secotres ya sea noticias, acopios, donaciones, eventos de ayuda etc",
+    "categorias": [
+      "Directorio"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "senaldeayuda.org",
+    "nombre": "Senal de Ayuda",
+    "url": "https://senaldeayuda.org",
+    "que_hace": "Mapa en vivo multi-proposito",
+    "categorias": [
+      "Directorio"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "sismovenezuela.org",
+    "nombre": "Sismo Venezuela",
+    "url": "https://sismovenezuela.org/",
+    "que_hace": "Mapa colaborativo de edificios dañados",
+    "categorias": [
+      "Edificios"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "sismoayudave.com",
+    "nombre": "Sismoayudave",
+    "url": "https://www.sismoayudave.com/",
+    "que_hace": "Arquitectos e ingenieros hacen evaluaciones preliminares de edificios",
+    "categorias": [
+      "Edificios"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "siviv.pages.dev",
+    "nombre": "Sistema de Información de Víctimas",
+    "url": "https://siviv.pages.dev/?fbclid=PAdGRleASrtKlleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA8xMjQwMjQ1NzQyODc0MTQAAafWZCypVgBRwks0eXtV1bsOirB4BeG_N88wZT-j-7cDZoxZwCGrsWzKPg-Epg_aem_4bOpxs7liEOQpMU3ifjxFw",
+    "que_hace": "BBDD para buscar personas en centros de salud",
+    "categorias": [
+      "Hospitales"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "sosven.site",
+    "nombre": "SOS Ven (site)",
+    "url": "https://sosven.site",
+    "que_hace": "Hub (personas+mascotas)",
+    "categorias": [
+      "Desaparecidos",
+      "Mascotas"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "sosvenezuela2026.com",
+    "nombre": "SOS Venezuela",
+    "url": "https://sosvenezuela2026.com/",
+    "que_hace": "Mapa colaborativo de edificios dañados y búsqueda de personas",
+    "categorias": [
+      "Desaparecidos",
+      "Edificios"
+    ],
+    "activo": true,
+    "api": "SI - API publica sin auth",
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "sos-venezuela.cc",
+    "nombre": "SOSVE Coordinación de emergencias",
+    "url": "https://sos-venezuela.cc/",
+    "que_hace": "",
+    "categorias": [
+      "Rescates"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "sosvenezuela.net",
+    "nombre": "sosvenezuela.net",
+    "url": "https://sosvenezuela.net/personas",
+    "que_hace": "Reporte",
+    "categorias": [
+      "Desaparecidos"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "tebusco.app",
+    "nombre": "Te Busco App",
+    "url": "https://tebusco.app/",
+    "que_hace": "Base de datos de personas desaparecidas y encontradas. Cargas la data aunque no tengas sñal y se sube cuando vuelve",
+    "categorias": [
+      "Desaparecidos",
+      "Hospitales",
+      "Rescates"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "terremotoenvenezuela.com",
+    "nombre": "Terremoto en Venezuela (NUEVO)",
+    "url": "https://terremotoenvenezuela.com",
+    "que_hace": "Reporte",
+    "categorias": [
+      "Desaparecidos"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "terremotovenezuela.com",
+    "nombre": "Terremoto Venezuela",
+    "url": "https://terremotovenezuela.com",
+    "que_hace": "Mapa colaborativo de zonas afectadas y edificios dañados",
+    "categorias": [
+      "Edificios",
+      "Rescates"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "terremotove.netlify.app",
+    "nombre": "TerremotoVE",
+    "url": "https://terremotove.netlify.app/",
+    "que_hace": "Mapa interactivo: marcar ubicaciones, reportar a salvo, pedir u ofrecer ayuda.",
+    "categorias": [
+      "Edificios"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "terremotovenezuela.app",
+    "nombre": "terremotovenezuela.app",
+    "url": "https://terremotovenezuela.app/",
+    "que_hace": "Mapa de danos",
+    "categorias": [
+      "Edificios"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "thehouse-project.org",
+    "nombre": "The House Proyect",
+    "url": "https://thehouse-project.org/collections/donate-thp/products/support-the-house-project-make-a-difference-today?variant=49348724228394",
+    "que_hace": "Recaudar Fondos",
+    "categorias": [
+      "Donaciones"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "tilinapp.com",
+    "nombre": "tilinapp.com",
+    "url": "https://tilinapp.com",
+    "que_hace": "Reporte de danos",
+    "categorias": [
+      "Edificios"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "todosconvzla.com",
+    "nombre": "Todos con Venezuela",
+    "url": "https://www.todosconvzla.com",
+    "que_hace": "",
+    "categorias": [
+      "Directorio"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "tugruero.com",
+    "nombre": "tugruero.com",
+    "url": "https://tugruero.com",
+    "que_hace": "Logistica/transporte de insumos",
+    "categorias": [
+      "Acopios"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "colabora.unicef.es",
+    "nombre": "Unicef Donaciones",
+    "url": "https://colabora.unicef.es/ayudavenezuela",
+    "que_hace": "Donaciones desde España",
+    "categorias": [
+      "Donaciones",
+      "Herramienta"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "recursos-herramientas.csv"
+    ]
+  },
+  {
+    "dominio": "unicef.es",
+    "nombre": "UNICEF Emergencia Venezuela",
+    "url": "https://www.unicef.es/emergencia-terremoto-venezuela",
+    "que_hace": "Fondos para protección infantil, refugio, alimentos e insumos. 3,9M niños en zonas afectadas.",
+    "categorias": [
+      "Donaciones"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-activas.csv"
+    ]
+  },
+  {
+    "dominio": "unidosvenezuela.vercel.app",
+    "nombre": "Unidos Venezuela",
+    "url": "https://unidosvenezuela.vercel.app/",
+    "que_hace": "Mapa de puntos de interes y solicitud de ayudas.",
+    "categorias": [
+      "Desaparecidos",
+      "Edificios",
+      "Niños"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "venezuela-earthquake-relief.netlify.app",
+    "nombre": "VE Earthquake Relief",
+    "url": "https://venezuela-earthquake-relief.netlify.app",
+    "que_hace": "Agregador de donaciones",
+    "categorias": [
+      "Donaciones"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "vea2026.com",
+    "nombre": "VEA 2026",
+    "url": "https://www.vea2026.com",
+    "que_hace": "Listado (marcado para unificar)",
+    "categorias": [
+      "Desaparecidos"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "venapp.com",
+    "nombre": "VenApp",
+    "url": "https://venapp.com",
+    "que_hace": "Buscador",
+    "categorias": [
+      "Desaparecidos"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "veneconnect.com",
+    "nombre": "veneconnect.com",
+    "url": "https://veneconnect.com",
+    "que_hace": "Mapa de servicios en Venezuela",
+    "categorias": [
+      "Acopios",
+      "Albergues"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "directorioterremotovenezuela.org",
+    "nombre": "VeneHelp",
+    "url": "https://directorioterremotovenezuela.org/",
+    "que_hace": "Directorio que agrupa sitios, mapas, formularios y registros de ayuda tras el terremoto en un solo lugar, con datos estructurados para personas, voluntarios, periodistas y buscadores.",
+    "categorias": [
+      "Herramienta"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "recursos-herramientas.csv"
+    ]
+  },
+  {
+    "dominio": "venemergencia.com",
+    "nombre": "venemergencia.com",
+    "url": "https://venemergencia.com",
+    "que_hace": "",
+    "categorias": [
+      "Directorio"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "venezuela2026.xyz",
+    "nombre": "Venezuela 2026 · Registro ciudadano",
+    "url": "https://www.venezuela2026.xyz/",
+    "que_hace": "Registro ciudadano y lista pública de personas desaparecidas tras el terremoto. Gratuita y sin fines de lucro.",
+    "categorias": [
+      "Desaparecidos"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "venezuela-aid-finder.lovable.app",
+    "nombre": "Venezuela Aid Finder",
+    "url": "https://venezuela-aid-finder.lovable.app",
+    "que_hace": "Acopios (sobre data de M. Lozada)",
+    "categorias": [
+      "Acopios",
+      "Albergues"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "venezuela-ayuda.com",
+    "nombre": "Venezuela Ayuda",
+    "url": "https://venezuela-ayuda.com/",
+    "que_hace": "Coordinación de emergencia y enlace de necesidades con ayuda.",
+    "categorias": [
+      "Directorio"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "venezuelaayuda.org",
+    "nombre": "Venezuela Ayuda",
+    "url": "https://venezuelaayuda.org/",
+    "que_hace": "Conectamos a quien necesita ayuda tras el terremoto con quien puede darla",
+    "categorias": [
+      "Directorio"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "venezuela-earthquake-map.vercel.app",
+    "nombre": "Venezuela Earthquake Map (NUEVO)",
+    "url": "https://venezuela-earthquake-map.vercel.app",
+    "que_hace": "Heatmap auto-agrega YouTube/X/IG c/10min",
+    "categorias": [
+      "Directorio"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "venezuelahelp.click",
+    "nombre": "Venezuela Help (acopios)",
+    "url": "https://venezuelahelp.click",
+    "que_hace": "Bot de acopios",
+    "categorias": [
+      "Acopios"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "venezuelareporta.org",
+    "nombre": "Venezuela Reporta",
+    "url": "https://venezuelareporta.org",
+    "que_hace": "Reporte de personas (cluster Amintore)",
+    "categorias": [
+      "Desaparecidos"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "venezuelasolidaria.com",
+    "nombre": "Venezuela Solidaria (NUEVO)",
+    "url": "https://venezuelasolidaria.com",
+    "que_hace": "Directorio de paginas validadas",
+    "categorias": [
+      "Directorio"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "venezuelatebusca.com",
+    "nombre": "Venezuela Te Busca",
+    "url": "https://venezuelatebusca.com/",
+    "que_hace": "Reportes personas",
+    "categorias": [
+      "Desaparecidos"
+    ],
+    "activo": true,
+    "api": "Parcial (/api/stats)",
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv",
+      "plataformas-activas.csv"
+    ]
+  },
+  {
+    "dominio": "venezuelatenecesita.com",
+    "nombre": "Venezuela Te Necesita",
+    "url": "https://www.venezuelatenecesita.com/",
+    "que_hace": "Centralizacion de datos y reportes del terremoto",
+    "categorias": [
+      "Acopios",
+      "Desaparecidos",
+      "Donaciones",
+      "Herramienta",
+      "Mascotas"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "recursos-herramientas.csv"
+    ]
+  },
+  {
+    "dominio": "venezuelaterremoto2026.com",
+    "nombre": "Venezuela Terremoto 2026",
+    "url": "https://venezuelaterremoto2026.com/",
+    "que_hace": "Reporte de quien NECESITA ayuda y quien PUEDE ayudar, reporte de personas en hospital y donaciones.",
+    "categorias": [
+      "Acopios",
+      "Albergues",
+      "Desaparecidos",
+      "Donaciones",
+      "Edificios",
+      "Herramienta",
+      "Hospitales",
+      "Mascotas",
+      "Niños",
+      "Rescates"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv",
+      "recursos-herramientas.csv"
+    ]
+  },
+  {
+    "dominio": "venezuelayuda.com",
+    "nombre": "venezuelayuda.com",
+    "url": "https://venezuelayuda.com/",
+    "que_hace": "Un directorio ciudadano de ayuda humanitaria",
+    "categorias": [
+      "Directorio"
+    ],
+    "activo": false,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv"
+    ]
+  },
+  {
+    "dominio": "vzlayuda.com",
+    "nombre": "VZL Ayuda",
+    "url": "https://vzlayuda.com/ayudar",
+    "que_hace": "Hub multi-proposito",
+    "categorias": [
+      "Directorio"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "vzla-response-hub.vercel.app",
+    "nombre": "VZLA Response Hub",
+    "url": "https://vzla-response-hub.vercel.app",
+    "que_hace": "Hub de respuesta",
+    "categorias": [
+      "Directorio"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "gofundme.com",
+    "nombre": "We Love Foundation (GoFundMe)",
+    "url": "https://www.gofundme.com/f/emergency-relief-for-venezuela-earthquake-victims",
+    "que_hace": "Campaña de I Love Venezuela Foundation (We Love Foundation Inc.) para llevar alimentos, agua, refugio y atención médica a familias afectadas. Donación deducible de impuestos.",
+    "categorias": [
+      "Donaciones"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-activas.csv"
+    ]
+  },
+  {
+    "dominio": "dona.yummyrides.com",
+    "nombre": "Yummy (dona)",
+    "url": "https://dona.yummyrides.com/",
+    "que_hace": "Plataforma de Yummy para sumar donaciones a la respuesta del terremoto.",
+    "categorias": [
+      "Donaciones"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  },
+  {
+    "dominio": "sos.yummyrides.com",
+    "nombre": "Yummy SOS",
+    "url": "https://sos.yummyrides.com/",
+    "que_hace": "Reporta estructuras dañadas con foto y ubicación; mapa de actividad sísmica en vivo (USGS) y red logística de Yummy para entregas y traslados de emergencia.",
+    "categorias": [
+      "Edificios",
+      "Rescates"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-activas.csv"
+    ]
+  },
+  {
+    "dominio": "zonasegura.up.railway.app",
+    "nombre": "Zona Segura (NUEVO)",
+    "url": "https://zonasegura.up.railway.app",
+    "que_hace": "Acopios/zonas",
+    "categorias": [
+      "Acopios",
+      "Albergues"
+    ],
+    "activo": true,
+    "api": null,
+    "fuentes": [
+      "directorio-paginas-ayuda.csv",
+      "plataformas-api-datos.csv"
+    ]
+  }
+]
