@@ -27,7 +27,7 @@ const INBOX = (date) => fileURLToPath(new URL(`ingest/inbox/${date}.jsonl`, ROOT
 const OUT = (date) => fileURLToPath(new URL(`data/analisis-${date}.json`, ROOT));
 // Gemini OpenAI-compat por default (reusa la key de humanitas).
 const BASE_URL = process.env.ANALIZA_BASE_URL || "https://generativelanguage.googleapis.com/v1beta/openai";
-const API_KEY = process.env.ANALIZA_API_KEY || "";
+const API_KEY = process.env.VLM_API_KEY || process.env.ANALIZA_API_KEY || ""; // VLM_API_KEY = la key nueva con fondos
 const MODEL = process.env.ANALIZA_MODEL || "gemini-2.5-flash";
 const MAX_TOKENS = +(process.env.ANALIZA_MAX_TOKENS || 16384);
 // gemini-2.5-* "piensa" y consume presupuesto de salida; para extracción no hace
@@ -88,11 +88,20 @@ export function normalizar(raw) {
 const _NO_NOMBRE = new Set(["para", "como", "zona", "esta", "este", "desde", "hasta", "grupo",
   "caracas", "catia", "chacao", "guaira", "vargas", "hospital", "centro", "salud", "cruz"]);
 
+// PII de TERCEROS que el match-contra-remitente NO ve: emails y teléfonos que el LLM cite
+// en la salida (p.ej. el titular de una cuenta nombrado en una alerta de estafa — fue la
+// fuga real del caso Massieu). Regex stdlib, sin dependencia. Email = PII inequívoca;
+// teléfono = ≥10 dígitos para NO marcar fechas (YYYY-MM-DD = 8 díg) ni montos/cantidades.
+const _EMAIL_RE = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi;
+const _PHONE_RE = /\+?\d[\d\s().-]{6,}\d/g;
+
 /** Red de seguridad del invariante CERO-PII: dado los `from` del inbox (nombres
- *  conocidos) y el texto de salida, devuelve los nombres que se colaron. No es
- *  NER — tokens de ≥4 letras, ignora comunes; atrapa fugas de nombre de remitente. */
+ *  conocidos) y el texto de salida, devuelve la PII que se coló: nombres de remitente +
+ *  emails/teléfonos citados por el LLM (esos no son remitentes; el match por nombre no los
+ *  veía). No es NER — tokens de ≥4 letras + regex de email/tel. */
 export function piiScan(froms, salida) {
-  const out = String(salida).toLowerCase();
+  const raw = String(salida);
+  const out = raw.toLowerCase();
   const leaked = new Set();
   for (const f of froms || []) {
     for (const tok of String(f || "").split(/[^a-záéíóúñ]+/i)) {
@@ -102,7 +111,14 @@ export function piiScan(froms, salida) {
       if (new RegExp(`\\b${esc}\\b`).test(out)) leaked.add(tok);
     }
   }
+  for (const m of raw.match(_EMAIL_RE) || []) leaked.add(m);
+  for (const m of raw.match(_PHONE_RE) || []) {
+    if (m.replace(/\D/g, "").length >= 10) leaked.add(m.trim());
+  }
   return [...leaked];
+  // ponytail: regex atrapa email/teléfono (PII inequívoca, sin dep). Un NOMBRE suelto de
+  // tercero sin email/tel asociado sigue pasando — eso pide NER (rompe "sin deps"); techo
+  // conocido, subir a NER local solo si los nombres-solos se vuelven un problema real.
 }
 
 /** Resumen legible para humanos (consola/operador). Ordena necesidades por urgencia. */
@@ -210,6 +226,11 @@ function selftest() {
   assert.deepEqual(piiScan(["Anghy Rondón-García"], "gasolina donada por anghy en caracas"), ["Anghy"]);
   assert.deepEqual(piiScan(["Ana"], "un voluntario en la zona"), [], "nombre de 3 letras → ignorado");
   assert.deepEqual(piiScan(["Rodrigo Ara"], "transporte disponible en Caracas"), [], "sin fuga → vacío");
+  // piiScan: emails/teléfonos de TERCEROS (no remitentes) — la fuga real que el match por
+  // nombre no veía (caso Massieu). Email siempre; teléfono ≥10 díg (no marca fechas ni montos).
+  assert.deepEqual(piiScan([], "alerta estafa: cuenta dudosa emile@gmail.com / titular"), ["emile@gmail.com"]);
+  assert.deepEqual(piiScan([], "contacto +58 412-7030773 recibe"), ["+58 412-7030773"]);
+  assert.deepEqual(piiScan([], '{"date":"2026-06-29","items":["200 litros agua"]}'), [], "fecha 8 díg / monto ≠ teléfono");
   console.log("selftest OK");
 }
 
