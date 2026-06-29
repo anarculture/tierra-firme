@@ -70,10 +70,12 @@ declarativas en `sources.manifest.json` (la lista) — los adaptadores las imple
 
 ## Notas de configuración
 
-- Dos destiladores LLM con default distinto: `scripts/destila.js` (borradores de sitrep) usa
-  **Ollama/Qwen local** por default (PII no sale del VPS), endpoint OpenAI-compatible — cambias de
-  proveedor con env vars (`DESTILA_BASE_URL/MODEL/API_KEY`). `ingest/destilador.py` (eco por-mensaje)
-  usa **Gemini** (`gemini-2.5-flash-lite`, endpoint nativo `generateContent`).
+- Todo el LLM corre sobre **Gemini** (`gemini-2.5-flash-lite`), reusando la key de humanitas en
+  `.env` (`ANALIZA_API_KEY`). Dos protocolos: `scripts/destila.js` y `scripts/analiza.js` usan el
+  endpoint **OpenAI-compatible** de Gemini (`/v1beta/openai/chat/completions` + Bearer); cambias de
+  proveedor con `DESTILA_*`/`ANALIZA_*` env vars sin tocar código. `ingest/destilador.py` (eco
+  por-mensaje) usa el endpoint **nativo** `generateContent`. Ambos endpoints funcionan; no hay
+  Ollama ni modelo local cableado.
 - `whatsapp_buzon.py` exige `WA_APP_SECRET` (verificación de firma HMAC) salvo `--dev`. El panel
   `revisar` se gatea con `REVISAR_TOKEN` (HTTP Basic) antes de tunelizar.
 - `.env` lo lee `server.js` con un parser stdlib propio; solo expone URL + publishable key al

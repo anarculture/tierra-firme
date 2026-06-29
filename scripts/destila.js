@@ -1,16 +1,18 @@
 /* Destilación AUTOMÁTICA: inbox crudo → borradores de sitrep.
    Cierra el paso que antes hacía un humano con /sitrep a mano. Lee
-   ingest/inbox/<fecha>.jsonl (records {ts,from,kind,text,media}), llama al LLM
-   (Qwen2.5 vía Ollama local por default — la PII no sale del VPS; el gate humano
-   del panel atrapa errores). Escribe a data/sitrep-drafts.json en el schema que
-   merge() espera. El operador revisa/aprueba en `npm run revisar` antes de
-   publicar. NO publica solo. Endpoint OpenAI-compatible: cambiás de proveedor
-   (DashScope, OpenRouter) con env vars, sin tocar código.
+   ingest/inbox/<fecha>.jsonl (records {ts,from,kind,text,media}), llama a Gemini
+   (gemini-2.5-flash-lite vía su endpoint OpenAI-compatible — reusa la key de
+   humanitas, MISMO protocolo que analiza.js). Escribe a data/sitrep-drafts.json
+   en el schema que merge() espera. El operador revisa/aprueba en `npm run revisar`
+   antes de publicar. NO publica solo. El contenido del inbox (PII potencial) sale
+   a Gemini; el gate humano del panel atrapa errores. Para PII estricta, apuntá
+   DESTILA_BASE_URL/MODEL a un modelo propio (mismo protocolo OpenAI-compat).
 
-   Uso:  node scripts/destila.js [YYYY-MM-DD]      (Ollama local, sin key)
+   Uso:  node scripts/destila.js [YYYY-MM-DD]
          node scripts/destila.js --selftest         (prueba lógica pura, sin red)
-   Env:  DESTILA_BASE_URL (def http://localhost:11434/v1) · DESTILA_MODEL
-         (def qwen2.5:7b) · DESTILA_API_KEY (opcional; Ollama no lo necesita)
+   Env:  DESTILA_API_KEY | ANALIZA_API_KEY (la GEMINI_API_KEY de humanitas) ·
+         DESTILA_MODEL (def gemini-2.5-flash-lite) · DESTILA_BASE_URL (def Gemini
+         OpenAI-compat) · DESTILA_REASONING (def low)
 
    ponytail: text-only MVP. Voz (.ogg) y fotos quedan en el inbox sin destilar —
    corré transcribe.py primero / TODO: bajar caption+OCR de media. */
@@ -27,9 +29,11 @@ const INBOX = (date) => fileURLToPath(new URL(`ingest/inbox/${date}.jsonl`, ROOT
 const DRAFTS = fileURLToPath(new URL("data/sitrep-drafts.json", ROOT));
 const CACHE = fileURLToPath(new URL("data/geocode-cache.json", ROOT));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const BASE_URL = process.env.DESTILA_BASE_URL || "http://localhost:11434/v1"; // Ollama local
-const API_KEY = process.env.DESTILA_API_KEY || ""; // Ollama no lo necesita; DashScope/OpenRouter sí
-const MODEL = process.env.DESTILA_MODEL || "qwen2.5:7b";
+const BASE_URL = process.env.DESTILA_BASE_URL || "https://generativelanguage.googleapis.com/v1beta/openai"; // Gemini OpenAI-compat
+const API_KEY = process.env.DESTILA_API_KEY || process.env.ANALIZA_API_KEY || ""; // reusa la key de humanitas
+const MODEL = process.env.DESTILA_MODEL || "gemini-2.5-flash-lite";
+// gemini-2.5-* "piensa" y consume presupuesto de salida; para extracción no hace falta. "low" libera tokens.
+const REASONING = process.env.DESTILA_REASONING ?? "low";
 
 const key = (it) => `${String(it.titulo ?? "").trim().toLowerCase()}|${String(it.zona ?? "").trim().toLowerCase()}`;
 
@@ -84,13 +88,14 @@ export function mergeDrafts(existing, fresh) {
 
 async function destilar(dump) {
   const headers = { "content-type": "application/json" };
-  if (API_KEY) headers.authorization = `Bearer ${API_KEY}`; // Ollama corre sin auth
+  if (API_KEY) headers.authorization = `Bearer ${API_KEY}`;
   const res = await fetch(`${BASE_URL}/chat/completions`, {
     method: "POST",
     headers,
     body: JSON.stringify({
       model: MODEL,
       max_tokens: 8192,
+      ...(REASONING ? { reasoning_effort: REASONING } : {}),
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: SYSTEM },
@@ -135,6 +140,7 @@ async function main() {
     : new Date().toISOString().slice(0, 10);
   const inboxPath = INBOX(date);
   if (!existsSync(inboxPath)) { console.error(`sin inbox para ${date} (${inboxPath})`); process.exit(1); }
+  if (!API_KEY) { console.error("falta DESTILA_API_KEY / ANALIZA_API_KEY (la GEMINI_API_KEY de humanitas) — ponela en .env"); process.exit(1); }
 
   const records = parseInbox(await readFile(inboxPath, "utf8"));
   const { dump, total, conTexto } = buildDump(records);
