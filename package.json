@@ -13,7 +13,8 @@
     "sb:health": "node scripts/sb-health.js",
     "revisar": "node scripts/revisar-server.js",
     "destila": "node scripts/destila.js",
-    "extract-media": "node scripts/extract-media.mjs"
+    "extract-media": "node scripts/extract-media.mjs",
+    "publica": "node scripts/publica.js"
   },
   "comment": "Sin dependencias externas: vanilla JS + Node stdlib. Las deps (p.ej. @supabase/supabase-js) se añaden cuando una capa las use — TODO(Sx).",
   "engines": { "node": ">=20" }

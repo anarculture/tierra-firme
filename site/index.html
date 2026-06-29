@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Necesidades — respuesta sísmica</title>
+<style>
+  :root{ --alta:#d92626; --media:#e07b1a; --baja:#8a8a8a; --bg:#f7f6f3; --card:#fff; --ink:#1c1b19; --mut:#666; }
+  *{ box-sizing:border-box }
+  body{ margin:0; font:16px/1.45 system-ui,sans-serif; background:var(--bg); color:var(--ink) }
+  header{ padding:16px; background:var(--ink); color:#fff }
+  header h1{ margin:0; font-size:1.2rem }
+  header p{ margin:4px 0 0; font-size:.8rem; opacity:.85 }
+  #stale{ background:#fff3cd; color:#7a5b00; font-size:.85rem; padding:10px 16px; border-bottom:1px solid #e6d27a }
+  .resumen{ font-size:.9rem; color:var(--mut); padding:12px 16px; max-width:760px; margin:0 auto }
+  .controls{ position:sticky; top:0; z-index:2; display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+    padding:10px 16px; background:var(--bg); border-bottom:1px solid #ddd }
+  .controls input,.controls select{ font:inherit; padding:6px 8px; border:1px solid #bbb; border-radius:6px; background:#fff }
+  .controls input[type=search]{ flex:1; min-width:140px }
+  .controls label{ font-size:.85rem; color:var(--mut); display:flex; gap:6px; align-items:center }
+  main{ padding:8px 16px 48px; max-width:760px; margin:0 auto }
+  .grupo h2{ font-size:.95rem; text-transform:uppercase; letter-spacing:.04em; color:var(--mut); margin:20px 0 8px }
+  .card{ background:var(--card); border-left:5px solid var(--baja); border-radius:8px; padding:12px 14px; margin:8px 0;
+    box-shadow:0 1px 2px rgba(0,0,0,.06) }
+  .card.alta{ border-left-color:var(--alta) } .card.media{ border-left-color:var(--media) } .card.baja{ border-left-color:var(--baja) }
+  .card .top{ display:flex; align-items:baseline; gap:8px; flex-wrap:wrap }
+  .lugar{ font-weight:600 }
+  .zona{ font-size:.78rem; color:var(--mut) }
+  .reportes{ font-size:.72rem; color:var(--mut); margin-left:auto; white-space:nowrap }
+  .reportes.solo{ color:var(--media) }
+  ul.items{ margin:8px 0 0; padding-left:18px } ul.items li{ font-size:.92rem }
+  .acc{ margin:10px 0 0; display:flex; gap:14px; align-items:center }
+  .share{ font-size:.8rem; color:#0a7d3f; text-decoration:none } .share:hover{ text-decoration:underline }
+  .estado{ font-size:.72rem; font-weight:700; padding:1px 7px; border-radius:99px }
+  .estado.cubierta{ background:#dceede; color:#1f7a37 } .estado.cancelada{ background:#eee; color:#777 }
+  .card.resuelta{ opacity:.55 } .card.resuelta .lugar{ text-decoration:line-through }
+  .vacio{ color:var(--mut); padding:24px 0; text-align:center }
+  footer{ max-width:760px; margin:0 auto; padding:20px 16px 48px; font-size:.82rem; color:var(--mut); border-top:1px solid #ddd }
+  footer p{ margin:0 0 8px }
+  footer a{ color:#0a7d3f }
+</style>
+</head>
+<body>
+<header>
+  <h1>Necesidades — respuesta sísmica</h1>
+  <p id="sub">Cargando…</p>
+</header>
+<div id="stale" hidden></div>
+<p class="resumen" id="resumen"></p>
+<div class="controls">
+  <input type="search" id="q" placeholder="Buscar (oxímetro, Luciani, La Guaira…)" aria-label="Buscar necesidad">
+  <select id="zona" aria-label="Filtrar por zona"><option value="">Todas las zonas</option></select>
+  <label><input type="checkbox" id="vercub"> mostrar ya cubiertas</label>
+</div>
+<main id="lista"><p class="vacio">Cargando lista…</p></main>
+<footer>
+  <p>Lista destilada de reportes ciudadanos por WhatsApp y <strong>verificada por un humano</strong>. NO es fuente oficial — confirma con el coordinador antes de mover recursos.</p>
+  <p id="reportar">¿Sabes de una necesidad nueva, o de que algo ya se cubrió? Repórtalo por WhatsApp para mantener la lista viva.</p>
+</footer>
+
+<script>
+// Número de WhatsApp del bot para reportar (cierra el loop de intake).
+// ponytail: vacío = no hay link, solo el texto. Pon "https://wa.me/58XXXXXXXXXX" cuando lo tengas.
+const REPORTAR_WA = "";
+// Orden y etiquetas según analiza.js: alta=vidas/horas, media=días, baja.
+const ORDEN = ["alta", "media", "baja"];
+const ETIQUETA = { alta:"Urgencia alta — vidas/horas", media:"Urgencia media — días", baja:"Urgencia baja" };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+let DATA = { necesidades: [] };
+
+function diasDesde(fecha){
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(fecha || "");
+  if (!m) return null;
+  const d = new Date(+m[1], +m[2]-1, +m[3]);
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  return Math.round((hoy - d) / 86400000);
+}
+
+function freshness(fecha){
+  const dias = diasDesde(fecha);
+  const stale = document.getElementById("stale");
+  let txt;
+  if (dias === null) txt = `Actualizado: ${esc(fecha || "—")}`;
+  else if (dias <= 0) txt = "Actualizado hoy";
+  else if (dias === 1) txt = "Actualizado ayer";
+  else txt = `Actualizado hace ${dias} días`;
+  document.getElementById("sub").textContent = `${txt} · NO es fuente oficial · verificado por un humano`;
+  if (dias !== null && dias >= 1){
+    stale.textContent = `⚠ Esta lista no se actualiza desde hace ${dias === 1 ? "1 día" : dias + " días"}. Confirma con el coordinador antes de mover recursos.`;
+    stale.hidden = false;
+  } else stale.hidden = true;
+}
+
+function coincide(n, q){
+  if (!q) return true;
+  const hay = [n.lugar, n.zona, ...(n.items || [])].join(" ").toLowerCase();
+  return hay.includes(q);
+}
+
+function render(){
+  const zona = document.getElementById("zona").value;
+  const q = document.getElementById("q").value.trim().toLowerCase();
+  const verCub = document.getElementById("vercub").checked;
+  const lista = document.getElementById("lista");
+  const vis = DATA.necesidades.filter(n =>
+    (!zona || n.zona === zona) &&
+    (verCub || (n.estado || "vigente") === "vigente") &&
+    coincide(n, q)
+  );
+  lista.innerHTML = "";
+  let total = 0;
+  for (const u of ORDEN){
+    const items = vis.filter(n => (n.urgencia || "media") === u).sort((a,b) => (b.reportes||0) - (a.reportes||0));
+    if (!items.length) continue;
+    total += items.length;
+    const g = document.createElement("section");
+    g.className = "grupo";
+    g.innerHTML = `<h2>${esc(ETIQUETA[u] || u)} (${items.length})</h2>` + items.map(card).join("");
+    lista.appendChild(g);
+  }
+  if (!total) lista.innerHTML = `<p class="vacio">Sin necesidades para este filtro.</p>`;
+}
+
+function card(n){
+  const estado = n.estado || "vigente";
+  const resuelta = estado !== "vigente";
+  const badge = resuelta ? `<span class="estado ${esc(estado)}">${estado === "cubierta" ? "✓ ya cubierto" : "✕ cancelado"}</span>` : "";
+  const rep = (n.reportes || 1) <= 1
+    ? `<span class="reportes solo" title="un solo reporte — sin confirmar">1 reporte · sin confirmar</span>`
+    : `<span class="reportes" title="${esc(n.reportes)} menciones independientes">${esc(n.reportes)} reportes</span>`;
+  const items = (n.items || []).map(i => `<li>${esc(i)}</li>`).join("");
+  const wa = "https://wa.me/?text=" + encodeURIComponent(
+    `${n.lugar} (${n.zona}) necesita: ${(n.items || []).join(", ")}. Vía Tierra Firme — verificar con coordinador.`);
+  return `<article class="card ${esc(n.urgencia || "media")} ${resuelta ? "resuelta" : ""}">
+    <div class="top">
+      <span class="lugar">${esc(n.lugar)}</span>
+      <span class="zona">${esc(n.zona)}</span>
+      ${badge}
+      ${rep}
+    </div>
+    <ul class="items">${items}</ul>
+    <div class="acc"><a class="share" target="_blank" rel="noopener" href="${wa}">↗ Compartir por WhatsApp</a></div>
+  </article>`;
+}
+
+fetch("needs.json")
+  .then(r => r.json())
+  .then(d => {
+    DATA = d;
+    freshness(d.date);
+    document.getElementById("resumen").textContent = d.resumen || "";
+    const zonas = [...new Set((d.necesidades || []).map(n => n.zona))].sort();
+    const sel = document.getElementById("zona");
+    for (const z of zonas){ const o = document.createElement("option"); o.value = o.textContent = z; sel.appendChild(o); }
+    render();
+  })
+  .catch(() => { document.getElementById("lista").innerHTML = `<p class="vacio">No se pudo cargar la lista.</p>`; });
+
+for (const id of ["q", "zona", "vercub"])
+  document.getElementById(id).addEventListener("input", render);
+
+if (REPORTAR_WA)
+  document.getElementById("reportar").innerHTML =
+    `¿Sabes de una necesidad nueva, o de que algo ya se cubrió? <a href="${REPORTAR_WA}" target="_blank" rel="noopener">Repórtalo por WhatsApp ↗</a> para mantener la lista viva.`;
+</script>
+</body>
+</html>
