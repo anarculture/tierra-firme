@@ -17,3 +17,6 @@ docs/WhatsApp Chat*/
 data/missing.json
 data/patients.json
 data/puntos_ayuda_live_db.csv
+
+# OpenWA/venom browser session (retirado; nunca trackear)
+ingest/.wa-session/
