@@ -1,6 +1,6 @@
 # Tareas para el equipo — SIN código
 
-Para ayudantes no técnicos. El cuello de botella de monitorVE no es programar, es **datos
+Para ayudantes no técnicos. El cuello de botella de Tierra Firme no es programar, es **datos
 verificados** y **config de cuentas**. Cada tarea dice: **quién** puede hacerla, **qué** produce, y
 **a dónde enchufa**. La salida de las tareas de datos es texto/planilla → un dev la commitea.
 

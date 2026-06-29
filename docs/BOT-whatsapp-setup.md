@@ -1,4 +1,4 @@
-# Handoff: configurar WhatsApp en Meta para el buzón de monitorVE
+# Handoff: configurar WhatsApp en Meta para el buzón de Tierra Firme
 
 > Para el compañero que maneja la cuenta de Meta. **No hay terminal ni código aquí** — solo el
 > panel de Meta. Tú reúnes las credenciales y conectas el webhook; el dev (con su Claude) levanta
@@ -29,7 +29,7 @@ En [developers.facebook.com](https://developers.facebook.com) → tu app (la que
      los mensajes vienen de verdad de Meta y no de un impostor.
 
 3. **Verify token** (`WA_VERIFY_TOKEN`)
-   - **Te lo inventás vos** (cualquier palabra/frase, ej. `monitorve-2026`). No es de Meta. Lo usás
+   - **Te lo inventás vos** (cualquier palabra/frase, ej. `tierra-firme-2026`). No es de Meta. Lo usás
      en la PARTE B y se lo pasás al dev — tienen que poner el mismo.
 
 4. **Número de WhatsApp Business** de la app (el que la gente va a mensajear).

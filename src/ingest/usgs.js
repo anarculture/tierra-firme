@@ -21,7 +21,7 @@ export function normalize(geojson) {
 
 /** @returns {Promise<import("../model/index.js").Registro[]>} */
 export async function fetchRegistros() {
-  const r = await fetch(URL, { headers: { "user-agent": "monitorVE/1.0 (humanitarian)" }, signal: AbortSignal.timeout(15000) });
+  const r = await fetch(URL, { headers: { "user-agent": "tierra-firme/1.0 (humanitarian)" }, signal: AbortSignal.timeout(15000) });
   if (!r.ok) throw new Error("HTTP " + r.status);
   return normalize(await r.json());
 }

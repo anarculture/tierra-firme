@@ -7,7 +7,7 @@
     { "titulo": "Emergencias · Movilnet (celular)", "contacto": "*1", "categoria": "linea-nacional", "fuenteOrigen": "Protección Civil", "verificadoEl": "2026-06-26" },
     { "titulo": "Protección Civil", "contacto": "0800-5588427", "categoria": "proteccion-civil", "fuenteOrigen": "Protección Civil", "verificadoEl": "2026-06-26" },
     { "titulo": "Protección Civil (alterno)", "contacto": "0800-2668446", "categoria": "proteccion-civil", "fuenteOrigen": "Protección Civil", "verificadoEl": "2026-06-26" },
-    { "titulo": "Bomberos · UCV", "contacto": "0212-6052222", "categoria": "bomberos", "fuenteOrigen": "investigación monitorVE", "verificadoEl": "2026-06-26" },
-    { "titulo": "Bomberos · La Guaira", "contacto": "0212-3327620", "categoria": "bomberos", "fuenteOrigen": "investigación monitorVE", "verificadoEl": "2026-06-26" }
+    { "titulo": "Bomberos · UCV", "contacto": "0212-6052222", "categoria": "bomberos", "fuenteOrigen": "investigación Tierra Firme", "verificadoEl": "2026-06-26" },
+    { "titulo": "Bomberos · La Guaira", "contacto": "0212-3327620", "categoria": "bomberos", "fuenteOrigen": "investigación Tierra Firme", "verificadoEl": "2026-06-26" }
   ]
 }

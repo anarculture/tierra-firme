@@ -1,5 +1,5 @@
 {
-  "_doc": "Reportes de situación VERIFICADOS por un humano (el bot /sitrep produce borradores; un humano los aprueba aquí). monitorVE como FUENTE, no solo agregador. source = monitorVE → badge 'Verificado ✓'; fuenteOrigen nombra el origen.",
+  "_doc": "Reportes de situación VERIFICADOS por un humano (el bot /sitrep produce borradores; un humano los aprueba aquí). Tierra Firme como FUENTE, no solo agregador. source = tierra-firme → badge 'Verificado ✓'; fuenteOrigen nombra el origen.",
   "items": [
     { "titulo": "Cruz Roja desplegada en La Guaira", "zona": "La Guaira", "texto": "Equipos de Cruz Roja Venezolana / IFRC atendiendo heridos y necesidades emergentes tras el sismo.", "fuenteOrigen": "IFRC", "verificadoEl": "2026-06-26" },
     { "titulo": "8 hospitales evacuados en La Guaira", "zona": "La Guaira", "texto": "Pacientes trasladados a otras instalaciones; consultá Personas en hospitales para reunificación familiar.", "fuenteOrigen": "OCHA / IFRC", "verificadoEl": "2026-06-26" }

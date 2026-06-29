@@ -1,3 +1,7 @@
+> ⚠️ **HISTÓRICO — tracker local de la era monitorVE; no se mantiene.** La fuente de verdad son
+> los GitHub Issues (ver [docs/WORKFLOW.md](docs/WORKFLOW.md)); el plan actual está en
+> **[TIERRA-FIRME.md](TIERRA-FIRME.md)**.
+
 # ISSUES — monitorVE (slices tracer-bullet)
 
 Tracker local (sin remoto). Derivado de `ROADMAP.md` vía `/to-issues`. Cada slice se ejecuta con

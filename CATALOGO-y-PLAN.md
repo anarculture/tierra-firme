@@ -1,3 +1,7 @@
+> ⚠️ **HISTÓRICO — borrador de la era monitorVE (modelo índice/mapa).** El producto actual es
+> **Tierra Firme**; el plan vigente está en **[TIERRA-FIRME.md](TIERRA-FIRME.md)**. Se conserva
+> el catálogo de fuentes como referencia.
+
 # Catálogo de fuentes + Plan — Sistema informativo crisis terremoto VE (24-jun-2026)
 
 _Borrador 2026-06-26. Basado en crawl directo + sistemas probados en zonas de crisis._

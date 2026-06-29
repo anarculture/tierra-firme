@@ -1,4 +1,4 @@
-/* monitorVE — sistema de diseño. Dirección: ver docs/adr/0002.
+/* Tierra Firme — sistema de diseño. Dirección: ver docs/adr/0002.
    Minimalist editorial (Notion/Linear) en DARK. Mobile-first, low-bandwidth:
    tipografía del sistema (sin webfonts), motion mínimo. TODOS los slices de UI usan
    estos tokens; un color/spacing ad-hoc = regresión de diseño. TODO(Sx): extender componentes. */

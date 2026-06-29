@@ -5,7 +5,7 @@ de confianza y NO se trata como Fuente en vivo** — solo como **donante de dato
 Tomamos activos estáticos, no la arquitectura ni una conexión a su sistema.
 
 Regla: nada de acá entra a producción sin verificación + procedencia explícita
-(`verificado: ⏳` hasta confirmar). Coherente con el modelo índice/espejo de monitorVE.
+(`verificado: ⏳` hasta confirmar). Coherente con el modelo índice/espejo de monitorVE (era previa a Tierra Firme).
 
 ## Activos y su estado
 

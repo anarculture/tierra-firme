@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Buzón de Telegram para monitorVE — primer adaptador de ingest.
+"""Buzón de Telegram para Tierra Firme — primer adaptador de ingest.
 
 Recibe lo que la gente envía/reenvía a un bot de Telegram (texto, voz, fotos,
 documentos) y lo vuelca crudo a inbox/ para que /sitrep lo destile. El dump

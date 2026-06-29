@@ -1,6 +1,6 @@
 # Dirección de diseño: minimalist dark, sin globo pesado
 
-**Contexto.** Parte del propósito de monitorVE es corregir el UX/UI "AI-slop" de las
+**Contexto.** Parte del propósito de Tierra Firme es corregir el UX/UI "AI-slop" de las
 plataformas que salieron tras el sismo. Referencia de vibe: worldmonitor (dark, situational
 awareness). Pero el público núcleo son afectados en red mala / gama baja / bajo estrés, además
 de diáspora y respondedores.

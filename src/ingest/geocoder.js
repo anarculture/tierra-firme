@@ -12,7 +12,7 @@ import { dirname } from "node:path";
 const GEOJSON = fileURLToPath(new URL("../../web/ve-estados.geojson", import.meta.url));
 const DEFAULT_CACHE = fileURLToPath(new URL("../../data/geocode-cache.json", import.meta.url));
 const NOMINATIM = "https://nominatim.openstreetmap.org/search";
-const UA = "monitorVE/0.1 (consola crisis sísmica VE; colectivo.htmk@protonmail.com)";
+const UA = "tierra-firme/0.1 (consola crisis sísmica VE; colectivo.htmk@protonmail.com)";
 
 // Bbox aproximado de Venezuela — valida resultados de Nominatim y centroides.
 const VE = { latMin: 0, latMax: 13, lngMin: -74, lngMax: -59 };

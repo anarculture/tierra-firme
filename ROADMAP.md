@@ -1,3 +1,8 @@
+> ⚠️ **HISTÓRICO — modelo viejo de monitorVE (índice/mapa/despacho).** El producto actual es
+> **Tierra Firme** (puerta WhatsApp = sensor de demanda + enrutado). El plan vigente está en
+> **[TIERRA-FIRME.md](TIERRA-FIRME.md)**. Se conserva como referencia de la investigación que
+> informó decisiones aún vigentes (geocoding Nominatim, móvil-first).
+
 # monitorVE — Roadmap (síntesis 2026-06-26)
 
 Plan sintetizado de 4 frentes de investigación (móvil · ayudave.com · geocoding · coordinación)

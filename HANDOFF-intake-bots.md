@@ -1,9 +1,13 @@
+> ⚠️ **HISTÓRICO — handoff del 26-jun (era monitorVE).** Estado desactualizado (`npm test` ya
+> no da 39; `src/dedup`/`src/resolucion`/`supabase` fueron podados). El producto actual es
+> **Tierra Firme**; ver **[TIERRA-FIRME.md](TIERRA-FIRME.md)**. Se conserva como bitácora.
+
 # HANDOFF — intake bots + destilación→store (26-jun-2026, tarde)
 
 > **Work-stream:** `intake-bots` · branch `agent/intake-bots` · worktree `.claude/worktrees/intake-bots`
 > (Handoffs namespaced por work-stream para no chocar entre agentes: `HANDOFF-<stream>.md`.)
 >
-> Para el agente que continúe **este** work-stream en `~/Code/monitorVE`. Lee también `CLAUDE.md`,
+> Para el agente que continúe **este** work-stream en `~/Code/tierra-firme`. Lee también `CLAUDE.md`,
 > `BUILD.md` y `CONTEXT.md`. Historia en claude-mem (project `monitorVE`).
 > **Concurrencia:** hay varios agentes en main vía worktrees (`.claude/worktrees/`). Trabajá en
 > tu propio worktree, no en el árbol principal, y mergeá a main por chunk (no reescribas historia).

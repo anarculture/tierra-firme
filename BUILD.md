@@ -1,3 +1,7 @@
+> ⚠️ **HISTÓRICO — orden de trabajo de la era monitorVE; no se mantiene.** El tracker vigente
+> son los GitHub Issues (ver [docs/WORKFLOW.md](docs/WORKFLOW.md)); el plan actual está en
+> **[TIERRA-FIRME.md](TIERRA-FIRME.md)**.
+
 # BUILD.md — monitorVE (orden de trabajo autónoma)
 
 Sos un **desarrollador autónomo**. Construí TODO el código faltante vos solo, issue por
