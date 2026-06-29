@@ -8,6 +8,7 @@ import * as ayudave from "./ayudave.js";
 import * as terremoto from "./terremotovenezuela.js";
 import * as crisisvenezuela from "./crisisvenezuela.js";
 import * as ayudared from "./ayudaredve.js";
+import * as hub from "./hub.js";
 import * as geocoder from "./geocoder.js";
 // acopiovenezuela: en pausa — sus centros ya entran vía AyudaVE (source: acopiovenezuela.vercel.app)
 // y no expone /api ni __NEXT_DATA__ estable. Re-activar si se confirma un endpoint.
@@ -37,18 +38,37 @@ async function buildDanos() {
   let items = await safe(() => crisisvenezuela.fetchRegistros(), "crisisvenezuela");
   let source = "crisisvenezuela";
   if (!items.length) { items = await safe(() => terremoto.fetchRegistros(), "terremotovenezuela (fallback)"); source = "terremotovenezuela"; }
+  // hub = daños estructurados con geo + foto (complementa, no reemplaza).
+  const h = await safe(() => hub.fetchRegistros("damaged_building"), "hub damaged_building");
+  if (h.length) { items = items.concat(h); source += "+hub"; }
   return { categoria: "dano", source, items, fetchedAt: new Date().toISOString() };
 }
 
 async function buildDemanda() {
   // Ayuda Venezuela Red: zonas + necesidades (DEMANDA estructurada, no verificada).
-  // Solo captura interna — NO se publica en el API público hasta resolver licencia.
+  // Aliado con permiso → SÍ se publica en /v1/demanda (licencia ALIADO). Solo este source:
+  // mezclar hub (sin licencia) aquí lo serviría bajo la atribución del aliado. Va a demanda-hub.
   const items = await safe(() => ayudared.fetchRegistros(), "ayuda-venezuela-red");
   return { categoria: "zona", source: "ayuda-venezuela-red", items, fetchedAt: new Date().toISOString() };
 }
 
+async function buildDemandaHub() {
+  // hub help_request: misma categoría (zona) pero SIN licencia declarada → captura INTERNA.
+  // Bundle aparte, NO en POLICY, para no publicarlo en /v1 bajo atribución ajena (ver hub.js).
+  const items = await safe(() => hub.fetchRegistros("help_request"), "hub help_request");
+  return { categoria: "zona", source: "terremotovenezuela-hub", items, fetchedAt: new Date().toISOString() };
+}
+
+async function buildOferta() {
+  // hub help_offer: OFERTA de ayuda (voluntarios/recursos) — categoría nueva, no verificada.
+  // Captura interna — NO publicar en /v1 sin licencia (ver hub.js).
+  const items = await safe(() => hub.fetchRegistros("help_offer"), "hub help_offer");
+  return { categoria: "oferta", source: "terremotovenezuela-hub", items, fetchedAt: new Date().toISOString() };
+}
+
 // TODO(Sx): añadir builders restantes (personas, refugios, hospitales, mascotas) en sus slices.
-const BUNDLES = { replicas: buildReplicas, centros: buildCentros, danos: buildDanos, demanda: buildDemanda };
+//   hub también expone missing_person/checkin (categoria persona, con nombre) → va al slice de personas, no aquí.
+const BUNDLES = { replicas: buildReplicas, centros: buildCentros, danos: buildDanos, demanda: buildDemanda, "demanda-hub": buildDemandaHub, oferta: buildOferta };
 
 async function main() {
   await mkdir(BUNDLE_DIR, { recursive: true });

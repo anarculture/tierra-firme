@@ -5,6 +5,7 @@ import { normalize as nAyuda } from "../src/ingest/ayudave.js";
 import { normalize as nTerr } from "../src/ingest/terremotovenezuela.js";
 import { normalize as nCrisis } from "../src/ingest/crisisvenezuela.js";
 import { normalize as nAyudaRed } from "../src/ingest/ayudaredve.js";
+import { normalize as nHub } from "../src/ingest/hub.js";
 
 test("ayudave.normalize: centro con coords string → Registro", () => {
   const out = nAyuda([{ name: "Iglesia X", estado: "Falcón", coords: "11.4,-69.6", needs: [] }]);
@@ -55,9 +56,43 @@ test("ayudaredve.normalize: zona une sus necesidades, marca verificado=false", (
   assert.deepEqual(out[0].coords, { lat: 10.33, lng: -68.75 });
 });
 
+test("hub.normalize: un source federado mapea cada tipo a su categoria", () => {
+  const hr = nHub("help_request", { reports: [{ hub_id: "h1", source: "venezuela-ayuda.com",
+    city: "La Guaira", place_name: "Maiquetia", description: "necesitamos comida",
+    category: "food", urgency: "MEDIUM", status: "OPEN", lat: 10.59, lng: -66.94 }] });
+  assert.equal(hr[0].categoria, "zona");                 // help_request → demanda
+  assert.equal(hr[0].sourceId, "terremotovenezuela-hub");
+  assert.equal(hr[0].payload.urgencia, "MEDIUM");
+  assert.equal(hr[0].payload.verificado, false);         // federado sin verificar
+  assert.equal(hr[0].payload.fuente, "venezuela-ayuda.com");
+  assert.deepEqual(hr[0].coords, { lat: 10.59, lng: -66.94 });
+
+  const off = nHub("help_offer", [{ hub_id: "h2", category: "medical", available: true, lat: null, lng: null }]);
+  assert.equal(off[0].categoria, "oferta");
+  assert.equal(off[0].payload.disponible, true);
+  assert.equal(off[0].coords, null);                     // oferta sin geo → fuera del mapa
+
+  const dmg = nHub("damaged_building", [{ hub_id: "h3", severity: "COLLAPSED",
+    place_name: "Vista al mar", photo_url: "http://x.jpg", lat: 10.6, lng: -66.8 }]);
+  assert.equal(dmg[0].categoria, "dano");                // damaged_building → daños
+  assert.equal(dmg[0].payload.severity, "COLLAPSED");
+  assert.equal(dmg[0].payload.photoUrl, "http://x.jpg");
+});
+
+test("hub.normalize: persona trae nombre pero NUNCA contacto (sin teléfono)", () => {
+  const mp = nHub("missing_person", [{ hub_id: "h4", name: "Manuel R", status: "LOOKING_FOR_SOMEONE",
+    phone: "0412-1234567", lat: 10.9, lng: -68.4 }]);  // aunque venga phone, no debe filtrarse
+  assert.equal(mp[0].categoria, "persona");
+  assert.equal(mp[0].payload.nombre, "Manuel R");
+  assert.equal("phone" in mp[0].payload, false);         // sin PII de contacto
+  assert.equal("telefono" in mp[0].payload, false);
+});
+
 test("normalize tolera vacío", () => {
   assert.deepEqual(nAyuda(null), []);
   assert.deepEqual(nTerr({}), []);
   assert.deepEqual(nCrisis({}), []);
   assert.deepEqual(nAyudaRed(null), []);
+  assert.deepEqual(nHub("help_request", {}), []);
+  assert.deepEqual(nHub("tipo_desconocido", { reports: [{ hub_id: "x" }] }), []);
 });
