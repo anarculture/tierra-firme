@@ -71,9 +71,28 @@ function entregaRow(e) {
   </div>`;
 }
 
+// --- Lista pública recortada (issue 05): generar preview → publicar (compuerta humana) ---
+async function generarLista() {
+  const box = document.getElementById("lista-box");
+  const l = await (await fetch("/api/lista")).json();
+  box.innerHTML =
+    `<div class="card"><b>Preview lista pública</b> — ${l.necesidades.length} necesidad(es) vigente(s), recortadas a zona+insumo+urgencia
+     ${l.necesidades.map((n) => `<div class="rep">· ${esc(n.urgencia)} — ${esc(n.insumo)} (${esc(n.zona || "?")})</div>`).join("")}
+     <button id="pub-lista" style="margin-top:10px">Publicar lista (compuerta humana)</button>
+     <span id="lista-res" class="rep"></span></div>`;
+  document.getElementById("pub-lista").onclick = async () => {
+    const r = await fetch("/api/lista/publicar", { method: "POST" });
+    const j = await r.json();
+    document.getElementById("lista-res").textContent = r.ok ? `✓ Publicadas ${j.necesidades} → site/needs.json` : "Error";
+  };
+}
+
 function render(data) {
   const { necesidades = [], compras = [], entregas = [] } = data || {};
-  const toolbar = `<div class="nec"><button id="gen-informe">Generar informe de compras</button><a href="/informe.html" class="dst" target="_blank">ver informe público →</a></div><div id="informe-box"></div>`;
+  const toolbar = `<div class="nec">
+    <button id="gen-informe">Generar informe</button><a href="/informe.html" class="dst" target="_blank">informe público →</a>
+    <button id="gen-lista">Generar lista pública</button><a href="/lista.html" class="dst" target="_blank">lista pública →</a>
+  </div><div id="informe-box"></div><div id="lista-box"></div>`;
   if (!necesidades.length && !compras.length && !entregas.length) {
     root.innerHTML = toolbar + `<div class="empty">Libro vacío. Ingresá con <code>node scripts/libro.js destila &lt;fecha&gt;</code> · <code>add-json</code> · <code>add-compra</code> · <code>add-entrega</code>.</div>`;
   } else {
@@ -84,6 +103,7 @@ function render(data) {
     for (const b of root.querySelectorAll(".acts button")) b.onclick = () => setEstado(b.dataset.id, b.dataset.e);
   }
   document.getElementById("gen-informe").onclick = generarInforme;
+  document.getElementById("gen-lista").onclick = generarLista;
 }
 
 (async () => {

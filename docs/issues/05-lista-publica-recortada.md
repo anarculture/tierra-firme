@@ -20,11 +20,11 @@ filtro de estado).
 
 ## Acceptance criteria
 
-- [ ] La vista pública muestra solo `zona + insumo + urgencia` de necesidades `vigente`.
-- [ ] Al resolverse una Necesidad, desaparece de la vista pública en la próxima publicación.
-- [ ] Cero PII / cero detalle interno en la salida (test de no-fuga).
-- [ ] Pasa por compuerta humana antes de publicarse.
-- [ ] `node --test` cubre el filtro (solo `vigente`) y el recorte de campos.
+- [x] La vista pública muestra solo `zona + insumo + urgencia` de necesidades `vigente`.
+- [x] Al resolverse una Necesidad, desaparece de la vista pública en la próxima publicación.
+- [x] Cero PII / cero detalle interno en la salida (test de no-fuga).
+- [x] Pasa por compuerta humana antes de publicarse (panel: Publicar lista; re-recorta del libro, no del body).
+- [x] `node --test` cubre el filtro (solo `vigente`) y el recorte de campos.
 
 ## Blocked by
 

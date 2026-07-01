@@ -13,6 +13,7 @@ import { timingSafeEqual } from "node:crypto";
 import { merge } from "./publica-sitrep.js";
 import { loadLibro, saveLibro, setEstadoManual, vistaNecesidades } from "../src/libro.js";
 import { agregarInforme } from "../src/informe.js";
+import { listaPublica } from "../src/lista-publica.js";
 
 const TOKEN = process.env.REVISAR_TOKEN || "";
 /** Sin TOKEN: modo local (true siempre). Con TOKEN: exige Basic con esa contraseña (compare timing-safe). */
@@ -29,6 +30,7 @@ const STORE = fileURLToPath(new URL("../src/curated/sitreps.json", import.meta.u
 const DRAFTS = fileURLToPath(new URL("../data/sitrep-drafts.json", import.meta.url));
 const WEB = fileURLToPath(new URL("../web", import.meta.url));
 const SITE_INFORME = fileURLToPath(new URL("../site/informe.json", import.meta.url));
+const SITE_NEEDS = fileURLToPath(new URL("../site/needs.json", import.meta.url));
 const PORT = process.env.REVISAR_PORT || 8799;
 const hoyISO = () => new Date().toISOString().slice(0, 10);
 const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json" };
@@ -84,6 +86,19 @@ async function main() {
       res.writeHead(200, { "content-type": "application/json" });
       return res.end(JSON.stringify({ publicado: true, lineas: informe.lineas.length, total: informe.resumen.total_invertido }));
     }
+    // --- Lista pública recortada (issue 05): preview (GET) + publicar (POST, compuerta humana) ---
+    if (u.pathname === "/api/lista") {
+      const libro = await loadLibro();
+      res.writeHead(200, { "content-type": "application/json" });
+      return res.end(JSON.stringify(listaPublica(libro, { fecha: hoyISO() })));
+    }
+    if (u.pathname === "/api/lista/publicar" && req.method === "POST") {
+      const libro = await loadLibro();
+      const lista = listaPublica(libro, { fecha: hoyISO() }); // se re-recorta del libro, no del body
+      await writeFile(SITE_NEEDS, JSON.stringify(lista, null, 2) + "\n");
+      res.writeHead(200, { "content-type": "application/json" });
+      return res.end(JSON.stringify({ publicado: true, necesidades: lista.necesidades.length }));
+    }
     if (u.pathname === "/api/drafts") {
       res.writeHead(200, { "content-type": "application/json" });
       return res.end(JSON.stringify(await readJson(DRAFTS, { items: [] })));
@@ -105,10 +120,11 @@ async function main() {
       }
     }
     // superficies públicas (site/): preview local de lo que se deploya a gh-pages (#04/#05)
-    if (u.pathname === "/informe.html" || u.pathname === "/informe.json") {
+    if (["/informe.html", "/informe.json", "/lista.html", "/needs.json"].includes(u.pathname)) {
+      const rel = u.pathname === "/lista.html" ? "/index.html" : u.pathname; // /lista.html = la lista pública (site/index.html)
       try {
-        const data = await readFile(fileURLToPath(new URL(`../site${u.pathname}`, import.meta.url)));
-        res.writeHead(200, { "content-type": MIME[extname(u.pathname)] || "application/octet-stream" });
+        const data = await readFile(fileURLToPath(new URL(`../site${rel}`, import.meta.url)));
+        res.writeHead(200, { "content-type": MIME[extname(rel)] || "application/octet-stream" });
         return res.end(data);
       } catch { res.writeHead(404); return res.end("404"); }
     }

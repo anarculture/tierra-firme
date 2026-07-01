@@ -9,7 +9,9 @@ import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 import { serveBody } from "./pii-gate.js";
 
-const WEB_ROOT = fileURLToPath(new URL("../../web", import.meta.url));
+// El server público sirve el bundle público (site/): lista recortada #05 + informe #04.
+// El panel del operador vive aparte en scripts/revisar-server.js (sirve web/).
+const WEB_ROOT = fileURLToPath(new URL("../../site", import.meta.url));
 const CURATED_DIR = fileURLToPath(new URL("../curated", import.meta.url));
 const BUNDLE_DIR = fileURLToPath(new URL("../../data/bundles", import.meta.url));
 const PORT = process.env.PORT || 8787;

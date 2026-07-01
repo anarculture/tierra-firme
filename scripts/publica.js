@@ -1,66 +1,38 @@
-/* Conector: salida de analiza.js → datos del sitio público de necesidades.
-   Lee data/analisis-<date>.json (lo que produce scripts/analiza.js) y escribe
-   site/needs.json con SOLO los campos públicos {date, resumen, necesidades}.
+/* Conector: libro interno → lista pública RECORTADA (site/needs.json).
+   Reemplaza el conector viejo (analiza.js → needs.json sin recorte ni filtro de estado).
+   Recorta a {zona, insumo, urgencia} de solo las necesidades `vigente` (ADR 0005/0006):
+   allowlist deny-by-default + anti-bullwhip. La compuerta humana real vive en el panel
+   `revisar` (botón Publicar lista); este CLI es el mismo recorte para el skill de deploy (#11).
 
-   Descarta ofertas/gaps/alertas a propósito: las alertas cargan PII (cuentas y
-   nombres de estafa, p.ej. caso Massieu) y NO van a una página pública. Es un
-   ALLOWLIST deny-by-default: si analiza.js suma un campo nuevo, no se publica
-   salvo que se agregue acá explícitamente. Mismo criterio que data/api.py.
-
-   Uso:  node scripts/publica.js [YYYY-MM-DD]   (default: hoy)
-         node scripts/publica.js --selftest      (check pura, sin archivos)
-
-   ponytail: las necesidades se pasan tal cual — analiza.js ya las deja sin PII
-   (piiScan). Este conector no re-escanea; su trabajo es descartar las SECCIONES
-   que sí cargan PII, no auditar las que no. */
-import { readFile, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
+   Uso:  node scripts/publica.js            # libro → site/needs.json
+         node scripts/publica.js --selftest # recorte puro, sin archivos */
+import { writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import assert from "node:assert";
+import { loadLibro, emptyLibro, ingestNecesidad, ingestCompra } from "../src/libro.js";
+import { listaPublica } from "../src/lista-publica.js";
 
-const ROOT = new URL("..", import.meta.url);
-const ANALISIS = (date) => fileURLToPath(new URL(`data/analisis-${date}.json`, ROOT));
-const NEEDS = fileURLToPath(new URL("site/needs.json", ROOT));
-
-/** Allowlist: arma la salida pública SOLO con campos seguros. Todo lo demás
- *  (ofertas/gaps/alertas) se descarta por no estar en la lista. */
-export function toNeeds(analisis) {
-  return {
-    date: analisis.date || "",
-    resumen: analisis.resumen || "",
-    necesidades: Array.isArray(analisis.necesidades) ? analisis.necesidades : [],
-  };
-}
+const NEEDS = fileURLToPath(new URL("../site/needs.json", import.meta.url));
 
 async function main() {
-  const date = process.argv[2] && !process.argv[2].startsWith("--")
-    ? process.argv[2]
-    : new Date().toISOString().slice(0, 10);
-  const src = ANALISIS(date);
-  if (!existsSync(src)) { console.error(`sin análisis para ${date} (${src}) — corré scripts/analiza.js primero`); process.exit(1); }
-  const needs = toNeeds(JSON.parse(await readFile(src, "utf8")));
-  await writeFile(NEEDS, JSON.stringify(needs, null, 2) + "\n");
-  console.log(`publicado ${needs.necesidades.length} necesidad(es) → site/needs.json (de analisis-${date}.json)`);
+  const libro = await loadLibro();
+  const lista = listaPublica(libro, { fecha: new Date().toISOString().slice(0, 10) });
+  await writeFile(NEEDS, JSON.stringify(lista, null, 2) + "\n");
+  console.log(`publicadas ${lista.necesidades.length} necesidad(es) vigente(s) → site/needs.json`);
 }
 
 function selftest() {
-  const out = toNeeds({
-    date: "2026-06-29",
-    resumen: "ok",
-    necesidades: [{ zona: "Caracas", lugar: "X", items: ["agua"], urgencia: "alta", reportes: 3 }],
-    ofertas: [{ zona: "Caracas", ofrece: "transporte", reportes: 2 }],
-    gaps: ["algo"],
-    alertas: [{ tipo: "estafa", texto: "cuenta fulano@mail.com de Fulano Pérez", reportes: 3 }],
-  });
-  assert.deepEqual(Object.keys(out).sort(), ["date", "necesidades", "resumen"], "solo campos públicos en la salida");
-  assert.equal(out.necesidades.length, 1, "necesidades se conservan");
-  // La propiedad de seguridad: NINGÚN dato de alertas/ofertas/gaps llega al output.
-  assert.ok(!JSON.stringify(out).includes("@mail.com"), "PII de alertas NO debe filtrarse al output público");
-  assert.ok(!JSON.stringify(out).includes("transporte"), "ofertas NO van al output público");
+  const l = emptyLibro();
+  const vig = ingestNecesidad(l, { destino: { nombre: "Hospital X", tipo: "hospital", zona: "Caracas" }, insumo: "gasas", urgencia: "alta" }).necesidad;
+  const comp = ingestNecesidad(l, { destino: { nombre: "Hospital Y", tipo: "hospital", zona: "La Guaira" }, insumo: "agua", urgencia: "media" }).necesidad;
+  ingestCompra(l, { items: [{ insumo: "agua", cantidad: 1, costo_unitario: 1 }], necesidad_id: comp.id }); // comprada → fuera
+  const lista = listaPublica(l);
+  assert.equal(lista.necesidades.length, 1, "solo la vigente sale");
+  assert.deepEqual(Object.keys(lista.necesidades[0]).sort(), ["insumo", "urgencia", "zona"], "recorte a 3 campos");
+  assert.ok(!JSON.stringify(lista).includes("Hospital X"), "nombre de lugar NO va a la salida pública");
+  void vig;
   console.log("selftest OK");
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  if (process.argv.includes("--selftest")) selftest();
-  else main().catch((e) => { console.error(String(e.message || e)); process.exit(1); });
-}
+if (process.argv.includes("--selftest")) selftest();
+else main().catch((e) => { console.error(String(e.message || e)); process.exit(1); });
