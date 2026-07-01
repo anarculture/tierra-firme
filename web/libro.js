@@ -60,15 +60,27 @@ async function generarInforme() {
   };
 }
 
+function entregaRow(e) {
+  const items = (e.items || []).map((it) => `${it.cantidad}× ${esc(it.insumo)}`).join(", ");
+  const dst = typeof e.destino === "string" ? e.destino : e.destino?.nombre || "?";
+  return `<div class="card nec">
+    <span class="estado ${e.foto ? "verificada" : "entregada"}">entrega${e.foto ? " 📷" : ""}</span>
+    <span class="insumo">${items || "—"}</span>
+    <span class="dst">→ ${esc(dst)}${e.necesidad_id ? ` · liga ${esc(e.necesidad_id)}` : ""}</span>
+    ${e.quien_entrego ? `<span class="rep">${esc(e.quien_entrego)}</span>` : ""}
+  </div>`;
+}
+
 function render(data) {
-  const { necesidades = [], compras = [] } = data || {};
+  const { necesidades = [], compras = [], entregas = [] } = data || {};
   const toolbar = `<div class="nec"><button id="gen-informe">Generar informe de compras</button><a href="/informe.html" class="dst" target="_blank">ver informe público →</a></div><div id="informe-box"></div>`;
-  if (!necesidades.length && !compras.length) {
-    root.innerHTML = toolbar + `<div class="empty">Libro vacío. Ingresá con <code>node scripts/libro.js destila &lt;fecha&gt;</code> · <code>add-json</code> · <code>add-compra</code>.</div>`;
+  if (!necesidades.length && !compras.length && !entregas.length) {
+    root.innerHTML = toolbar + `<div class="empty">Libro vacío. Ingresá con <code>node scripts/libro.js destila &lt;fecha&gt;</code> · <code>add-json</code> · <code>add-compra</code> · <code>add-entrega</code>.</div>`;
   } else {
     root.innerHTML = toolbar +
       (necesidades.length ? `<h2 class="sub">Necesidades</h2>` + necesidades.map(row).join("") : "") +
-      (compras.length ? `<h2 class="sub">Compras</h2>` + compras.map(compraRow).join("") : "");
+      (compras.length ? `<h2 class="sub">Compras</h2>` + compras.map(compraRow).join("") : "") +
+      (entregas.length ? `<h2 class="sub">Entregas</h2>` + entregas.map(entregaRow).join("") : "");
     for (const b of root.querySelectorAll(".acts button")) b.onclick = () => setEstado(b.dataset.id, b.dataset.e);
   }
   document.getElementById("gen-informe").onclick = generarInforme;

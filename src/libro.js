@@ -134,6 +134,36 @@ export function ligarCompra(libro, compraId, necesidadId) {
   return compra;
 }
 
+/** Ingesta una Entrega (issue 03). Bitácora ligable-opcional: `foto`, `necesidad_id`,
+ *  `compra_id` opcionales. Ligar a una Necesidad la deriva a `entregada`; si la Entrega
+ *  trae `foto`-comprobante → `verificada` (ADR 0005). Un bulk (1 Compra) puede partirse
+ *  en varias Entregas a distintos destinos (ADR 0004: dos saltos = dos Entregas, sin
+ *  inventario). La `foto` es INTERNA — nunca sale a vista pública (ADR 0006). Muta libro. */
+export function ingestEntrega(libro, e) {
+  const entrega = {
+    id: e.id || `e${(libro.entregas?.length || 0) + 1}`,
+    grupo: e.grupo || libro.grupo || "default",
+    items: (e.items || []).map((it) => ({ insumo: String(it.insumo || "").trim(), cantidad: Number(it.cantidad) || 0 })),
+    destino: e.destino || null,
+    foto: e.foto || null,
+    quien_entrego: e.quien_entrego || "",
+    necesidad_id: e.necesidad_id || null,
+    compra_id: e.compra_id || null,
+    ts: e.ts || "",
+  };
+  (libro.entregas || (libro.entregas = [])).push(entrega);
+  return entrega;
+}
+
+/** Liga una Entrega existente a una Necesidad (deriva `entregada`/`verificada`). */
+export function ligarEntrega(libro, entregaId, necesidadId) {
+  const entrega = (libro.entregas || []).find((x) => x.id === entregaId);
+  if (!entrega) throw new Error(`Entrega no encontrada: ${entregaId}`);
+  if (!(libro.necesidades || []).some((n) => n.id === necesidadId)) throw new Error(`Necesidad no encontrada: ${necesidadId}`);
+  entrega.necesidad_id = necesidadId;
+  return entrega;
+}
+
 /** Botón del operador: setea un estado MANUAL (o lo limpia con null). */
 export function setEstadoManual(libro, id, estado) {
   const nec = (libro.necesidades || []).find((n) => n.id === id);

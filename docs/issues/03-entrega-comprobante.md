@@ -18,11 +18,11 @@ transparencia (era la vieja "proof-of-delivery", ahora no es add-on).
 
 ## Acceptance criteria
 
-- [ ] Registro de Entrega con items + destino + (opcional) foto + quién entregó.
-- [ ] Ligar Entrega a Necesidad → estado `entregada`; con foto → `verificada`.
-- [ ] Un bulk (1 Compra) puede partirse en varias Entregas a distintos destinos.
-- [ ] La foto-comprobante NO aparece en ninguna vista pública (test de no-fuga).
-- [ ] `node --test` cubre: entrega sin foto → `entregada`; con foto → `verificada`.
+- [x] Registro de Entrega con items + destino + (opcional) foto + quién entregó.
+- [x] Ligar Entrega a Necesidad → estado `entregada`; con foto → `verificada`.
+- [x] Un bulk (1 Compra) puede partirse en varias Entregas a distintos destinos.
+- [x] La foto-comprobante NO aparece en ninguna vista pública (test de no-fuga).
+- [x] `node --test` cubre: entrega sin foto → `entregada`; con foto → `verificada`.
 
 ## Blocked by
 

@@ -14,7 +14,7 @@ import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import assert from "node:assert";
-import { loadLibro, saveLibro, ingestNecesidad, ingestCompra, ligarCompra, setEstadoManual, vistaNecesidades, derivarEstado } from "../src/libro.js";
+import { loadLibro, saveLibro, ingestNecesidad, ingestCompra, ligarCompra, ingestEntrega, ligarEntrega, setEstadoManual, vistaNecesidades, derivarEstado } from "../src/libro.js";
 import { parseInbox, buildDump } from "./destila.js";
 
 const ROOT = new URL("..", import.meta.url);
@@ -105,6 +105,18 @@ async function main() {
     await saveLibro(libro);
     const nec = libro.necesidades.find((n) => n.id === necesidadId);
     return console.log(`${compraId} ligada a ${necesidadId} → ${derivarEstado(nec, libro)}`);
+  }
+  if (cmd === "add-entrega") {
+    const e = ingestEntrega(libro, JSON.parse(rest.join(" ")));
+    await saveLibro(libro);
+    return console.log(`entrega ${e.id} → ${typeof e.destino === "string" ? e.destino : e.destino?.nombre || "?"}${e.foto ? " 📷" : ""}${e.necesidad_id ? ` · liga ${e.necesidad_id}` : ""}`);
+  }
+  if (cmd === "ligar-entrega") {
+    const [entregaId, necesidadId] = rest;
+    ligarEntrega(libro, entregaId, necesidadId);
+    await saveLibro(libro);
+    const nec = libro.necesidades.find((n) => n.id === necesidadId);
+    return console.log(`${entregaId} ligada a ${necesidadId} → ${derivarEstado(nec, libro)}`);
   }
   if (cmd === "estado") {
     const [id, estado] = rest;
