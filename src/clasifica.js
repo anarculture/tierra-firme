@@ -81,14 +81,21 @@ export function rutear(libro, c) {
   }
 }
 
-const ES_MAS = /\bmas\b|más|adicional|aparte|otra|otro|nuev|falta mas|se necesita/i;
+/** ¿La respuesta del reportante significa "más" (no "lo mismo")? ADR 0007.
+ *  Si menciona "mismo/igual": negado ("no es lo mismo") → más; afirmado → mismo.
+ *  Si no lo menciona: solo señales explícitas de más (evita falsos + con "otra vez"/"se necesita"). */
+export function respuestaEsMas(respuesta) {
+  const r = norm(respuesta); // norm quita acentos: "más" → "mas"
+  if (/mism|igual/.test(r)) return /\bno\b/.test(r);
+  return /\bmas\b|adicional|aparte|distint|diferent|otra necesidad|hacen falta|mas cantidad/.test(r);
+}
 
 /** Resuelve la desambiguación con la respuesta del reportante (ADR 0007):
  *  "lo mismo" → reportes++ (dedup); "más" → sube cantidad (más demanda). Muta la necesidad. */
 export function resolverDesambiguacion(libro, necesidadId, respuesta, pendiente = {}) {
   const nec = (libro.necesidades || []).find((n) => n.id === necesidadId);
   if (!nec) throw new Error(`Necesidad no encontrada: ${necesidadId}`);
-  if (ES_MAS.test(norm(respuesta))) {
+  if (respuestaEsMas(respuesta)) {
     const extra = Number(pendiente.cantidad);
     if (Number.isFinite(extra) && Number.isFinite(Number(nec.cantidad))) nec.cantidad = Number(nec.cantidad) + extra;
     else if (Number.isFinite(extra)) nec.cantidad = extra;

@@ -19,6 +19,21 @@ test("pii-gate: público (sin key) → cédula enmascarada, nombre/foto/id fuera
   assert.ok(!s.includes("Félix"), "FUGA PII: nombre en la salida");
 });
 
+test("pii-gate: allowlist deny-by-default — descripcion/ubicacion/coords NO salen (regresión)", () => {
+  const b = { items: [{ sourceId: "encuentralos", categoria: "persona",
+    coords: { lat: 10.5, lng: -66.9 },
+    payload: { id: "u1", nombre: "Félix Urbano", cedula: "25369306", estado: "missing",
+      ubicacion: "Catia", descripcion: "Félix Urbano, 26 años, contactar 0414-1234567", edad: 26 } }] };
+  const s = JSON.stringify(serveBody("personas", b, null, "SECRET"));
+  assert.ok(!s.includes("Félix"), "nombre (incluido dentro de descripcion) NO sale");
+  assert.ok(!s.includes("Catia"), "ubicación de persona NO sale");
+  assert.ok(!s.includes("0414"), "teléfono en descripcion NO sale");
+  assert.ok(!s.includes("10.5") && !s.includes("66.9"), "coords GPS de la persona NO salen");
+  const p = serveBody("personas", b, null, "SECRET").items[0].payload;
+  assert.equal(p.estado, "missing", "campo agregado permitido sí sale");
+  assert.equal(p.edad, 26);
+});
+
 test("pii-gate: canal gateado (key correcta) → payload completo", () => {
   const p = serveBody("personas", bundle(), "SECRET", "SECRET").items[0].payload;
   assert.equal(p.cedula, "25369306");

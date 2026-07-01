@@ -166,13 +166,23 @@ export function ligarEntrega(libro, entregaId, necesidadId) {
   return entrega;
 }
 
-/** Botón del operador: setea un estado MANUAL (o lo limpia con null). */
+/** Botón del operador: setea un estado MANUAL (o lo limpia con null).
+ *  Guarda el invariante open-instance (ADR 0007): si el cambio REABRIRÍA esta Necesidad
+ *  y ya hay otra instancia abierta de la misma clave, rechaza (nunca dos abiertas a la vez). */
 export function setEstadoManual(libro, id, estado) {
   const nec = (libro.necesidades || []).find((n) => n.id === id);
   if (!nec) throw new Error(`Necesidad no encontrada: ${id}`);
-  if (estado === null) { delete nec.manual; return nec; }
-  if (!ESTADOS_MANUALES.includes(estado)) throw new Error(`estado manual inválido: ${estado} (usa ${ESTADOS_MANUALES.join("/")})`);
-  nec.manual = estado;
+  if (estado !== null && !ESTADOS_MANUALES.includes(estado)) throw new Error(`estado manual inválido: ${estado} (usa ${ESTADOS_MANUALES.join("/")})`);
+  const prev = nec.manual;
+  if (estado === null) delete nec.manual; else nec.manual = estado;
+  if (estaAbierta(nec, libro)) {
+    const key = openKey(nec.destino?.nombre, nec.insumo);
+    const otraAbierta = (libro.necesidades || []).some((n) => n !== nec && openKey(n.destino?.nombre, n.insumo) === key && estaAbierta(n, libro));
+    if (otraAbierta) { // revertir y rechazar: ADR 0007
+      if (prev === undefined) delete nec.manual; else nec.manual = prev;
+      throw new Error(`No se puede reabrir ${id}: ya hay otra instancia abierta de "${key}" (ADR 0007: una sola abierta a la vez)`);
+    }
+  }
   return nec;
 }
 

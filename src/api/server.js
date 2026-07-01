@@ -44,7 +44,7 @@ async function apiBody(name) {
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   if (url.pathname.startsWith("/api/")) {
-    const name = url.pathname.slice(5).replace(/[^a-z0-9-]/gi, "");
+    const name = url.pathname.slice(5).replace(/[^a-z0-9-]/gi, "").toLowerCase(); // lower: /api/Personas no evade el gate PII
     const body = await apiBody(name);
     // Gate PII: bundles de personas se redactan salvo canal gateado (TF_API_KEY). Regla §5, no-negociable.
     const out = serveBody(name, body, req.headers["x-api-key"] || url.searchParams.get("key"), ENV.TF_API_KEY);

@@ -118,8 +118,10 @@ async function main() {
   }
   if (cmd === "desambigua") {
     const { resolverDesambiguacion } = await import("../src/clasifica.js");
-    const [id, ...resp] = rest;
-    const r = resolverDesambiguacion(libro, id, resp.join(" "));
+    const [id, ...words] = rest;
+    // último arg numérico = cantidad extra reportada (para la rama "más"): desambigua <id> "más" 200
+    const cantidad = /^\d+$/.test(words[words.length - 1]) ? Number(words.pop()) : undefined;
+    const r = resolverDesambiguacion(libro, id, words.join(" "), { cantidad });
     await saveLibro(libro);
     return console.log(`${id} → ${r.accion} (reportes ${r.necesidad.reportes}, cantidad ${r.necesidad.cantidad ?? "—"})`);
   }

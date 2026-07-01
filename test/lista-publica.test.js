@@ -41,8 +41,15 @@ test("lugarPublico: solo instituciones con nombre mapeable", () => {
   assert.equal(lugarPublico({ nombre: "Hospital X", tipo: "hospital" }), "Hospital X");
   assert.equal(lugarPublico({ nombre: "Centro de acopio Chacao", tipo: "centro_acopio" }), "Centro de acopio Chacao");
   assert.equal(lugarPublico({ nombre: "Dr. Pérez", tipo: "doctor" }), null, "persona → null");
-  assert.equal(lugarPublico({ nombre: "General", tipo: "hospital" }), null, "genérico → null");
+  assert.equal(lugarPublico({ nombre: "General", tipo: "hospital" }), null, "genérico exacto → null");
   assert.equal(lugarPublico({ nombre: "Por ubicar (revisar)", tipo: "punto_apoyo" }), null, "no mapeable → null");
+});
+
+test("placeholder es NOMBRE COMPLETO, no substring: 'Hospital General del Oeste' conserva lugar (regresión #10)", () => {
+  assert.equal(lugarPublico({ nombre: "Hospital General del Oeste", tipo: "hospital" }), "Hospital General del Oeste");
+  assert.equal(lugarPublico({ nombre: "Hospital General del Este", tipo: "hospital" }), "Hospital General del Este");
+  assert.equal(lugarPublico({ nombre: "N/D", tipo: "hospital" }), null, "placeholder N/D → null (no pin basura)");
+  assert.equal(lugarPublico({ nombre: "?", tipo: "punto_apoyo" }), null);
 });
 
 test("al resolverse una necesidad desaparece de la lista", () => {

@@ -46,6 +46,22 @@ test('"lo mismo" → reportes++; "más" → sube cantidad', () => {
   assert.equal(nec.cantidad, 150, "más → sube cantidad 100+50");
 });
 
+test("mismo/más: negación y falsos positivos (regresión #07)", () => {
+  const l = emptyLibro();
+  const nec = ingestNecesidad(l, { destino: dest, insumo: "gasas", cantidad: 100 }).necesidad;
+  // "no es lo mismo" = necesidad distinta/adicional → más (antes caía mal en 'mismo')
+  const a = resolverDesambiguacion(l, nec.id, "no es lo mismo", { cantidad: 40 });
+  assert.equal(a.accion, "mas");
+  assert.equal(nec.cantidad, 140, "'no es lo mismo' → sube cantidad");
+  // "es lo que se necesita" NO debe contar como más (antes 'se necesita' daba falso +)
+  const antes = nec.cantidad;
+  const b = resolverDesambiguacion(l, nec.id, "sí, es lo que se necesita");
+  assert.equal(b.accion, "mismo");
+  assert.equal(nec.cantidad, antes, "no sube cantidad");
+  // "es lo mismo de la otra vez" NO debe dispararse por 'otra'
+  assert.equal(resolverDesambiguacion(l, nec.id, "es lo mismo de la otra vez").accion, "mismo");
+});
+
 test("necesidad resuelta libera cupo → mención posterior crea instancia nueva (no pregunta)", () => {
   const l = emptyLibro();
   const nec = ingestNecesidad(l, { destino: dest, insumo: "gasas" }).necesidad;

@@ -4,7 +4,7 @@
 import { test } from "node:test";
 import assert from "node:assert";
 import {
-  emptyLibro, ingestNecesidad, derivarEstado, setEstadoManual, vistaNecesidades, openKey,
+  emptyLibro, ingestNecesidad, derivarEstado, setEstadoManual, vistaNecesidades, openKey, estaAbierta,
 } from "../src/libro.js";
 
 const mencion = (nombre, insumo, extra = {}) => ({ destino: { nombre, tipo: "hospital", zona: "Caracas" }, insumo, ...extra });
@@ -32,6 +32,16 @@ test("resolver (cancelada) libera el cupo → mención posterior abre instancia 
   assert.equal(r.accion, "nueva", "cupo liberado → instancia fresca");
   assert.equal(l.necesidades.length, 2);
   assert.equal(r.necesidad.id, `${openKey("Pérez", "gasas")}#2`, "id de instancia nueva incrementa");
+});
+
+test("setEstadoManual no reabre si ya hay otra instancia abierta (ADR 0007, regresión crítica)", () => {
+  const l = emptyLibro();
+  const n1 = ingestNecesidad(l, mencion("Pérez", "gasas")).necesidad;
+  setEstadoManual(l, n1.id, "cancelada");          // resuelve → libera cupo
+  ingestNecesidad(l, mencion("Pérez", "gasas"));    // abre instancia #2
+  assert.throws(() => setEstadoManual(l, n1.id, null), /ADR 0007/, "limpiar el manual de #1 con #2 abierta se rechaza");
+  assert.equal(derivarEstado(n1, l), "cancelada", "#1 sigue cancelada (revertido)");
+  assert.equal(l.necesidades.filter((n) => estaAbierta(n, l)).length, 1, "una sola instancia abierta");
 });
 
 test("por_decidir NO libera el cupo (sigue ocupando el slug)", () => {

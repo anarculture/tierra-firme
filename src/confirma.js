@@ -34,9 +34,10 @@ const SI = new Set(["si", "sí", "sip", "sii", "correcto", "ok", "okey", "dale",
 export function interpretarRespuesta(text) {
   const t = String(text || "").trim().toLowerCase();
   if (!t) return "otro";
+  // señal de edición GANA sobre un "sí/ok" inicial: "ok pero cambia el precio" → editar (no confirmar datos viejos)
+  if (/(^|\s)(no|mal|edit|corrig|cambi|arregl|equivocad|error)/.test(t)) return "editar";
   if (/👍|✅/.test(t)) return "si";
   if (SI.has(t.split(/[\s,.!?]+/)[0])) return "si";
-  if (/(^|\s)(no|mal|edit|corrig|cambi|arregl)/.test(t)) return "editar";
   return "otro";
 }
 

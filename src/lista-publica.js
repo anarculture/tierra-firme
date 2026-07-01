@@ -6,20 +6,24 @@
      paciente, contacto, estado interno, costos ni quién. Allowlist deny-by-default.
    - Solo necesidades `vigente` (ADR 0005): auto-descarta comprada/entregada/verificada/
      cancelada. Nunca engaña a un donante para financiar algo ya resuelto (anti-bullwhip). */
-import { derivarEstado } from "./libro.js";
+import { derivarEstado, norm } from "./libro.js";
 
 // Tipos de Destino cuyo nombre es INFRAESTRUCTURA PÚBLICA (no PII de persona): seguro
 // para mostrar + mapear (issue 10). doctor/persona = PII → nunca sale el nombre (ADR 0006).
 const TIPOS_MAPEABLES = new Set(["hospital", "punto_apoyo", "centro_acopio"]);
-// Nombres genéricos = no mapeables → sin lugar ni link (issue 10: "General", "varias ubicaciones").
-const NO_MAPEABLE = /^\s*$|general|varias ubicaciones|por ubicar|no especificad|desconocid/i;
+// Placeholders no-mapeables = nombre COMPLETO genérico (no substring: "Hospital General del
+// Oeste" es un hospital real y mapeable — no un placeholder). Comparación normalizada.
+const PLACEHOLDERS = new Set(["general", "varias ubicaciones", "varias", "no especificado", "no especificada", "desconocido", "desconocida", "n/d", "s/n", "sn", "?", "-", "x"]);
 
 /** lugar público seguro para una Necesidad, o null. Solo instituciones públicas con nombre
- *  mapeable; jamás un nombre de doctor/persona (PII). */
+ *  mapeable; jamás un nombre de doctor/persona (PII) ni un placeholder genérico. */
 export function lugarPublico(destino) {
   if (!destino || !TIPOS_MAPEABLES.has(destino.tipo)) return null;
   const nombre = String(destino.nombre || "").trim();
-  return nombre && !NO_MAPEABLE.test(nombre) ? nombre : null;
+  const key = norm(nombre);
+  // rechaza placeholders exactos, "por ubicar…", y nombres sin ≥3 alfanuméricos (evita "?", "N/D", pins basura)
+  if (!nombre || PLACEHOLDERS.has(key) || key.startsWith("por ubicar") || (nombre.match(/[a-zA-Z0-9]/g) || []).length < 3) return null;
+  return nombre;
 }
 
 /** Recorta el libro a la lista pública. Puro, sin IO, sin PII. Campos seguros:

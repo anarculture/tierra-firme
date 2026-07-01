@@ -44,6 +44,14 @@ test("ciclo para entrega también marca confirmado_por_autor", () => {
   assert.equal(l.entregas.length, 1);
 });
 
+test("señal de edición gana sobre un 'ok/sí' inicial (regresión #08)", () => {
+  assert.equal(interpretarRespuesta("ok pero cambia el precio a 150"), "editar");
+  assert.equal(interpretarRespuesta("listo, pero está mal el total"), "editar");
+  assert.equal(interpretarRespuesta("sí, corrige la cantidad"), "editar");
+  assert.equal(interpretarRespuesta("sí"), "si", "afirmación limpia sigue confirmando");
+  assert.equal(interpretarRespuesta("correcto"), "si");
+});
+
 test("editar NO registra (espera corrección)", () => {
   assert.equal(interpretarRespuesta("editar"), "editar");
   // el bot no llama a confirmar() si la respuesta no es 'si' — el libro queda intacto

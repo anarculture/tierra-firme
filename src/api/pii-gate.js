@@ -16,12 +16,20 @@ export const maskCedula = (c) => {
   return s ? "****" + s.slice(-4) : "";
 };
 
-// Descarta identificadores directos, enmascara la cédula. Conserva campos agregados (estado/geo/edad).
+// Campos AGREGADOS no-identificantes que sí pueden salir al público. Allowlist deny-by-default:
+// todo lo demás (nombre/foto/id/descripcion/ubicacion/coords) NUNCA — re-identifica o es la
+// ubicación de una persona viva (CLAUDE.md §PII, no-negociable). Alinea con data/api.py.
+const PUBLIC_PERSONA_FIELDS = ["estado", "estadoRaw", "edad", "sexo"];
+
+// Redacta un bundle de personas por ALLOWLIST: solo campos agregados + cédula enmascarada.
 export function redactPersonas(body) {
   const items = (body?.items || []).map((r) => {
     if (!r?.payload) return r;
-    const { nombre, foto, id, cedula, ...rest } = r.payload;   // nombre/foto/id fuera (re-identifican)
-    return { ...r, payload: { ...rest, cedula: maskCedula(cedula) } };
+    const payload = { cedula: maskCedula(r.payload.cedula) };
+    for (const k of PUBLIC_PERSONA_FIELDS) if (r.payload[k] !== undefined) payload[k] = r.payload[k];
+    const { coords, ...restItem } = r; // coords = GPS exacto de la persona → fuera
+    void coords;
+    return { ...restItem, payload };
   });
   return { ...body, items, _redacted: true };
 }
