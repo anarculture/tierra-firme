@@ -1,6 +1,10 @@
 {
-  "fecha": "",
+  "fecha": "2026-07-01",
   "grupo": "default",
   "lineas": [],
-  "resumen": { "tipos": 0, "unidades": 0, "total_invertido": 0 }
+  "resumen": {
+    "tipos": 0,
+    "unidades": 0,
+    "total_invertido": 0
+  }
 }
