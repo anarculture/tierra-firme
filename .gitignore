@@ -17,6 +17,8 @@ docs/WhatsApp Chat*/
 data/missing.json
 data/patients.json
 data/puntos_ayuda_live_db.csv
+data/*.csv
+data/reportes/
 data/imported/hospitales-sismo/*.json
 data/imported/hospitales-sismo/*.csv
 # descarga cruda de Drive "SISMO 2026 VZLA" (fotos de listas + xlsx con PII)

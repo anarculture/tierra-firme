@@ -6,6 +6,7 @@ import { normalize as nTerr } from "../src/ingest/terremotovenezuela.js";
 import { normalize as nCrisis } from "../src/ingest/crisisvenezuela.js";
 import { normalize as nAyudaRed } from "../src/ingest/ayudaredve.js";
 import { normalize as nHub } from "../src/ingest/hub.js";
+import { normalize as nEnc, selectNew } from "../src/ingest/encuentralos.js";
 
 test("ayudave.normalize: centro con coords string → Registro", () => {
   const out = nAyuda([{ name: "Iglesia X", estado: "Falcón", coords: "11.4,-69.6", needs: [] }]);
@@ -19,11 +20,14 @@ test("ayudave.normalize: coords null → coords null (va al directorio, no al ma
   assert.equal(nAyuda([{ name: "Y", coords: null }])[0].coords, null);
 });
 
-test("terremotovenezuela.normalize: daño con lat/lng → Registro dano", () => {
-  const out = nTerr({ reports: [{ latitud: 10.49, longitud: -68.2, level: "total" }] });
+test("terremotovenezuela.normalize: daño con lat/lng → Registro dano con foto", () => {
+  const out = nTerr({ reports: [{ latitud: 10.49, longitud: -68.2, level: "total", photo_url: "http://x/d.jpg", address: "Av 1" }] });
   assert.equal(out[0].categoria, "dano");
   assert.equal(out[0].payload.severity, "total");
+  assert.equal(out[0].payload.photoUrl, "http://x/d.jpg");   // foto preservada (criterio F2)
+  assert.equal(out[0].payload.place, "Av 1");
   assert.deepEqual(out[0].coords, { lat: 10.49, lng: -68.2 });
+  assert.equal(nTerr({ reports: [{ level: "parcial" }] })[0].coords, null);  // sin geo → fuera del mapa
 });
 
 test("crisisvenezuela.normalize: fact daño → Registro dano con procedencia", () => {
@@ -88,6 +92,43 @@ test("hub.normalize: persona trae nombre pero NUNCA contacto (sin teléfono)", (
   assert.equal("telefono" in mp[0].payload, false);
 });
 
+test("encuentralos.normalize: persona → Registro con estado mapeado, geo, sin PII de reportante", () => {
+  const out = nEnc([{
+    id: "u1", nombre: "Félix Urbano", cedula: "25369306", edad: 26, sexo: "Masculino",
+    estado: "desaparecido", ultima_ubicacion: "Catia La Mar", ultima_lat: 10.6, ultima_lng: -67.0,
+    ultima_vez: "2026-06-25T19:11:44Z", descripcion: "alto", foto: "http://x/f.jpg", creado: "2026-06-27",
+    reporta_contacto: "0412-9999999", pv_contacto: "0414-1", pv_por: "prima", pv_relacion: "familiar",
+  }]);
+  assert.equal(out.length, 1);
+  assert.equal(out[0].categoria, "persona");
+  assert.equal(out[0].sourceId, "encuentralos");
+  assert.equal(out[0].payload.estado, "missing");        // desaparecido → missing
+  assert.equal(out[0].payload.cedula, "25369306");       // conservada para dedup interno
+  assert.deepEqual(out[0].coords, { lat: 10.6, lng: -67.0 });
+  // PII de terceros JAMÁS en el payload:
+  for (const k of ["reporta_contacto", "pv_contacto", "pv_por", "pv_relacion", "pv_lugar", "pv_salud"])
+    assert.equal(k in out[0].payload, false, `filtró ${k}`);
+});
+
+test("encuentralos: watermark incremental (selectNew) por día de `creado`", () => {
+  const regs = nEnc([
+    { id: "a", nombre: "A", creado: "2026-06-28" },              // > watermark → nuevo
+    { id: "b", nombre: "B", creado: "2026-06-27T19:11:44Z" },    // == día → incluido (solapamiento, se deduplica)
+    { id: "c", nombre: "C", creado: "2026-06-25" },              // < watermark → fuera
+    { id: "d", nombre: "D", creado: null },                      // sin fecha → incluido (no perderlo)
+  ]);
+  const nuevos = selectNew(regs, "2026-06-27").map((r) => r.payload.id).sort();
+  assert.deepEqual(nuevos, ["a", "b", "d"]);
+  assert.equal(selectNew(regs, null).length, 4);                // 1ra corrida (sin watermark) → todo
+  assert.equal(nEnc([{ id: "u1", nombre: "X" }])[0].payload.id, "u1");  // id conservado para dedup
+});
+
+test("encuentralos.normalize: estado desconocido → 'unknown', sin geo → coords null", () => {
+  const out = nEnc([{ nombre: "X", estado: "rescatado", ultima_lat: null, ultima_lng: null }]);
+  assert.equal(out[0].payload.estado, "unknown");
+  assert.equal(out[0].coords, null);
+});
+
 test("normalize tolera vacío", () => {
   assert.deepEqual(nAyuda(null), []);
   assert.deepEqual(nTerr({}), []);
@@ -95,4 +136,5 @@ test("normalize tolera vacío", () => {
   assert.deepEqual(nAyudaRed(null), []);
   assert.deepEqual(nHub("help_request", {}), []);
   assert.deepEqual(nHub("tipo_desconocido", { reports: [{ hub_id: "x" }] }), []);
+  assert.deepEqual(nEnc(null), []);
 });
