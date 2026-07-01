@@ -30,13 +30,16 @@ const DRAFTS = fileURLToPath(new URL("data/sitrep-drafts.json", ROOT));
 const CACHE = fileURLToPath(new URL("data/geocode-cache.json", ROOT));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const BASE_URL = process.env.DESTILA_BASE_URL || "https://generativelanguage.googleapis.com/v1beta/openai"; // Gemini OpenAI-compat
-const API_KEY = process.env.DESTILA_API_KEY || process.env.ANALIZA_API_KEY || ""; // reusa la key de humanitas
+const API_KEY = process.env.DESTILA_API_KEY || process.env.VLM_API_KEY || process.env.ANALIZA_API_KEY || ""; // VLM_API_KEY = key nueva con fondos
 const MODEL = process.env.DESTILA_MODEL || "gemini-2.5-flash-lite";
 // gemini-2.5-* "piensa" y consume presupuesto de salida; para extracción no hace falta. "low" libera tokens.
 const REASONING = process.env.DESTILA_REASONING ?? "low";
 
 const key = (it) => `${String(it.titulo ?? "").trim().toLowerCase()}|${String(it.zona ?? "").trim().toLowerCase()}`;
 
+// ponytail: enum de categoría/urgencia = mejor estimación del esquema de ayudaencamino,
+// SIN confirmar contra su API real. Al cablear el export (paso 4 del MVP) confirmá el
+// vocabulario contra su /api/organizations y ajustá esta lista si difiere.
 const SYSTEM = `Destilás un volcado crudo de mensajes de crisis (Venezuela, sismo) en borradores de reporte de situación (sitrep) para verificación humana. Producís BORRADORES; un humano verifica y publica. NUNCA auto-amplifiques.
 
 Reglas DURAS (no se rompen):
@@ -47,8 +50,17 @@ Reglas DURAS (no se rompen):
 - Rumores/estafas (cuentas de donación dudosas, refugios falsos): incluilos con texto empezando en "⚠ rumor sin verificar:".
 - titulo: corto y concreto. texto: legible, una pantalla de teléfono. Si no hay nada destilable, devolvé items vacío.
 
-Salida: respondé SOLO con un objeto json con esta forma exacta, sin texto fuera del json:
-{"items":[{"titulo":"...","texto":"...","zona":"...","fuenteOrigen":"..."}]}`;
+Demanda estructurada (para alimentar la plataforma de coordinación de ayuda):
+- Si el item es una NECESIDAD (falta algo en un lugar), además del texto extraé estos campos:
+  · categoria: uno de [medicinas, higiene, alimentos, agua, herramientas, ropa, pernocta, otro].
+  · urgencia: uno de [critica, alta, media, baja].
+  · nombreArticulo: el item concreto que hace falta (p.ej. "agua potable", "pañales talla M", "colchonetas").
+  · cantidad: número + unidad si el mensaje lo dice (p.ej. "200 litros", "50 unidades"); si no se dice, "".
+  · direccion: punto/dirección exacta si el mensaje la da (refugio, edificio, calle); si solo hay zona, "".
+- Si el item NO es una necesidad (alerta, rumor), omití esos 5 campos. NUNCA inventes un valor; ante la duda dejá "" (cantidad/direccion) o el más conservador (urgencia: baja).
+
+Salida: respondé SOLO con un objeto json con esta forma exacta, sin texto fuera del json. Los 5 campos de demanda solo aparecen en items de necesidad:
+{"items":[{"titulo":"...","texto":"...","zona":"...","fuenteOrigen":"...","categoria":"...","urgencia":"...","nombreArticulo":"...","cantidad":"...","direccion":"..."}]}`;
 
 /** Parsea inbox JSONL → records. Líneas vacías o corruptas se saltan. */
 export function parseInbox(text) {
@@ -170,11 +182,14 @@ async function selftest() {
   const base = { items: [{ titulo: "Sin agua", zona: "Catia", texto: "...", fuenteOrigen: "Reporte ciudadano" }] };
   const m = mergeDrafts(base, [
     { titulo: "sin agua", zona: "CATIA", texto: "dup", fuenteOrigen: "x" },   // dup (case-insensitive)
-    { titulo: "Colapso edificio", zona: "Catia", texto: "nuevo", fuenteOrigen: "Varios reportes" },
+    { titulo: "Falta agua", zona: "Catia", texto: "nuevo", fuenteOrigen: "Varios reportes",
+      categoria: "agua", urgencia: "critica", nombreArticulo: "agua potable" }, // necesidad con demanda estructurada
     { titulo: "incompleto", zona: "Catia", texto: "" },                        // sin texto → descartado
   ]);
   assert.equal(m.added, 1, "solo el item nuevo y completo se agrega");
   assert.equal(m.items.length, 2);
+  const need = m.items.find((i) => i.titulo === "Falta agua");
+  assert.equal(need.categoria, "agua", "los campos de demanda sobreviven el merge (los consume el export)");
 
   // geocode offline (sin red): zona = estado conocido → centroide; desconocida → null.
   const tmpCache = join(tmpdir(), "tf-destila-selftest-cache.json");

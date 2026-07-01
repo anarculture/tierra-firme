@@ -7,6 +7,7 @@ import { readFile } from "node:fs/promises";
 import { existsSync, readFileSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
+import { serveBody } from "./pii-gate.js";
 
 const WEB_ROOT = fileURLToPath(new URL("../../web", import.meta.url));
 const CURATED_DIR = fileURLToPath(new URL("../curated", import.meta.url));
@@ -43,8 +44,10 @@ const server = createServer(async (req, res) => {
   if (url.pathname.startsWith("/api/")) {
     const name = url.pathname.slice(5).replace(/[^a-z0-9-]/gi, "");
     const body = await apiBody(name);
+    // Gate PII: bundles de personas se redactan salvo canal gateado (TF_API_KEY). Regla §5, no-negociable.
+    const out = serveBody(name, body, req.headers["x-api-key"] || url.searchParams.get("key"), ENV.TF_API_KEY);
     res.writeHead(200, { "content-type": "application/json" });
-    return res.end(JSON.stringify(body));
+    return res.end(JSON.stringify(out));
   }
   const rel = url.pathname === "/" ? "/index.html" : url.pathname;
   const file = normalize(join(WEB_ROOT, rel));
