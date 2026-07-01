@@ -1,0 +1,60 @@
+<!-- ponytail: "PDF" = print-to-PDF del navegador (window.print + @media print). Sin dep.
+     Upgrade path si hace falta un PDF branded adjuntable sin navegador: skill htmk-doc. -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Informe de compras — Tierra Firme</title>
+  <style>
+    :root { --ink:#1a1a1a; --muted:#666; --line:#ddd; --accent:#0a6b3b; }
+    * { box-sizing: border-box; }
+    body { font: 15px/1.5 system-ui, sans-serif; color: var(--ink); max-width: 760px; margin: 0 auto; padding: 24px 16px; }
+    header { border-bottom: 2px solid var(--accent); padding-bottom: 12px; margin-bottom: 16px; }
+    h1 { margin: 0 0 2px; font-size: 22px; }
+    .sub { color: var(--muted); font-size: 13px; }
+    .resumen { display: flex; gap: 20px; flex-wrap: wrap; margin: 16px 0; }
+    .resumen div { background: #f5f7f6; border-radius: 8px; padding: 10px 14px; }
+    .resumen b { display: block; font-size: 20px; color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 14px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); }
+    th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    tfoot td { font-weight: 700; border-top: 2px solid var(--accent); border-bottom: none; }
+    .actions { margin: 16px 0; }
+    button { font: inherit; padding: 8px 16px; border: 1px solid var(--accent); background: var(--accent); color: #fff; border-radius: 6px; cursor: pointer; }
+    .foot { color: var(--muted); font-size: 12px; margin-top: 24px; }
+    @media print { .actions { display: none; } body { padding: 0; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Informe de compras</h1>
+    <p class="sub" id="meta">Cargando…</p>
+  </header>
+  <div class="actions"><button onclick="window.print()">Descargar / compartir PDF</button></div>
+  <div class="resumen" id="resumen"></div>
+  <table>
+    <thead><tr><th class="num">N.º</th><th>Descripción</th><th class="num">Cant.</th><th class="num">Costo unit.</th><th class="num">Costo total</th></tr></thead>
+    <tbody id="lineas"></tbody>
+    <tfoot id="tfoot"></tfoot>
+  </table>
+  <p class="foot">Transparencia de gasto del Grupo. Costos públicos; datos de personas y comprobantes internos no se publican. Generado del libro interno con revisión humana.</p>
+  <script>
+    const money = (n) => (Number(n) || 0).toLocaleString("es-VE");
+    (async () => {
+      let d;
+      try { d = await (await fetch("informe.json")).json(); } catch { document.getElementById("meta").textContent = "Sin informe publicado aún."; return; }
+      document.getElementById("meta").textContent = `${d.grupo || ""} · ${d.fecha || ""}`;
+      document.getElementById("resumen").innerHTML =
+        `<div><b>${d.resumen.tipos}</b>tipos de insumo</div>` +
+        `<div><b>${money(d.resumen.unidades)}</b>unidades</div>` +
+        `<div><b>${money(d.resumen.total_invertido)}</b>total invertido</div>`;
+      document.getElementById("lineas").innerHTML = (d.lineas || []).map((l) =>
+        `<tr><td class="num">${l.n}</td><td>${l.descripcion}</td><td class="num">${money(l.cantidad)}</td><td class="num">${money(l.costo_unitario)}</td><td class="num">${money(l.costo_total)}</td></tr>`).join("");
+      document.getElementById("tfoot").innerHTML =
+        `<tr><td></td><td>Total</td><td class="num">${money(d.resumen.unidades)}</td><td></td><td class="num">${money(d.resumen.total_invertido)}</td></tr>`;
+    })();
+  </script>
+</body>
+</html>

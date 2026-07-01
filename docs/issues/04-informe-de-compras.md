@@ -21,11 +21,11 @@ y publica.
 
 ## Acceptance criteria
 
-- [ ] Del log de Compras se genera el informe (tabla + resumen) con los mismos campos que el PDF actual.
-- [ ] Preview en el panel; publicar es un paso humano explícito (no automático).
-- [ ] Sale como página web y como PDF descargable/compartible.
-- [ ] El informe NO incluye nombres de voluntarios ni datos de personas (test de no-fuga PII).
-- [ ] `node --test` cubre la agregación (suma de costos, conteo de tipos/unidades).
+- [x] Del log de Compras se genera el informe (tabla + resumen) con los mismos campos que el PDF actual.
+- [x] Preview en el panel; publicar es un paso humano explícito (no automático).
+- [x] Sale como página web y como PDF descargable/compartible (print-to-PDF, ver ponytail en site/informe.html).
+- [x] El informe NO incluye nombres de voluntarios ni datos de personas (test de no-fuga PII).
+- [x] `node --test` cubre la agregación (suma de costos, conteo de tipos/unidades).
 
 ## Blocked by
 

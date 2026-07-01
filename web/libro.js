@@ -41,16 +41,37 @@ function compraRow(c) {
   </div>`;
 }
 
+// --- Informe de compras (issue 04): generar preview → publicar (compuerta humana) ---
+async function generarInforme() {
+  const box = document.getElementById("informe-box");
+  const inf = await (await fetch("/api/informe")).json();
+  box.innerHTML =
+    `<div class="card"><b>Preview del informe</b> — ${inf.resumen.tipos} tipos · ${inf.resumen.unidades} unidades · total ${inf.resumen.total_invertido}
+     <table style="width:100%;margin-top:8px;font-size:13px;border-collapse:collapse">
+     <tr><th>N.º</th><th style="text-align:left">Descripción</th><th>Cant</th><th>C.unit</th><th>Total</th></tr>
+     ${inf.lineas.map((l) => `<tr><td>${l.n}</td><td>${esc(l.descripcion)}</td><td>${l.cantidad}</td><td>${l.costo_unitario}</td><td>${l.costo_total}</td></tr>`).join("")}
+     </table>
+     <button id="pub-informe" style="margin-top:10px">Publicar informe (compuerta humana)</button>
+     <span id="informe-res" class="rep"></span></div>`;
+  document.getElementById("pub-informe").onclick = async () => {
+    const r = await fetch("/api/informe/publicar", { method: "POST" });
+    const j = await r.json();
+    document.getElementById("informe-res").textContent = r.ok ? `✓ Publicado: ${j.lineas} líneas, total ${j.total} → site/informe.json` : "Error";
+  };
+}
+
 function render(data) {
   const { necesidades = [], compras = [] } = data || {};
+  const toolbar = `<div class="nec"><button id="gen-informe">Generar informe de compras</button><a href="/informe.html" class="dst" target="_blank">ver informe público →</a></div><div id="informe-box"></div>`;
   if (!necesidades.length && !compras.length) {
-    root.innerHTML = `<div class="empty">Libro vacío. Ingresá con <code>node scripts/libro.js destila &lt;fecha&gt;</code> · <code>add-json</code> · <code>add-compra</code>.</div>`;
-    return;
+    root.innerHTML = toolbar + `<div class="empty">Libro vacío. Ingresá con <code>node scripts/libro.js destila &lt;fecha&gt;</code> · <code>add-json</code> · <code>add-compra</code>.</div>`;
+  } else {
+    root.innerHTML = toolbar +
+      (necesidades.length ? `<h2 class="sub">Necesidades</h2>` + necesidades.map(row).join("") : "") +
+      (compras.length ? `<h2 class="sub">Compras</h2>` + compras.map(compraRow).join("") : "");
+    for (const b of root.querySelectorAll(".acts button")) b.onclick = () => setEstado(b.dataset.id, b.dataset.e);
   }
-  root.innerHTML =
-    (necesidades.length ? `<h2 class="sub">Necesidades</h2>` + necesidades.map(row).join("") : "") +
-    (compras.length ? `<h2 class="sub">Compras</h2>` + compras.map(compraRow).join("") : "");
-  for (const b of root.querySelectorAll("button")) b.onclick = () => setEstado(b.dataset.id, b.dataset.e);
+  document.getElementById("gen-informe").onclick = generarInforme;
 }
 
 (async () => {
