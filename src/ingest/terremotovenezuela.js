@@ -1,5 +1,6 @@
 /* Fuente: Terremoto Venezuela (terremotovenezuela.com) — mapa de daños estructurales.
-   API implícita /api/public/media/reports/. Forma exacta por confirmar → normalize tolerante. Read-only. */
+   API implícita /api/public/media/reports/. Forma exacta por confirmar → normalize tolerante. Read-only.
+   ⚠️ Licencia: atribuir a terremotovenezuela.com si se publica; sin licencia clara → interno (bundle danos). */
 const URL = "https://terremotovenezuela.com/api/public/media/reports/";
 const num = (v) => (v == null || v === "" ? null : Number(v));
 
@@ -11,7 +12,12 @@ export function normalize(raw) {
     return {
       sourceId: "terremotovenezuela",
       categoria: "dano",
-      payload: { severity: d.level || d.severity || d.tipo || d.damage || "", place: d.address || d.place || d.lugar || "", time: d.created_at || d.date || d.time || null },
+      payload: {
+        severity: d.level || d.severity || d.tipo || d.damage || "",
+        place: d.address || d.place || d.lugar || "",
+        photoUrl: d.photo_url || d.photoUrl || d.image_url || d.image || d.media || d.foto || null,
+        time: d.created_at || d.date || d.time || null,
+      },
       coords: lat != null && lng != null ? { lat, lng } : null,
       fetchedAt: new Date().toISOString()
     };

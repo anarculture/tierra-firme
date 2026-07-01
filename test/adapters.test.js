@@ -20,11 +20,14 @@ test("ayudave.normalize: coords null → coords null (va al directorio, no al ma
   assert.equal(nAyuda([{ name: "Y", coords: null }])[0].coords, null);
 });
 
-test("terremotovenezuela.normalize: daño con lat/lng → Registro dano", () => {
-  const out = nTerr({ reports: [{ latitud: 10.49, longitud: -68.2, level: "total" }] });
+test("terremotovenezuela.normalize: daño con lat/lng → Registro dano con foto", () => {
+  const out = nTerr({ reports: [{ latitud: 10.49, longitud: -68.2, level: "total", photo_url: "http://x/d.jpg", address: "Av 1" }] });
   assert.equal(out[0].categoria, "dano");
   assert.equal(out[0].payload.severity, "total");
+  assert.equal(out[0].payload.photoUrl, "http://x/d.jpg");   // foto preservada (criterio F2)
+  assert.equal(out[0].payload.place, "Av 1");
   assert.deepEqual(out[0].coords, { lat: 10.49, lng: -68.2 });
+  assert.equal(nTerr({ reports: [{ level: "parcial" }] })[0].coords, null);  // sin geo → fuera del mapa
 });
 
 test("crisisvenezuela.normalize: fact daño → Registro dano con procedencia", () => {
