@@ -37,7 +37,6 @@ Antes de mergear: correr **`/security-review`** del diff.
 ## Tracker
 
 - **GitHub Issues = única fuente de verdad.** Labels: `afk` · `hitl` · `blocked` · `fase-a/b/c` · `in-progress`.
-- `ISSUES.md` / `BUILD.md` quedan como histórico; no se mantienen.
 
 ## Coordinador (rol)
 
