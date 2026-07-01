@@ -6,7 +6,7 @@ import { normalize as nTerr } from "../src/ingest/terremotovenezuela.js";
 import { normalize as nCrisis } from "../src/ingest/crisisvenezuela.js";
 import { normalize as nAyudaRed } from "../src/ingest/ayudaredve.js";
 import { normalize as nHub } from "../src/ingest/hub.js";
-import { normalize as nEnc } from "../src/ingest/encuentralos.js";
+import { normalize as nEnc, selectNew } from "../src/ingest/encuentralos.js";
 
 test("ayudave.normalize: centro con coords string → Registro", () => {
   const out = nAyuda([{ name: "Iglesia X", estado: "Falcón", coords: "11.4,-69.6", needs: [] }]);
@@ -105,6 +105,19 @@ test("encuentralos.normalize: persona → Registro con estado mapeado, geo, sin 
   // PII de terceros JAMÁS en el payload:
   for (const k of ["reporta_contacto", "pv_contacto", "pv_por", "pv_relacion", "pv_lugar", "pv_salud"])
     assert.equal(k in out[0].payload, false, `filtró ${k}`);
+});
+
+test("encuentralos: watermark incremental (selectNew) por día de `creado`", () => {
+  const regs = nEnc([
+    { id: "a", nombre: "A", creado: "2026-06-28" },              // > watermark → nuevo
+    { id: "b", nombre: "B", creado: "2026-06-27T19:11:44Z" },    // == día → incluido (solapamiento, se deduplica)
+    { id: "c", nombre: "C", creado: "2026-06-25" },              // < watermark → fuera
+    { id: "d", nombre: "D", creado: null },                      // sin fecha → incluido (no perderlo)
+  ]);
+  const nuevos = selectNew(regs, "2026-06-27").map((r) => r.payload.id).sort();
+  assert.deepEqual(nuevos, ["a", "b", "d"]);
+  assert.equal(selectNew(regs, null).length, 4);                // 1ra corrida (sin watermark) → todo
+  assert.equal(nEnc([{ id: "u1", nombre: "X" }])[0].payload.id, "u1");  // id conservado para dedup
 });
 
 test("encuentralos.normalize: estado desconocido → 'unknown', sin geo → coords null", () => {

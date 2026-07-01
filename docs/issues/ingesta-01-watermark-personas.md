@@ -1,6 +1,7 @@
 # ingesta-01 — Watermark incremental para Encuéntralos (personas)
 
-**Tipo:** AFK
+**Tipo:** AFK · **Estado: HECHO** (watermark = último `creado` del bundle previo; `fetchRegistros({since})`
+pagina desde el frente con corte + auto-heal a full si el orden no es newest-first; merge/dedup en `run.js`).
 
 ## What to build
 

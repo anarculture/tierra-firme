@@ -1,6 +1,6 @@
 /* Orquestador de ingesta. Corre adaptadores read-only → escribe data/bundles/<cat>.json.
    Resiliente: si una fuente falla, degrada (bundle vacío) y sigue — el gate es el test de normalize. */
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, writeFile, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import * as sismosve from "./sismosve.js";
 import * as usgs from "./usgs.js";
@@ -19,6 +19,16 @@ const BUNDLE_DIR = fileURLToPath(new URL("../../data/bundles", import.meta.url))
 async function safe(fn, label) {
   try { return await fn(); } catch (e) { console.warn(`  ! ${label}: ${e.message}`); return []; }
 }
+
+// Lee los items del bundle previo (o [] si no existe/corrupto) — base del merge incremental.
+async function readBundle(name) {
+  try { return JSON.parse(await readFile(`${BUNDLE_DIR}/${name}.json`, "utf8")).items ?? []; }
+  catch { return []; }
+}
+// Watermark = último `creado` ya ingerido; dedup por id/cédula (lo nuevo, agregado al final, gana).
+const maxCreado = (regs) => regs.reduce((m, r) => { const c = r.payload?.creado; return c && (!m || c > m) ? c : m; }, null);
+const keyOf = (r) => r.payload?.id || r.payload?.cedula || `${r.payload?.nombre}|${r.payload?.ubicacion}|${r.payload?.creado}`;
+const dedupById = (regs) => { const m = new Map(); for (const r of regs) m.set(keyOf(r), r); return [...m.values()]; };
 
 async function buildReplicas() {
   let items = await safe(() => sismosve.fetchRegistros(), "sismosve");
@@ -70,11 +80,13 @@ async function buildOferta() {
 async function buildPersonas() {
   // Encuéntralos: desaparecidos/encontrados (agregador ~107k) + hub missing_person/checkin.
   // INTERNO: sin licencia declarada + PII → bundle gitignored, gateado/redactado al servir (nunca /v1 crudo).
-  // ponytail: pull COMPLETO cada corrida (~1000 requests). Techo aceptable para ingesta no-frecuente;
-  //   upgrade path = watermark incremental por `creado`/offset (issue F1) → traer solo lo nuevo.
-  const enc = await safe(() => encuentralos.fetchRegistros(), "encuentralos");
+  // Incremental (F1): watermark = último `creado` del bundle previo → fetchRegistros trae solo lo nuevo
+  //   y mergeamos con el encuentralos ya ingerido (dedup por id/cédula). 1ra corrida (o sin bundle) = full.
+  const prevEnc = (await readBundle("personas")).filter((r) => r.sourceId === "encuentralos");
+  const enc = await safe(() => encuentralos.fetchRegistros({ since: maxCreado(prevEnc) }), "encuentralos");
   const h = await safe(() => hub.fetchRegistros("missing_person"), "hub missing_person");
-  return { categoria: "persona", source: "encuentralos+hub", items: enc.concat(h), fetchedAt: new Date().toISOString() };
+  const mergedEnc = dedupById([...prevEnc, ...enc]);   // safe()→[] no pierde lo previo; lo nuevo gana
+  return { categoria: "persona", source: "encuentralos+hub", items: mergedEnc.concat(h), fetchedAt: new Date().toISOString() };
 }
 
 // TODO(Sx): builders restantes (refugios, hospitales, mascotas, donaciones) en sus slices — ver docs/PLAN-agente-ingesta.md.
