@@ -9,7 +9,8 @@ import { fileURLToPath } from "node:url";
 
 const NEEDS = fileURLToPath(new URL("../site/needs.json", import.meta.url));
 const URGENCIA = new Set(["alta", "media", "baja", "critica"]);
-const PROHIBIDOS = ["lugar", "items", "reportes", "estado", "costo", "contacto", "quien", "id", "destino"];
+// `lugar` se permite SOLO para instituciones públicas (issue 10); el resto nunca.
+const PROHIBIDOS = ["items", "reportes", "estado", "costo", "contacto", "quien", "id", "destino", "tipo"];
 
 test("needs.json: shape de la lista pública recortada", () => {
   const data = JSON.parse(readFileSync(NEEDS, "utf8"));

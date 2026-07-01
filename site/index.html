@@ -85,10 +85,14 @@ function coincide(n, q){
 }
 function card(n){
   const wa = "https://wa.me/?text=" + encodeURIComponent(
-    `Necesidad: ${n.insumo} en ${n.zona || "zona no especificada"}. Vía Tierra Firme — verificar con coordinador.`);
+    `Necesidad: ${n.insumo} en ${n.lugar ? n.lugar + ", " : ""}${n.zona || "zona no especificada"}. Vía Tierra Firme — verificar con coordinador.`);
+  // Maps link (issue 10): SOLO cuando hay lugar mapeable (institución pública); búsqueda por nombre+zona, sin coords.
+  const maps = n.lugar
+    ? `<a class="share" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(n.lugar + " " + (n.zona || ""))}">📍 Maps</a>`
+    : "";
   return `<article class="card ${esc(n.urgencia || "media")}">
-    <div class="top"><span class="insumo">${esc(n.insumo)}</span><span class="zona">${esc(n.zona || "—")}</span></div>
-    <div class="acc"><a class="share" target="_blank" rel="noopener" href="${wa}">↗ Compartir por WhatsApp</a></div>
+    <div class="top"><span class="insumo">${esc(n.insumo)}</span><span class="zona">${esc(n.lugar ? n.lugar + " · " : "")}${esc(n.zona || "—")}</span></div>
+    <div class="acc"><a class="share" target="_blank" rel="noopener" href="${wa}">↗ Compartir por WhatsApp</a>${maps}</div>
   </article>`;
 }
 function render(){
