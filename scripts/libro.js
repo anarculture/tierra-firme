@@ -17,6 +17,7 @@ import assert from "node:assert";
 import { loadLibro, saveLibro, ingestNecesidad, ingestCompra, ligarCompra, ingestEntrega, ligarEntrega, setEstadoManual, vistaNecesidades, derivarEstado } from "../src/libro.js";
 import { parseInbox, buildDump } from "./destila.js";
 import { fotoANecesidades, fotoAFactura, ingestaFotoNecesidades, ingestaFotoFactura } from "../src/foto-libro.js";
+import { clasificar, rutear } from "../src/clasifica.js";
 
 const ROOT = new URL("..", import.meta.url);
 const INBOX = (date) => fileURLToPath(new URL(`ingest/inbox/${date}.jsonl`, ROOT));
@@ -106,6 +107,21 @@ async function main() {
     await saveLibro(libro);
     const nec = libro.necesidades.find((n) => n.id === necesidadId);
     return console.log(`${compraId} ligada a ${necesidadId} → ${derivarEstado(nec, libro)}`);
+  }
+  if (cmd === "clasifica") {
+    const c = await clasificar(rest.join(" "));
+    const r = rutear(libro, c);
+    if (r.accion === "desambiguar") console.log(`🤖 ${r.pregunta}\n   (responde: node scripts/libro.js desambigua ${r.necesidad.id} "<lo mismo|más>")`);
+    else console.log(`[${c.categoria}] → ${r.accion}${r.necesidad ? ` (${r.necesidad.id})` : ""}`);
+    if (r.accion !== "desambiguar" && r.accion !== "ignorar") await saveLibro(libro);
+    return;
+  }
+  if (cmd === "desambigua") {
+    const { resolverDesambiguacion } = await import("../src/clasifica.js");
+    const [id, ...resp] = rest;
+    const r = resolverDesambiguacion(libro, id, resp.join(" "));
+    await saveLibro(libro);
+    return console.log(`${id} → ${r.accion} (reportes ${r.necesidad.reportes}, cantidad ${r.necesidad.cantidad ?? "—"})`);
   }
   if (cmd === "foto-necesidad") {
     const [path, ...destinoJson] = rest;

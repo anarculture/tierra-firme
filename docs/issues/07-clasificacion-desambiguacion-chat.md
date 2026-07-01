@@ -17,11 +17,15 @@ El corazón de la misión del bot: clasificar cada dump entrante y, cuando una N
 
 ## Acceptance criteria
 
-- [ ] Un dump se clasifica en una de las 5 categorías (ruido se descarta).
-- [ ] Necesidad repetida con instancia abierta → el bot pregunta "¿lo mismo o más?" en el chat.
-- [ ] "lo mismo" → `reportes++` en la instancia existente; "más" → sube cantidad / abre nueva según estado.
-- [ ] Ninguna resolución se auto-acciona sin la respuesta del reportante (o del operador como fallback).
-- [ ] `node --test` cubre el ruteo de las 5 categorías y la lógica mismo/más.
+- [x] Un dump se clasifica en una de las 5 categorías (ruido se descarta) — `clasificar` (LLM) + `rutear`.
+- [x] Necesidad repetida con instancia abierta → el bot pregunta "¿lo mismo o más?" (`rutear`→`desambiguar`+`preguntaDesambiguacion`).
+- [x] "lo mismo" → `reportes++`; "más" → sube cantidad (`resolverDesambiguacion`).
+- [x] Ninguna resolución se auto-acciona sin la respuesta del reportante (rutear no muta en colisión; espera).
+- [x] `node --test` cubre el ruteo de las 5 categorías y la lógica mismo/más.
+
+_Engine puro en `src/clasifica.js` (testeado). CLI: `node scripts/libro.js clasifica "<msg>"` / `desambigua`.
+La entrega de la pregunta EN EL CHAT la hace el bot bidireccional (#06) mandando `preguntaDesambiguacion`;
+la máquina de estado conversacional stateful (recordar qué se preguntó) queda como ceiling ponytail post-PoC._
 
 ## Blocked by
 
