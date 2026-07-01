@@ -5,6 +5,8 @@ node_modules/
 data/bundles/
 data/sheets/*.csv
 data/sitrep-drafts.json
+# libro interno (ADR 0006): necesidades/compras/entregas + costos + foto-comprobante = INTERNO
+data/libro.json
 dist/
 *.log
 .DS_Store

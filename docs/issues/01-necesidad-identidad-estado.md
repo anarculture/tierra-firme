@@ -24,12 +24,12 @@ estado, reportes, ts}`. `grupo` presente aunque el PoC sea de un solo grupo (no 
 
 ## Acceptance criteria
 
-- [ ] Dump de texto con una necesidad → Necesidad con `id` estable derivado de `destino+insumo`.
-- [ ] 5 menciones del mismo `destino+insumo` con instancia abierta → 1 Necesidad `reportes=5`.
-- [ ] Resolver (manual) una Necesidad libera el cupo: una mención posterior abre instancia nueva.
-- [ ] `vigente` por default; `cancelada`/`por_decidir` seteables por el operador en el panel.
-- [ ] El panel interno (`revisar`) lista las Necesidades con su estado.
-- [ ] `node --test` cubre la regla de identidad open-instance (mismo/nuevo).
+- [x] Dump de texto con una necesidad → Necesidad con `id` estable derivado de `destino+insumo`.
+- [x] 5 menciones del mismo `destino+insumo` con instancia abierta → 1 Necesidad `reportes=5`.
+- [x] Resolver (manual) una Necesidad libera el cupo: una mención posterior abre instancia nueva.
+- [x] `vigente` por default; `cancelada`/`por_decidir` seteables por el operador en el panel.
+- [x] El panel interno (`revisar`) lista las Necesidades con su estado.
+- [x] `node --test` cubre la regla de identidad open-instance (mismo/nuevo).
 
 ## Blocked by
 

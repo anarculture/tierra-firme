@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tierra Firme — Libro interno (operador)</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .screen { max-width: 820px; }
+    .nec { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+    .nec .insumo { font-weight: 600; }
+    .nec .dst { color: var(--muted, #888); }
+    .estado { font-size: 12px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); }
+    .estado.vigente { color: #2563eb; } .estado.comprada { color: #d97706; }
+    .estado.entregada { color: #7c3aed; } .estado.verificada { color: #16a34a; }
+    .estado.cancelada { color: #6b7280; } .estado.por_decidir { color: #dc2626; }
+    .nec .rep { font-size: 12px; color: var(--muted, #888); }
+    .nec .acts { margin-left: auto; display: flex; gap: 6px; }
+    .nec button { font-size: 12px; padding: 4px 8px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); border-radius: var(--radius-sm); cursor: pointer; }
+  </style>
+</head>
+<body>
+  <header class="hd"><div><h1>Libro interno</h1><p class="sub">Operador · necesidades + estado derivado · <a href="/revisar.html">sitreps →</a></p></div></header>
+  <main class="screen" id="app">Cargando…</main>
+  <script type="module" src="libro.js"></script>
+</body>
+</html>

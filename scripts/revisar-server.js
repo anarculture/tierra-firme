@@ -11,6 +11,7 @@ import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 import { timingSafeEqual } from "node:crypto";
 import { merge } from "./publica-sitrep.js";
+import { loadLibro, saveLibro, setEstadoManual, vistaNecesidades } from "../src/libro.js";
 
 const TOKEN = process.env.REVISAR_TOKEN || "";
 /** Sin TOKEN: modo local (true siempre). Con TOKEN: exige Basic con esa contraseña (compare timing-safe). */
@@ -47,6 +48,26 @@ async function main() {
       return res.end("auth requerida (REVISAR_TOKEN)");
     }
     const u = new URL(req.url, `http://${req.headers.host}`);
+    // --- Libro interno (issue 01): necesidades + estado derivado, estado manual ---
+    if (u.pathname === "/api/libro") {
+      const libro = await loadLibro();
+      res.writeHead(200, { "content-type": "application/json" });
+      return res.end(JSON.stringify({ necesidades: vistaNecesidades(libro), grupo: libro.grupo }));
+    }
+    if (u.pathname === "/api/necesidad/estado" && req.method === "POST") {
+      let body = ""; for await (const c of req) body += c;
+      let id, estado; try { ({ id, estado } = JSON.parse(body)); } catch {}
+      const libro = await loadLibro();
+      try {
+        setEstadoManual(libro, id, estado === "vigente" ? null : estado); // "vigente" = limpiar el override
+        await saveLibro(libro);
+        res.writeHead(200, { "content-type": "application/json" });
+        return res.end(JSON.stringify({ necesidades: vistaNecesidades(libro) }));
+      } catch (e) {
+        res.writeHead(400, { "content-type": "application/json" });
+        return res.end(JSON.stringify({ error: String(e.message) }));
+      }
+    }
     if (u.pathname === "/api/drafts") {
       res.writeHead(200, { "content-type": "application/json" });
       return res.end(JSON.stringify(await readJson(DRAFTS, { items: [] })));
@@ -67,8 +88,8 @@ async function main() {
         return res.end(JSON.stringify({ error: String(e.message) }));
       }
     }
-    // estático: solo revisar.html/js + styles.css desde web/
-    const rel = u.pathname === "/" ? "/revisar.html" : u.pathname;
+    // estático desde web/. `/` = panel del Libro (ops+contabilidad); sitrep queda en /revisar.html
+    const rel = u.pathname === "/" ? "/libro.html" : u.pathname;
     const file = normalize(join(WEB, rel));
     if (!file.startsWith(WEB)) { res.writeHead(403); return res.end("forbidden"); }
     try {
