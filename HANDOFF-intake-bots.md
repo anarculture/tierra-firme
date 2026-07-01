@@ -39,8 +39,6 @@ Nadie más convierte el caos en datos verificados y deduplicados.
   correrlo solo sobre lo aprobado. Test `test/publica-sitrep.test.js`. Cero PII.
 
 **Docs:**
-- `docs/BOT-whatsapp-setup.md` — handoff **solo-Meta** para el compañero (sin terminal): reunir
-  credenciales, conectar webhook, probar.
 - `ingest/README.md` — runbook del **dev**: correr bots + `cloudflared tunnel`.
 - `docs/DESTILACION.md` — el loop completo.
 
