@@ -11,14 +11,16 @@ inbox para que `/sitrep` lo destile. Ningún colab distingue el canal: ambos esc
 ```
 inbox.py            contrato compartido: append(rec) + rutas
 telegram_buzon.py   buzón Telegram (long-poll, sin endpoint público)
-whatsapp_buzon.py   buzón WhatsApp (Meta Cloud API, webhook → necesita HTTPS público)
+zavu_buzon.py       buzón WhatsApp/SMS vía Zavu (webhook → necesita HTTPS público)
+reply.py            saliente: responde por el canal si REPLY_ENABLED (default off)
 transcribe.py       voz → texto (lo usa /sitrep)
 ```
 
 Prueba sin red (gate de cada buzón):
 ```bash
 python3 telegram_buzon.py --selftest
-python3 whatsapp_buzon.py --selftest
+python3 zavu_buzon.py --selftest
+python3 reply.py --selftest
 ```
 
 ---
@@ -38,44 +40,50 @@ Telegram sondea (long-poll), así que **no necesita endpoint público**.
 
 ---
 
-## WhatsApp (Meta Cloud API)
+## WhatsApp (vía Zavu)
 
-WhatsApp **no sondea**: Meta entrega los mensajes por POST a un HTTPS público.
-Corres el webhook local y lo expones con un túnel.
+WhatsApp **no sondea**: Zavu entrega los mensajes entrantes por POST a un HTTPS
+público (evento `message.inbound`). Corres el webhook local y lo expones con un
+túnel. Zavu habla con Meta por debajo, pero tú solo integras una API — y da
+fallback SMS automático en el saliente.
 
 ### 1. Variables
 ```bash
-export WA_VERIFY_TOKEN=<inventa una cadena; la repites en el paso 4>
-export WA_TOKEN=<token permanente de la app / system user>   # para bajar media
-export WA_APP_SECRET=<App Secret de la app de Meta>          # valida la firma (recomendado)
+export ZAVU_WEBHOOK_SECRET=whsec_...   # firma X-Zavu-Signature (OBLIGATORIO salvo --dev)
+export ZAVU_API_KEY=zv_...             # baja media (resuelve mediaId→url) y responde
 ```
-Sin `WA_TOKEN` el buzón corre igual pero no baja media (solo texto/captions).
+Sin `ZAVU_API_KEY` el buzón corre igual pero no baja media (solo texto/captions).
+El secret sale del sender: dashboard.zavu.dev → Sender → Webhook.
 
 ### 2. Corre el webhook
 ```bash
-python3 whatsapp_buzon.py        # escucha en :8788
+python3 zavu_buzon.py        # escucha en :8789
 ```
 
 ### 3. Expón con cloudflared
 ```bash
-cloudflared tunnel --url http://localhost:8788
+cloudflared tunnel --url http://localhost:8789
 ```
 Copia la URL pública que imprime (`https://algo.trycloudflare.com`).
 
-### 4. Configura el webhook en Meta
-En la app de Meta → WhatsApp → Configuration → Webhook:
-- **Callback URL**: la URL de cloudflared (el path no importa; el server responde en cualquiera).
-- **Verify token**: el mismo `WA_VERIFY_TOKEN` del paso 1.
-- Suscríbete al campo **`messages`**.
+### 4. Configura el webhook en Zavu
+En dashboard.zavu.dev → Sender → Webhook (o al crear el sender):
+- **URL**: la de cloudflared (el path no importa; el server responde en cualquiera).
+- **Events**: `message.inbound` (basta para el intake).
 
-Meta hace un GET de verificación; si el token coincide, el server devuelve el
-`hub.challenge` y queda suscrito.
+Zavu firma cada request con `X-Zavu-Signature`; el buzón la valida con
+`ZAVU_WEBHOOK_SECRET` y rechaza firmas de más de 5 min (anti-replay).
 
 ### 5. Prueba e2e
-Manda una **nota de voz** al número de WhatsApp Business. Deberías ver
+Manda una **nota de voz** al número. Deberías ver
 `+ HH:MM Nombre (telefono): voice` en consola y:
 - la línea en `inbox/<fecha>.jsonl`,
 - el `.ogg` en `inbox/media/`.
+
+### Saliente
+`reply.py` responde por Zavu (`send_zavu` → `POST /v1/messages`) solo si
+`REPLY_ENABLED=1`. Ojo la **ventana 24h** de WhatsApp: mensaje libre saliente solo
+dentro de las 24h del último inbound; fuera de eso hace falta plantilla aprobada.
 
 > **PII**: WhatsApp expone el teléfono del remitente (Telegram no). Va al `from` del
 > record, dentro de `inbox/` gitignored. Este slice requiere `/security-review` antes de cerrar.

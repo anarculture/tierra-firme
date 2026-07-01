@@ -8,14 +8,10 @@ verificados** y **config de cuentas**. Cada tarea dice: **quién** puede hacerla
 
 ## A. Desbloquear el bot (PRIORIDAD)
 
-**A1 · Credenciales de WhatsApp (Meta).** Quien maneja la cuenta de Meta.
-Seguí `docs/BOT-whatsapp-setup.md` (Parte A). → Produce: `WA_TOKEN`, `WA_APP_SECRET`,
-`WA_VERIFY_TOKEN`, número. Pasáselos al dev por canal seguro. **Esto desbloquea todo el bot.**
-
-**A2 · Bot de Telegram.** Cualquiera, 5 min. Creá un bot con [@BotFather](https://t.me/BotFather).
+**A1 · Bot de Telegram.** Cualquiera, 5 min. Creá un bot con [@BotFather](https://t.me/BotFather).
 → Produce: `TELEGRAM_BOT_TOKEN` → al dev.
 
-**A3 · Punto de recolección.** Cualquiera. Creá el grupo/canal de Telegram (o número de WhatsApp)
+**A2 · Punto de recolección.** Cualquiera. Creá el grupo/canal de Telegram (o número de WhatsApp)
 donde la gente manda el caos, e invitá a los verificadores. → Produce: el buzón donde aterriza todo.
 
 ---
@@ -73,7 +69,7 @@ Produce: el SOP que usan C2 y C5.
 ---
 
 ### Orden sugerido
-A1 (desbloquea el bot) → A2/A3 (canales) → C5 + D2 (empezar a producir sitreps verificados ya, aun
+A1/A2 (canales) → C5 + D2 (empezar a producir sitreps verificados ya, aun
 sin el bot, con monitoreo manual) → C1–C4 (datos en paralelo) → B1 (URL fija) → B2/resto.
 
 > Nota: C5 y D2 **no necesitan el bot** — se puede empezar a destilar y publicar sitreps verificados
