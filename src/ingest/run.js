@@ -11,6 +11,7 @@ import * as ayudared from "./ayudaredve.js";
 import * as hub from "./hub.js";
 import * as encuentralos from "./encuentralos.js";
 import * as geocoder from "./geocoder.js";
+import { diff } from "./diff.js";
 // acopiovenezuela: en pausa — sus centros ya entran vía AyudaVE (source: acopiovenezuela.vercel.app)
 // y no expone /api ni __NEXT_DATA__ estable. Re-activar si se confirma un endpoint.
 
@@ -94,11 +95,16 @@ const BUNDLES = { replicas: buildReplicas, centros: buildCentros, danos: buildDa
 
 async function main() {
   await mkdir(BUNDLE_DIR, { recursive: true });
+  const eventos = [];
   for (const [name, build] of Object.entries(BUNDLES)) {
+    const prev = await readBundle(name);                 // snapshot previo (antes de sobreescribir)
     const bundle = await build();
+    eventos.push(...diff(prev, bundle.items, bundle.categoria));   // cambio vs corrida previa → eventos
     await writeFile(`${BUNDLE_DIR}/${name}.json`, JSON.stringify(bundle));
     console.log(`  ✓ ${name}.json — ${bundle.items.length} registros (${bundle.source})`);
   }
-  console.log(`ingest: ${Object.keys(BUNDLES).length} bundle(s) escritos en data/bundles/.`);
+  await writeFile(`${BUNDLE_DIR}/eventos.json`, JSON.stringify({ eventos, generado: new Date().toISOString() }));
+  const crit = eventos.filter((e) => e.revision).length;
+  console.log(`ingest: ${Object.keys(BUNDLES).length} bundle(s) + ${eventos.length} evento(s) (${crit} a revisión) en data/bundles/.`);
 }
 main();

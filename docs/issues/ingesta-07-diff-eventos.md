@@ -1,6 +1,8 @@
 # ingesta-07 — Diff/eventos accionables entre corridas
 
-**Tipo:** AFK
+**Tipo:** AFK · **Estado: HECHO** (`src/ingest/diff.js`: identidad por id/cédula/geo, emite
+`nuevo`/`cambio-estado`, marca `revision:true` los críticos encontrado/fallecido; sin previo → todo
+nuevo. Wire en `run.js main()` → `data/bundles/eventos.json`. Test `test/diff.test.js`).
 
 ## What to build
 
