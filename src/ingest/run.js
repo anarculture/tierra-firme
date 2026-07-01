@@ -9,6 +9,7 @@ import * as terremoto from "./terremotovenezuela.js";
 import * as crisisvenezuela from "./crisisvenezuela.js";
 import * as ayudared from "./ayudaredve.js";
 import * as hub from "./hub.js";
+import * as encuentralos from "./encuentralos.js";
 import * as geocoder from "./geocoder.js";
 // acopiovenezuela: en pausa — sus centros ya entran vía AyudaVE (source: acopiovenezuela.vercel.app)
 // y no expone /api ni __NEXT_DATA__ estable. Re-activar si se confirma un endpoint.
@@ -66,9 +67,18 @@ async function buildOferta() {
   return { categoria: "oferta", source: "terremotovenezuela-hub", items, fetchedAt: new Date().toISOString() };
 }
 
-// TODO(Sx): añadir builders restantes (personas, refugios, hospitales, mascotas) en sus slices.
-//   hub también expone missing_person/checkin (categoria persona, con nombre) → va al slice de personas, no aquí.
-const BUNDLES = { replicas: buildReplicas, centros: buildCentros, danos: buildDanos, demanda: buildDemanda, "demanda-hub": buildDemandaHub, oferta: buildOferta };
+async function buildPersonas() {
+  // Encuéntralos: desaparecidos/encontrados (agregador ~107k) + hub missing_person/checkin.
+  // INTERNO: sin licencia declarada + PII → bundle gitignored, gateado/redactado al servir (nunca /v1 crudo).
+  // ponytail: pull COMPLETO cada corrida (~1000 requests). Techo aceptable para ingesta no-frecuente;
+  //   upgrade path = watermark incremental por `creado`/offset (issue F1) → traer solo lo nuevo.
+  const enc = await safe(() => encuentralos.fetchRegistros(), "encuentralos");
+  const h = await safe(() => hub.fetchRegistros("missing_person"), "hub missing_person");
+  return { categoria: "persona", source: "encuentralos+hub", items: enc.concat(h), fetchedAt: new Date().toISOString() };
+}
+
+// TODO(Sx): builders restantes (refugios, hospitales, mascotas, donaciones) en sus slices — ver docs/PLAN-agente-ingesta.md.
+const BUNDLES = { replicas: buildReplicas, centros: buildCentros, danos: buildDanos, personas: buildPersonas, demanda: buildDemanda, "demanda-hub": buildDemandaHub, oferta: buildOferta };
 
 async function main() {
   await mkdir(BUNDLE_DIR, { recursive: true });

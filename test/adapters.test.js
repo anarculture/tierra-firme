@@ -6,6 +6,7 @@ import { normalize as nTerr } from "../src/ingest/terremotovenezuela.js";
 import { normalize as nCrisis } from "../src/ingest/crisisvenezuela.js";
 import { normalize as nAyudaRed } from "../src/ingest/ayudaredve.js";
 import { normalize as nHub } from "../src/ingest/hub.js";
+import { normalize as nEnc } from "../src/ingest/encuentralos.js";
 
 test("ayudave.normalize: centro con coords string → Registro", () => {
   const out = nAyuda([{ name: "Iglesia X", estado: "Falcón", coords: "11.4,-69.6", needs: [] }]);
@@ -88,6 +89,30 @@ test("hub.normalize: persona trae nombre pero NUNCA contacto (sin teléfono)", (
   assert.equal("telefono" in mp[0].payload, false);
 });
 
+test("encuentralos.normalize: persona → Registro con estado mapeado, geo, sin PII de reportante", () => {
+  const out = nEnc([{
+    id: "u1", nombre: "Félix Urbano", cedula: "25369306", edad: 26, sexo: "Masculino",
+    estado: "desaparecido", ultima_ubicacion: "Catia La Mar", ultima_lat: 10.6, ultima_lng: -67.0,
+    ultima_vez: "2026-06-25T19:11:44Z", descripcion: "alto", foto: "http://x/f.jpg", creado: "2026-06-27",
+    reporta_contacto: "0412-9999999", pv_contacto: "0414-1", pv_por: "prima", pv_relacion: "familiar",
+  }]);
+  assert.equal(out.length, 1);
+  assert.equal(out[0].categoria, "persona");
+  assert.equal(out[0].sourceId, "encuentralos");
+  assert.equal(out[0].payload.estado, "missing");        // desaparecido → missing
+  assert.equal(out[0].payload.cedula, "25369306");       // conservada para dedup interno
+  assert.deepEqual(out[0].coords, { lat: 10.6, lng: -67.0 });
+  // PII de terceros JAMÁS en el payload:
+  for (const k of ["reporta_contacto", "pv_contacto", "pv_por", "pv_relacion", "pv_lugar", "pv_salud"])
+    assert.equal(k in out[0].payload, false, `filtró ${k}`);
+});
+
+test("encuentralos.normalize: estado desconocido → 'unknown', sin geo → coords null", () => {
+  const out = nEnc([{ nombre: "X", estado: "rescatado", ultima_lat: null, ultima_lng: null }]);
+  assert.equal(out[0].payload.estado, "unknown");
+  assert.equal(out[0].coords, null);
+});
+
 test("normalize tolera vacío", () => {
   assert.deepEqual(nAyuda(null), []);
   assert.deepEqual(nTerr({}), []);
@@ -95,4 +120,5 @@ test("normalize tolera vacío", () => {
   assert.deepEqual(nAyudaRed(null), []);
   assert.deepEqual(nHub("help_request", {}), []);
   assert.deepEqual(nHub("tipo_desconocido", { reports: [{ hub_id: "x" }] }), []);
+  assert.deepEqual(nEnc(null), []);
 });
