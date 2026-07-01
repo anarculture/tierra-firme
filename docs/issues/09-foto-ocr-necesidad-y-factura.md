@@ -16,10 +16,10 @@ grilla), reusando la misma tecnología para ambos lados del libro:
 
 ## Acceptance criteria
 
-- [ ] Foto de lista de insumos → Necesidad con `items[]` real (sin placeholder "no especificada").
-- [ ] Foto de factura → Compra con líneas + costo + adjunto de factura guardado (interno).
-- [ ] Reusa `VLM_API_KEY` (fallback `ANALIZA_API_KEY`); sin nueva dependencia.
-- [ ] `node --test` cubre foto→Necesidad y foto-factura→Compra.
+- [x] Foto de lista de insumos → Necesidad con `items[]` real (sin placeholder "no especificada").
+- [x] Foto de factura → Compra con líneas + costo + adjunto de factura guardado (interno).
+- [x] Reusa `VLM_API_KEY` (fallback `ANALIZA_API_KEY`); sin nueva dependencia.
+- [x] `node --test` cubre foto→Necesidad y foto-factura→Compra.
 
 ## Blocked by
 

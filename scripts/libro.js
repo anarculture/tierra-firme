@@ -16,6 +16,7 @@ import { fileURLToPath } from "node:url";
 import assert from "node:assert";
 import { loadLibro, saveLibro, ingestNecesidad, ingestCompra, ligarCompra, ingestEntrega, ligarEntrega, setEstadoManual, vistaNecesidades, derivarEstado } from "../src/libro.js";
 import { parseInbox, buildDump } from "./destila.js";
+import { fotoANecesidades, fotoAFactura, ingestaFotoNecesidades, ingestaFotoFactura } from "../src/foto-libro.js";
 
 const ROOT = new URL("..", import.meta.url);
 const INBOX = (date) => fileURLToPath(new URL(`ingest/inbox/${date}.jsonl`, ROOT));
@@ -105,6 +106,21 @@ async function main() {
     await saveLibro(libro);
     const nec = libro.necesidades.find((n) => n.id === necesidadId);
     return console.log(`${compraId} ligada a ${necesidadId} → ${derivarEstado(nec, libro)}`);
+  }
+  if (cmd === "foto-necesidad") {
+    const [path, ...destinoJson] = rest;
+    const destino = destinoJson.length ? JSON.parse(destinoJson.join(" ")) : { nombre: "Por ubicar (revisar)", tipo: "otro", zona: "" };
+    const { menciones } = await fotoANecesidades(path, destino);
+    const necs = ingestaFotoNecesidades(libro, menciones);
+    await saveLibro(libro);
+    return console.log(`foto → ${necs.length} necesidad(es) para ${destino.nombre}: ${necs.map((n) => n.insumo).join(", ")}`);
+  }
+  if (cmd === "foto-factura") {
+    const [path, ...opt] = rest;
+    const { compra } = await fotoAFactura(path, opt.length ? JSON.parse(opt.join(" ")) : {});
+    const c = ingestaFotoFactura(libro, compra);
+    await saveLibro(libro);
+    return console.log(`factura → compra ${c.id}: ${c.items.length} línea(s), total ${c.costo_total}, adjunto ${c.factura}`);
   }
   if (cmd === "add-entrega") {
     const e = ingestEntrega(libro, JSON.parse(rest.join(" ")));

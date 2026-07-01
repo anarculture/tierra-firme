@@ -32,6 +32,19 @@ export const SUPPLY_SPEC = {
   ],
 };
 
+// Spec de FACTURA (issue 09): líneas de una factura/recibo de compra. Añade
+// costo_unitario — lo que distingue una compra de una lista de necesidades.
+export const FACTURA_SPEC = {
+  instruction:
+    "una FOTO de una factura, recibo o nota de compra de insumos (medicinas, material médico, " +
+    "herramientas). Tiene renglones con artículo, cantidad y precio.",
+  fields: [
+    { name: "articulo", description: "nombre del insumo/producto del renglón" },
+    { name: "cantidad", description: "cantidad numérica del renglón (null si no)", type: "number" },
+    { name: "costo_unitario", description: "precio unitario numérico del renglón (null si no)", type: "number" },
+  ],
+};
+
 // --- JSON Schema (subconjunto soportado por Gemini responseJsonSchema) ---
 function itemSchema(spec) {
   const props = {};
