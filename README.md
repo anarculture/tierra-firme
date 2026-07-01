@@ -1,51 +1,64 @@
 # Tierra Firme
 
-Bot de WhatsApp para la crisis sísmica de Venezuela (doblete M7.2/M7.5, 24-jun-2026).
-Reenviás lo que llega (cadenas, audios, fotos, capturas) y Tierra Firme **centraliza el
-caos y lo destila en información funcional: qué hace falta, dónde y cuánto** — para que
-los recursos se asignen bien y la ayuda llegue donde de verdad se necesita. **No es fuente oficial.**
+Herramienta interna de **operaciones + contabilidad** para un Grupo de apoyo en la crisis
+sísmica de Venezuela (doblete M7.2/M7.5, 24-jun-2026). Centraliza los reenvíos de WhatsApp
+y corre el loop **dinero → compra → entrega**, destilando el caos en **qué hace falta, dónde
+y cuánto**, con transparencia de gasto hacia los donantes. **No es fuente oficial.**
 
-> **Norte.** Tierra Firme es la **puerta de entrada WhatsApp única** del ecosistema de
-> respuesta: sensor de demanda WhatsApp-nativo (reenvíos → necesidad/oferta estructurada,
-> dedup, geocode) que **enruta** lo que no le toca a la herramienta que ya existe.
-> Plan de funcionamiento completo: **[`TIERRA-FIRME.md`](TIERRA-FIRME.md)**.
+> **Modelo.** Tres bitácoras ligables-opcional (**Necesidad / Compra / Entrega**), estado
+> **derivado** de eventos (no tecleado), bot bidireccional que clasifica y desambigua en el
+> chat, y dos superficies públicas con **compuerta humana**. El lenguaje del dominio vive en
+> [`CONTEXT.md`](CONTEXT.md); las decisiones congeladas en [`docs/adr/`](docs/adr/); el norte
+> de producto en [`TIERRA-FIRME.md`](TIERRA-FIRME.md).
 >
-> **Llegaste nuevo?** `npm test` (debe estar verde), luego leé `TIERRA-FIRME.md`.
+> **Llegaste nuevo?** `npm test` (debe estar verde), luego leé `CONTEXT.md` + `docs/issues/`.
 
 ## Loop central
 
-`reenvío → destila (LLM) → dedup + geocode → compuerta humana → torre de control / export`
-
-Nada público sin un humano que verifica. PII (nombres/teléfonos) fuera de la salida pública.
-
-## Estructura
-
 ```
-ingest/                 Bot: buzón WhatsApp/Telegram, destilador (eco), transcripción de voz
-  whatsapp_buzon.py       Webhook Meta Cloud API → inbox
-  telegram_buzon.py       Bot Telegram → inbox (mismo contrato de inbox)
-  destilador.py           Eco por-mensaje vía Gemini (acuse al que reenvía)
-  reply.py / responder.py Capa de respuesta (gateada, default off)
-  transcribe.py           Voz → texto (faster-whisper, es-VE)
-scripts/
-  destila.js              inbox/<fecha>.jsonl → borradores de sitrep (LLM)
-  analiza.js              inbox → necesidades/ofertas/gaps/alertas (análisis)
-  revisar-server.js       Panel del operador (compuerta humana)
-src/ingest/geocoder.js  Geocodifica contra el catálogo de centros
-data/bundles/centros.json   Catálogo de centros geocodificados (lo que el bot cruza)
-web/revisar.html        Panel de revisión del operador
+reenvío → buzón (intake) → clasifica (5 cat) → LIBRO interno (Necesidad/Compra/Entrega)
+        → estado derivado → [compuerta humana] → informe de compras + lista recortada → gh-pages
 ```
 
-## Stack
+Nada público sin un humano que verifica. **Transparencia con el dinero, privacidad con las
+personas**: costos públicos, nombres de voluntarios / detalle de pacientes / foto-comprobante NO.
 
-Vanilla JS + Node stdlib + Python (intake/voz). Gemini (`gemini-2.5-flash-lite`, endpoint nativo)
-para destilar. Boring, server-light, corre en red mala.
+## El libro (modelo de dominio) — `src/libro.js`
+
+- **Necesidad** — pedido de insumo en un Destino. Identidad *open-instance* (`destino+insumo`,
+  una instancia abierta a la vez); estado derivado `vigente → comprada → entregada → verificada`
+  (+ manuales `cancelada`/`por_decidir`). ADR 0005 / 0007.
+- **Compra** — `items[{insumo,cantidad,costo_unitario}]` + costo_total; alimenta el informe.
+- **Entrega** — con foto-comprobante interna; ligar → `entregada`, con foto → `verificada`.
+
+El libro (`data/libro.json`) es **interno y gitignored**. Las dos superficies públicas
+(`site/informe.html`, `site/index.html`) se generan de él con recorte PII.
 
 ## Comandos
 
 ```bash
-npm test                 # node:test — debe pasar
-npm run destila          # destila el inbox del día → borradores
-npm run revisar          # levanta el panel del operador
-node scripts/analiza.js  # análisis necesidades/ofertas/gaps
+npm test                              # node:test — el gate (debe estar verde)
+npm run build                         # valida los JSON declarativos
+
+# Libro (operador) — src/libro.js vía scripts/libro.js
+node scripts/libro.js add-json '<mención(es)>'      # ingesta Necesidad(es) destilada(s)
+node scripts/libro.js destila <fecha>               # inbox texto → Necesidades (LLM)
+node scripts/libro.js clasifica "<mensaje>"         # clasifica + rutea al libro (#07)
+node scripts/libro.js add-compra '<json>'  · ligar <compra> <necesidad>
+node scripts/libro.js add-entrega '<json>' · foto-necesidad <img> · foto-factura <img>   # OCR (#09)
+node scripts/libro.js ls                            # necesidades + estado derivado
+
+npm run revisar                       # panel interno: libro + generar/publicar informe y lista
+npm run publica                       # libro → site/needs.json (lista recortada, solo vigente)
+npm run dev                           # server público (site/): lista + informe + /api
+npm run deploy                        # genera → [gate humano] → deploy gh-pages (--deploy = push real)
+
+# Buzones Python (intake WhatsApp/Telegram vía Zavu; selftest = gate sin red)
+python3 ingest/zavu_buzon.py --selftest   ·   python3 ingest/reply.py --selftest
 ```
+
+## Stack
+
+Vanilla JS + Node stdlib (`src/`, `scripts/`) + Python stdlib (`ingest/`). Gemini para
+destilar/clasificar/OCR (endpoint OpenAI-compat + nativo). **Sin dependencias externas** —
+boring, server-light, corre en red mala. Ver [`CLAUDE.md`](CLAUDE.md).
