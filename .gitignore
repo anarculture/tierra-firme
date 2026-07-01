@@ -17,6 +17,11 @@ docs/WhatsApp Chat*/
 data/missing.json
 data/patients.json
 data/puntos_ayuda_live_db.csv
+# CSV sueltos en data/ = dumps ad-hoc con PII (persons_public, Búsqueda de Familiares, etc.)
+# Datos estructurados viven en subdirs (bundles/, sheets/, imported/); loose = nunca trackear.
+data/*.csv
+# reportes internos del grupo (informe de compras PDF, etc.) — la versión pública la genera el sitio
+data/reportes/
 
 # OpenWA/venom browser session (retirado; nunca trackear)
 ingest/.wa-session/
