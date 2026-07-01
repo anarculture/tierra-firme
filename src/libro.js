@@ -93,6 +93,47 @@ export function ingestNecesidad(libro, m) {
   return { necesidad: nec, accion: "nueva" };
 }
 
+/** Suma cantidad×costo_unitario de las líneas (ignora líneas sin costo). */
+export function totalCompra(items = []) {
+  return items.reduce((s, it) => s + (Number(it.cantidad) || 0) * (Number(it.costo_unitario) || 0), 0);
+}
+
+/** Busca la Necesidad ABIERTA que matchea destino+insumo (para ligar una Compra). */
+export function necesidadAbierta(libro, destinoNombre, insumo) {
+  const key = openKey(destinoNombre, insumo);
+  return (libro.necesidades || []).find(
+    (n) => openKey(n.destino?.nombre, n.insumo) === key && estaAbierta(n, libro),
+  );
+}
+
+/** Ingesta una Compra (issue 02). Bitácora ligable-opcional: `necesidad_id` y `factura`
+ *  opcionales. Ligar a una Necesidad abierta la deriva a `comprada` (ADR 0005) — vía
+ *  derivarEstado, no un campo tecleado. `costo_total` se calcula si no viene. Muta libro. */
+export function ingestCompra(libro, c) {
+  if (!Array.isArray(c.items) || !c.items.length) throw new Error("Compra exige items[] no vacío");
+  const compra = {
+    id: c.id || `c${(libro.compras?.length || 0) + 1}`,
+    grupo: c.grupo || libro.grupo || "default",
+    items: c.items.map((it) => ({ insumo: String(it.insumo || "").trim(), cantidad: Number(it.cantidad) || 0, costo_unitario: Number(it.costo_unitario) || 0 })),
+    costo_total: c.costo_total != null ? Number(c.costo_total) : totalCompra(c.items),
+    factura: c.factura || null,
+    quien_compro: c.quien_compro || "",
+    necesidad_id: c.necesidad_id || null,
+    ts: c.ts || "",
+  };
+  (libro.compras || (libro.compras = [])).push(compra);
+  return compra;
+}
+
+/** Liga una Compra existente a una Necesidad (deriva su estado a `comprada`). */
+export function ligarCompra(libro, compraId, necesidadId) {
+  const compra = (libro.compras || []).find((c) => c.id === compraId);
+  if (!compra) throw new Error(`Compra no encontrada: ${compraId}`);
+  if (!(libro.necesidades || []).some((n) => n.id === necesidadId)) throw new Error(`Necesidad no encontrada: ${necesidadId}`);
+  compra.necesidad_id = necesidadId;
+  return compra;
+}
+
 /** Botón del operador: setea un estado MANUAL (o lo limpia con null). */
 export function setEstadoManual(libro, id, estado) {
   const nec = (libro.necesidades || []).find((n) => n.id === id);

@@ -52,7 +52,7 @@ async function main() {
     if (u.pathname === "/api/libro") {
       const libro = await loadLibro();
       res.writeHead(200, { "content-type": "application/json" });
-      return res.end(JSON.stringify({ necesidades: vistaNecesidades(libro), grupo: libro.grupo }));
+      return res.end(JSON.stringify({ necesidades: vistaNecesidades(libro), compras: libro.compras || [], grupo: libro.grupo }));
     }
     if (u.pathname === "/api/necesidad/estado" && req.method === "POST") {
       let body = ""; for await (const c of req) body += c;
@@ -62,7 +62,7 @@ async function main() {
         setEstadoManual(libro, id, estado === "vigente" ? null : estado); // "vigente" = limpiar el override
         await saveLibro(libro);
         res.writeHead(200, { "content-type": "application/json" });
-        return res.end(JSON.stringify({ necesidades: vistaNecesidades(libro) }));
+        return res.end(JSON.stringify({ necesidades: vistaNecesidades(libro), compras: libro.compras || [] }));
       } catch (e) {
         res.writeHead(400, { "content-type": "application/json" });
         return res.end(JSON.stringify({ error: String(e.message) }));

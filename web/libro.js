@@ -27,20 +27,33 @@ async function setEstado(id, estado) {
     method: "POST", headers: { "content-type": "application/json" },
     body: JSON.stringify({ id, estado }),
   });
-  if (r.ok) render((await r.json()).necesidades);
+  if (r.ok) render(await r.json());
   else alert("Error: " + ((await r.json()).error || r.status));
 }
 
-function render(necesidades) {
-  if (!necesidades?.length) {
-    root.innerHTML = `<div class="empty">Libro vacío. Ingresá necesidades con <code>node scripts/libro.js destila &lt;fecha&gt;</code> o <code>add-json</code>.</div>`;
+function compraRow(c) {
+  const items = (c.items || []).map((it) => `${it.cantidad}× ${esc(it.insumo)} @ ${it.costo_unitario}`).join(", ");
+  return `<div class="card nec">
+    <span class="estado comprada">compra</span>
+    <span class="insumo">${items}</span>
+    <span class="dst">= ${c.costo_total}${c.necesidad_id ? ` · liga ${esc(c.necesidad_id)}` : " · suelta"}</span>
+    ${c.quien_compro ? `<span class="rep">${esc(c.quien_compro)}</span>` : ""}
+  </div>`;
+}
+
+function render(data) {
+  const { necesidades = [], compras = [] } = data || {};
+  if (!necesidades.length && !compras.length) {
+    root.innerHTML = `<div class="empty">Libro vacío. Ingresá con <code>node scripts/libro.js destila &lt;fecha&gt;</code> · <code>add-json</code> · <code>add-compra</code>.</div>`;
     return;
   }
-  root.innerHTML = necesidades.map(row).join("");
+  root.innerHTML =
+    (necesidades.length ? `<h2 class="sub">Necesidades</h2>` + necesidades.map(row).join("") : "") +
+    (compras.length ? `<h2 class="sub">Compras</h2>` + compras.map(compraRow).join("") : "");
   for (const b of root.querySelectorAll("button")) b.onclick = () => setEstado(b.dataset.id, b.dataset.e);
 }
 
 (async () => {
-  try { render((await (await fetch("/api/libro")).json()).necesidades); }
+  try { render(await (await fetch("/api/libro")).json()); }
   catch { root.innerHTML = `<div class="empty">Sin servidor. Corré <code>npm run revisar</code>.</div>`; }
 })();

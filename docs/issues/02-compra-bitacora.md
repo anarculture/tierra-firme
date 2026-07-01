@@ -21,11 +21,11 @@ inline en el chat es #08; la factura-OCR es #09.
 
 ## Acceptance criteria
 
-- [ ] Texto de compra → registro Compra con items, costo_unitario, costo_total.
-- [ ] Ligar una Compra a una Necesidad abierta deriva el estado de esa Necesidad a `comprada`.
-- [ ] Compra sin Necesidad ligada es válida y persiste.
-- [ ] La Compra aparece en el panel interno del operador.
-- [ ] `node --test` cubre: liga → estado `comprada`; compra suelta sin liga.
+- [x] Texto de compra → registro Compra con items, costo_unitario, costo_total.
+- [x] Ligar una Compra a una Necesidad abierta deriva el estado de esa Necesidad a `comprada`.
+- [x] Compra sin Necesidad ligada es válida y persiste.
+- [x] La Compra aparece en el panel interno del operador.
+- [x] `node --test` cubre: liga → estado `comprada`; compra suelta sin liga.
 
 ## Blocked by
 

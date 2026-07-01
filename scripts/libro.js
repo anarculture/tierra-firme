@@ -14,7 +14,7 @@ import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import assert from "node:assert";
-import { loadLibro, saveLibro, ingestNecesidad, setEstadoManual, vistaNecesidades, derivarEstado } from "../src/libro.js";
+import { loadLibro, saveLibro, ingestNecesidad, ingestCompra, ligarCompra, setEstadoManual, vistaNecesidades, derivarEstado } from "../src/libro.js";
 import { parseInbox, buildDump } from "./destila.js";
 
 const ROOT = new URL("..", import.meta.url);
@@ -93,6 +93,18 @@ async function main() {
     const { nuevas, dedup } = aplicarMenciones(libro, menciones);
     await saveLibro(libro);
     return console.log(`destilado ${conTexto} mensaje(s) → +${nuevas} necesidad(es), ${dedup} dedup → data/libro.json`);
+  }
+  if (cmd === "add-compra") {
+    const c = ingestCompra(libro, JSON.parse(rest.join(" ")));
+    await saveLibro(libro);
+    return console.log(`compra ${c.id}: ${c.items.length} línea(s), total ${c.costo_total}${c.necesidad_id ? ` → liga ${c.necesidad_id}` : " (suelta)"}`);
+  }
+  if (cmd === "ligar") {
+    const [compraId, necesidadId] = rest;
+    ligarCompra(libro, compraId, necesidadId);
+    await saveLibro(libro);
+    const nec = libro.necesidades.find((n) => n.id === necesidadId);
+    return console.log(`${compraId} ligada a ${necesidadId} → ${derivarEstado(nec, libro)}`);
   }
   if (cmd === "estado") {
     const [id, estado] = rest;
