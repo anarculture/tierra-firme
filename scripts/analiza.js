@@ -4,11 +4,15 @@
    necesita y dónde (demanda), qué hay disponible (oferta), gaps de cobertura, y
    alertas (estafas/rumores). No publica nada; alimenta la coordinación.
 
+   Dos lentes sobre el MISMO inbox (--lente):
+     demanda (default) → necesidades/ofertas/gaps/alertas → data/analisis-<date>.json
+     pulso             → puntos de discusión ABIERTOS (qué está álgido) → data/pulso-<date>.json
+
    Reusa el API de Gemini que ya está configurado en ~/Code/humanitas: Gemini
    expone un endpoint OpenAI-compatible, así que usamos el MISMO protocolo que
    destila.js apuntando ANALIZA_BASE_URL ahí. Reusamos la key, no el cliente.
 
-   Uso:  node scripts/analiza.js [YYYY-MM-DD]
+   Uso:  node scripts/analiza.js [YYYY-MM-DD] [--lente demanda|pulso]
          node scripts/analiza.js --selftest        (lógica pura, sin red)
    Env:  ANALIZA_BASE_URL (def Gemini OpenAI-compat) · ANALIZA_MODEL
          (def gemini-2.5-flash) · ANALIZA_API_KEY (la GEMINI_API_KEY de humanitas)
@@ -25,6 +29,7 @@ import { parseInbox, buildDump } from "./destila.js";
 const ROOT = new URL("..", import.meta.url);
 const INBOX = (date) => fileURLToPath(new URL(`ingest/inbox/${date}.jsonl`, ROOT));
 const OUT = (date) => fileURLToPath(new URL(`data/analisis-${date}.json`, ROOT));
+const PULSO_OUT = (date) => fileURLToPath(new URL(`data/pulso-${date}.json`, ROOT));
 // Gemini OpenAI-compat por default (reusa la key de humanitas).
 const BASE_URL = process.env.ANALIZA_BASE_URL || "https://generativelanguage.googleapis.com/v1beta/openai";
 const API_KEY = process.env.VLM_API_KEY || process.env.ANALIZA_API_KEY || ""; // VLM_API_KEY = la key nueva con fondos
@@ -55,6 +60,27 @@ Otras reglas DURAS (no se rompen):
 Salida: respondé SOLO con un objeto json con esta forma exacta, sin texto fuera del json:
 {"resumen":"2-3 frases ejecutivas","necesidades":[{"zona":"","lugar":"","items":["..."],"urgencia":"alta|media|baja","reportes":1}],"ofertas":[{"zona":"","ofrece":"","reportes":1}],"gaps":["..."],"alertas":[{"tipo":"estafa|rumor","texto":"","reportes":1}]}`;
 
+const PULSO_SYSTEM = `Analizas un volcado crudo de mensajes de un grupo de WhatsApp que coordina ayuda tras el sismo en Venezuela. Tu tarea NO es extraer necesidades ni ofertas — es detectar los PUNTOS DE DISCUSIÓN ABIERTOS: temas donde el grupo debate, hay desacuerdo, confusión, una decisión sin tomar o una pregunta sin responder. Sirve para tomarle el pulso a lo que está más álgido.
+
+REGLA #1, LA MÁS IMPORTANTE — CERO PII (romperla deja el output inservible):
+- PROHIBIDO todo nombre propio de persona, apodo, @usuario, teléfono o contacto, en CUALQUIER campo.
+- En "posturas" describe a quien opina por ROL o INICIAL, nunca por identidad: "un médico", "una voluntaria en Catia", "C.". Nombres de hospitales, refugios, zonas y organizaciones SÍ van.
+
+Para cada tema abierto devuelve:
+- tema: una frase de qué se discute.
+- estado: "abierto" (sigue sin resolverse), "enfriando" (sin actividad reciente) o "resuelto" (alguien lo cerró).
+- temperatura: entero 1-5 por volumen de mensajes y cuán encontradas las posturas (5 = mucha gente, posturas opuestas).
+- posturas: lista corta "rol o inicial: qué defiende".
+- zona: lugar si se menciona, o null.
+- ultimaActividad: hora del último mensaje del tema (HH:MM del volcado).
+- mensajes: cuántos mensajes tocan el tema.
+
+Reglas DURAS (no se rompen):
+- Un tema cuenta SOLO si tiene >=2 mensajes o >=2 posturas. Una sola voz, un saludo o spam NO es discusión: ignóralo.
+- Si no hay nada en discusión, devuelve "temas" vacío.
+- Devuelve SOLO un objeto json con esta forma exacta, sin texto fuera del json, ordenado por temperatura desc:
+{"temas":[{"tema":"","estado":"abierto|enfriando|resuelto","temperatura":1,"posturas":["rol: postura"],"zona":null,"ultimaActividad":"HH:MM","mensajes":1}]}`;
+
 const arr = (x) => (Array.isArray(x) ? x : []);
 const num = (x) => (Number.isFinite(+x) && +x > 0 ? Math.floor(+x) : 1);
 
@@ -81,6 +107,29 @@ export function normalizar(raw) {
       .filter((a) => a && a.texto)
       .map((a) => ({ tipo: a.tipo === "estafa" ? "estafa" : "rumor", texto: String(a.texto).trim(), reportes: num(a.reportes) })),
   };
+}
+
+const TEMP = (x) => Math.min(5, num(x)); // num ya garantiza >=1; cap a 5
+const ESTADOS = ["abierto", "enfriando", "resuelto"];
+
+/** Coacciona la salida del lente pulso al schema {temas:[...]}. Descarta lo que no es
+ *  discusión (un tema necesita >=2 mensajes o >=2 posturas — espejo de la regla del prompt)
+ *  y ordena por temperatura desc. Nunca tira. */
+export function normalizarPulso(raw) {
+  const r = raw || {};
+  const temas = arr(r.temas)
+    .filter((t) => t && t.tema && (num(t.mensajes) >= 2 || arr(t.posturas).length >= 2))
+    .map((t) => ({
+      tema: String(t.tema).trim(),
+      estado: ESTADOS.includes(t.estado) ? t.estado : "abierto",
+      temperatura: TEMP(t.temperatura),
+      posturas: arr(t.posturas).map((p) => String(p).trim()).filter(Boolean),
+      zona: t.zona ? String(t.zona).trim() : null,
+      ultimaActividad: String(t.ultimaActividad || "").trim(),
+      mensajes: num(t.mensajes),
+    }))
+    .sort((a, b) => b.temperatura - a.temperatura);
+  return { temas };
 }
 
 // Palabras que no son nombre de persona aunque aparezcan en un `from` — evitan
@@ -145,7 +194,19 @@ export function formatResumen(a, date) {
   return L.join("\n");
 }
 
-async function analizar(dump) {
+/** Resumen legible del pulso: temas por temperatura, con sus posturas. */
+export function formatPulso(p, date) {
+  const L = [`🌡  Pulso del inbox ${date || ""}`.trim(), ""];
+  if (!p.temas.length) { L.push("(sin debates abiertos detectados)"); return L.join("\n"); }
+  for (const t of p.temas) {
+    const z = t.zona ? ` · ${t.zona}` : "";
+    L.push(`[${t.estado}] ${"🔥".repeat(t.temperatura)} ${t.tema}${z} (${t.mensajes} msgs)`);
+    for (const post of t.posturas) L.push(`    – ${post}`);
+  }
+  return L.join("\n");
+}
+
+async function analizar(dump, lente = "demanda") {
   const headers = { "content-type": "application/json" };
   if (API_KEY) headers.authorization = `Bearer ${API_KEY}`;
   const res = await fetch(`${BASE_URL}/chat/completions`, {
@@ -157,7 +218,7 @@ async function analizar(dump) {
       ...(REASONING ? { reasoning_effort: REASONING } : {}),
       response_format: { type: "json_object" },
       messages: [
-        { role: "system", content: SYSTEM },
+        { role: "system", content: lente === "pulso" ? PULSO_SYSTEM : SYSTEM },
         { role: "user", content: dump },
       ],
     }),
@@ -168,12 +229,15 @@ async function analizar(dump) {
   if (choice?.finish_reason === "length") console.error("⚠ salida truncada (max_tokens) — subí max_tokens o partí el inbox");
   const text = choice?.message?.content;
   if (!text) throw new Error("respuesta sin contenido");
-  return normalizar(JSON.parse(text));
+  return lente === "pulso" ? normalizarPulso(JSON.parse(text)) : normalizar(JSON.parse(text));
 }
 
 async function main() {
-  const date = process.argv[2] && !process.argv[2].startsWith("--")
-    ? process.argv[2]
+  const args = process.argv.slice(2);
+  const li = args.indexOf("--lente");
+  const lente = li >= 0 ? args[li + 1] : "demanda";
+  const date = args[0] && !args[0].startsWith("--")
+    ? args[0]
     : new Date().toISOString().slice(0, 10);
   const inboxPath = INBOX(date);
   if (!existsSync(inboxPath)) { console.error(`sin inbox para ${date} (${inboxPath})`); process.exit(1); }
@@ -184,15 +248,18 @@ async function main() {
   if (!dump) { console.error(`inbox ${date}: ${total} mensajes, 0 con texto — nada que analizar`); process.exit(0); }
   if (conTexto < total) console.error(`${total - conTexto} mensaje(s) con media sin texto (voz/foto) — no analizados. TODO: transcribe.py / OCR.`);
 
-  const analisis = await analizar(dump);
-  await writeFile(OUT(date), JSON.stringify({ date, ...analisis }, null, 2) + "\n");
-  console.log(formatResumen(analisis, date));
-  const fugas = piiScan(records.map((r) => r.from), JSON.stringify(analisis));
+  const resultado = await analizar(dump, lente);
+  const outPath = lente === "pulso" ? PULSO_OUT(date) : OUT(date);
+  await writeFile(outPath, JSON.stringify({ date, ...resultado }, null, 2) + "\n");
+  console.log(lente === "pulso" ? formatPulso(resultado, date) : formatResumen(resultado, date));
+  const fugas = piiScan(records.map((r) => r.from), JSON.stringify(resultado));
   if (fugas.length) console.error(`\n⚠ PII detectada en la salida (${fugas.length}): ${fugas.join(", ")} — redactá antes de compartir`);
-  console.error(`\n→ data/analisis-${date}.json (${analisis.necesidades.length} necesidades, ${analisis.ofertas.length} ofertas, ${analisis.gaps.length} gaps, ${analisis.alertas.length} alertas)`);
+  console.error(lente === "pulso"
+    ? `\n→ data/pulso-${date}.json (${resultado.temas.length} temas)`
+    : `\n→ data/analisis-${date}.json (${resultado.necesidades.length} necesidades, ${resultado.ofertas.length} ofertas, ${resultado.gaps.length} gaps, ${resultado.alertas.length} alertas)`);
 }
 
-function selftest() {
+async function selftest() {
   // normalizar: descarta incompletos, coacciona tipos, garantiza arrays
   const a = normalizar({
     resumen: "  prueba  ",
@@ -231,10 +298,33 @@ function selftest() {
   assert.deepEqual(piiScan([], "alerta estafa: cuenta dudosa emile@gmail.com / titular"), ["emile@gmail.com"]);
   assert.deepEqual(piiScan([], "contacto +58 412-7030773 recibe"), ["+58 412-7030773"]);
   assert.deepEqual(piiScan([], '{"date":"2026-06-29","items":["200 litros agua"]}'), [], "fecha 8 díg / monto ≠ teléfono");
+
+  // --- lente pulso: normalizarPulso filtra no-debate y ordena; analizar() enruta el prompt ---
+  const p = normalizarPulso({ temas: [
+    { tema: "saludo", temperatura: 5, posturas: [], mensajes: 1 },                 // 1 msg, 0 posturas → no es debate
+    { tema: "a dónde van los camiones", temperatura: 2, posturas: ["A: a Petare", "B: ya hay sobreoferta"], mensajes: 4 },
+    { tema: "el puente es pasable?", temperatura: 4, posturas: ["C: sí", "D: no, cedió"], mensajes: 3, estado: "abierto" },
+  ] });
+  assert.equal(p.temas.length, 2, "(b) descarta el 'saludo' (1 msg, <2 posturas)");
+  assert.ok(!p.temas.some((t) => t.tema === "saludo"), "(b) un saludo suelto no genera tema");
+  assert.equal(p.temas[0].tema, "el puente es pasable?", "(a) ordena por temperatura desc");
+  assert.equal(p.temas[0].estado, "abierto");
+  // path completo con fetch stub: analizar('pulso') → parse → normalizarPulso. (c) la red de
+  // seguridad piiScan corre también sobre la salida del pulso y atrapa un nombre colado en posturas.
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async () => ({ ok: true, json: async () => ({ choices: [{ message: { content: JSON.stringify({ temas: [
+    { tema: "reparto en Catia", temperatura: 3, posturas: ["Pedro: llevar agua", "una voz: priorizar gasas"], mensajes: 3 },
+  ] }) } }] }) });
+  try {
+    const out = await analizar("[10:00] llevo agua a Catia\n[10:01] mejor gasas", "pulso");
+    assert.equal(out.temas.length, 1, "(a) sale >=1 tema por el path completo");
+    assert.deepEqual(piiScan(["Pedro", "Ana"], JSON.stringify(out)), ["Pedro"], "(c) piiScan atrapa el nombre colado en posturas");
+  } finally { globalThis.fetch = realFetch; }
+
   console.log("selftest OK");
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  if (process.argv.includes("--selftest")) selftest();
+  if (process.argv.includes("--selftest")) selftest().catch((e) => { console.error(String(e.message || e)); process.exit(1); });
   else main().catch((e) => { console.error(String(e.message || e)); process.exit(1); });
 }
