@@ -19,7 +19,9 @@ npm run dev                       # levanta API + web en :8787 (src/api/server.j
 npm run ingest                    # corre los adaptadores → data/bundles/*.json
 npm run destila                   # inbox del día → borradores de sitrep (LLM)
 npm run revisar                   # panel del operador (compuerta humana)
+npm run enriquece -- <fecha>      # media del inbox (foto/voz) → texto — CORRER ANTES de analiza/destila
 node scripts/analiza.js           # inbox → necesidades/ofertas/gaps/alertas
+node scripts/vlm-import.js <fecha> # ítems del batch VLM (resultados-vlm.json) → draft analisis (luego publica)
 
 # Buzones Python (corren standalone; selftest = gate sin red):
 python3 ingest/whatsapp_buzon.py --selftest   # cubre el path de firma HMAC

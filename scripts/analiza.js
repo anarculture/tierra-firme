@@ -182,7 +182,12 @@ async function main() {
   const records = parseInbox(await readFile(inboxPath, "utf8"));
   const { dump, total, conTexto } = buildDump(records);
   if (!dump) { console.error(`inbox ${date}: ${total} mensajes, 0 con texto — nada que analizar`); process.exit(0); }
-  if (conTexto < total) console.error(`${total - conTexto} mensaje(s) con media sin texto (voz/foto) — no analizados. TODO: transcribe.py / OCR.`);
+  // Red de seguridad: media sin `enriched` = foto/voz que analiza (text-only) solo ve por su
+  // caption → produce placeholders "no especificada". El fix existe: enriquece.py convierte
+  // media a texto. Avisá para que se corra ANTES, no en silencio.
+  const sinEnriquecer = records.filter((r) => r.media && !r.enriched).length;
+  if (sinEnriquecer) console.error(`⚠ ${sinEnriquecer} mensaje(s) con media SIN enriquecer (foto/voz) — corré 'npm run enriquece -- ${date}' ANTES de analiza para no perder la señal en imágenes.`);
+  else if (conTexto < total) console.error(`${total - conTexto} mensaje(s) sin texto ni media útil — no analizados.`);
 
   const analisis = await analizar(dump);
   await writeFile(OUT(date), JSON.stringify({ date, ...analisis }, null, 2) + "\n");

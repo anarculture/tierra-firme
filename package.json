@@ -14,6 +14,7 @@
     "revisar": "node scripts/revisar-server.js",
     "destila": "node scripts/destila.js",
     "extract-media": "node scripts/extract-media.mjs",
+    "enriquece": "python3 ingest/enriquece.py",
     "publica": "node scripts/publica.js"
   },
   "comment": "Sin dependencias externas: vanilla JS + Node stdlib. Las deps (p.ej. @supabase/supabase-js) se añaden cuando una capa las use — TODO(Sx).",
