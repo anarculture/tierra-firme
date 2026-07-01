@@ -119,6 +119,7 @@ export function ingestCompra(libro, c) {
     factura: c.factura || null,
     quien_compro: c.quien_compro || "",
     necesidad_id: c.necesidad_id || null,
+    confirmado_por_autor: c.confirmado_por_autor || false, // #08: eco confirmado en el chat por su autor
     ts: c.ts || "",
   };
   (libro.compras || (libro.compras = [])).push(compra);
@@ -149,6 +150,7 @@ export function ingestEntrega(libro, e) {
     quien_entrego: e.quien_entrego || "",
     necesidad_id: e.necesidad_id || null,
     compra_id: e.compra_id || null,
+    confirmado_por_autor: e.confirmado_por_autor || false, // #08: eco confirmado en el chat por su autor
     ts: e.ts || "",
   };
   (libro.entregas || (libro.entregas = [])).push(entrega);

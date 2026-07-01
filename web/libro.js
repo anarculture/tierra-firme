@@ -34,7 +34,7 @@ async function setEstado(id, estado) {
 function compraRow(c) {
   const items = (c.items || []).map((it) => `${it.cantidad}× ${esc(it.insumo)} @ ${it.costo_unitario}`).join(", ");
   return `<div class="card nec">
-    <span class="estado comprada">compra</span>
+    <span class="estado comprada">compra${c.confirmado_por_autor ? " ✓autor" : ""}</span>
     <span class="insumo">${items}</span>
     <span class="dst">= ${c.costo_total}${c.necesidad_id ? ` · liga ${esc(c.necesidad_id)}` : " · suelta"}</span>
     ${c.quien_compro ? `<span class="rep">${esc(c.quien_compro)}</span>` : ""}
@@ -64,7 +64,7 @@ function entregaRow(e) {
   const items = (e.items || []).map((it) => `${it.cantidad}× ${esc(it.insumo)}`).join(", ");
   const dst = typeof e.destino === "string" ? e.destino : e.destino?.nombre || "?";
   return `<div class="card nec">
-    <span class="estado ${e.foto ? "verificada" : "entregada"}">entrega${e.foto ? " 📷" : ""}</span>
+    <span class="estado ${e.foto ? "verificada" : "entregada"}">entrega${e.foto ? " 📷" : ""}${e.confirmado_por_autor ? " ✓autor" : ""}</span>
     <span class="insumo">${items || "—"}</span>
     <span class="dst">→ ${esc(dst)}${e.necesidad_id ? ` · liga ${esc(e.necesidad_id)}` : ""}</span>
     ${e.quien_entrego ? `<span class="rep">${esc(e.quien_entrego)}</span>` : ""}

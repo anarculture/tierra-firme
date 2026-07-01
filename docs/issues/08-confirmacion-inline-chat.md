@@ -17,10 +17,13 @@ entrega, el bot hace eco y el comprador confirma **sin salir de WhatsApp**.
 
 ## Acceptance criteria
 
-- [ ] Reporte de compra/entrega → el bot responde con el eco estructurado + pide confirmación.
-- [ ] "SÍ" marca la Compra/Entrega como confirmada-por-autor; "editar" abre corrección.
-- [ ] Las confirmadas aparecen ya marcadas en el panel batch del operador.
-- [ ] `node --test` cubre el ciclo eco → confirmación → registro.
+- [x] Reporte de compra/entrega → el bot responde con el eco estructurado + pide confirmación (`eco`).
+- [x] "SÍ" marca la Compra/Entrega como confirmada-por-autor (`confirmar` → `confirmado_por_autor`); "editar" abre corrección.
+- [x] Las confirmadas aparecen ya marcadas en el panel batch del operador (✓autor).
+- [x] `node --test` cubre el ciclo eco → confirmación → registro.
+
+_Engine puro en `src/confirma.js`. La conversación stateful (bot guarda lo pendiente hasta el "SÍ")
+la maneja el bot bidireccional (#06) — ceiling ponytail igual que #07._
 
 ## Blocked by
 
