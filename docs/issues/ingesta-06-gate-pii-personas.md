@@ -1,6 +1,8 @@
 # ingesta-06 — Gate PII al servir el bundle personas
 
-**Tipo:** AFK
+**Tipo:** AFK · **Estado: HECHO** (`src/api/pii-gate.js` + wire en `server.js`: cédula→`****XXXX`,
+nombre/foto/id fuera, fail-closed sin `TF_API_KEY`; canal gateado da completo. `data/api.py` ya es
+deny-by-default → personas ausente = 404 seguro. Test en `test/pii-gate.test.js`).
 
 ## What to build
 
