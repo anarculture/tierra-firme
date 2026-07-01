@@ -19,10 +19,12 @@ CDN ~1-2 min: verificar el contenido DEPLOYADO con `git show <gh-pages-sha>:...`
 
 ## Acceptance criteria
 
-- [ ] El skill genera informe + lista recortada y se detiene para revisión humana antes de deployar.
-- [ ] Deploy con orphan-commit force-push a `gh-pages` (no subtree).
-- [ ] Verifica lo deployado vía `git show` (no solo `curl` — evita falso-OK por cache CDN).
-- [ ] No pushea a `main` (convención: main solo coordina).
+- [x] El skill genera informe + lista recortada y se detiene para revisión humana antes de deployar (`scripts/deploy.js`, dry por default; `npm run deploy`).
+- [x] Deploy con orphan-commit force-push a `gh-pages` (no subtree) — `git commit-tree HEAD:site` + `push -f`.
+- [x] Verifica lo deployado vía `git show ${commit}:index.html` (no solo `curl` — evita falso-OK por cache CDN).
+- [x] No pushea a `main` (`deployRefspec` rechaza main/master; selftest lo prueba).
+
+_Encapsulado como `scripts/deploy.js` + `npm run deploy` (ponytail: el script ES el skill; el `--deploy` real lo corre el humano)._
 
 ## Blocked by
 
