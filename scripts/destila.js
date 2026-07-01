@@ -98,7 +98,7 @@ export function mergeDrafts(existing, fresh) {
   return { items, added };
 }
 
-async function destilar(dump) {
+export async function destilar(dump) {
   const headers = { "content-type": "application/json" };
   if (API_KEY) headers.authorization = `Bearer ${API_KEY}`;
   const res = await fetch(`${BASE_URL}/chat/completions`, {

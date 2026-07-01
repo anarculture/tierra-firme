@@ -26,6 +26,22 @@ WA_TOKEN = os.environ.get("WA_TOKEN", "")
 WA_PHONE_ID = os.environ.get("WA_PHONE_NUMBER_ID", "")
 GRAPH = "https://graph.facebook.com/v21.0"
 
+_HOSP_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "hospitales.json")
+_HOSP = None
+
+
+def _hospital(dest):
+    """Hospital dueño del número `dest`, o None. Lee data/hospitales.json
+    (phone→hospital) una vez; sin archivo → nadie. Compara solo dígitos."""
+    global _HOSP
+    if _HOSP is None:
+        try:
+            raw = json.load(open(_HOSP_PATH, encoding="utf-8"))
+            _HOSP = {"".join(filter(str.isdigit, k)): v for k, v in raw.items() if not k.startswith("_")}
+        except Exception:
+            _HOSP = {}
+    return _HOSP.get("".join(filter(str.isdigit, str(dest))))
+
 
 def send_telegram(chat_id, text):
     url = f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage?" + urllib.parse.urlencode(
@@ -61,6 +77,9 @@ def maybe_reply(text, channel, dest, audio_path=None, image_path=None):
             reply = responder.responder(text) or destilador.destila(text)
         if not reply:
             return None
+        h = _hospital(dest)  # si el que reporta es un hospital, atribuye el eco (detecta misroute + invita a corregir)
+        if h:
+            reply = f"🏥 *{h.get('nombre','hospital')}* — {reply}\n\n¿Algo mal? Reenvía el dato corregido."
         if channel == "telegram":
             send_telegram(dest, reply)
         elif channel == "whatsapp":

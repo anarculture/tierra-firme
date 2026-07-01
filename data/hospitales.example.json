@@ -1,0 +1,5 @@
+{
+  "_comment": "phone (wa_id, solo dígitos) → hospital. Copia este archivo a data/hospitales.json (gitignored) y llénalo con los reales. El número es el que usa cada hospital para reportar faltantes por WhatsApp.",
+  "584140001122": { "nombre": "Hospital Central de Maracaibo", "estado": "Zulia", "municipio": "Maracaibo" },
+  "584240005566": { "nombre": "Hospital Universitario de Caracas", "estado": "Distrito Capital", "municipio": "Libertador" }
+}

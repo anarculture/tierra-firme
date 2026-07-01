@@ -17,6 +17,10 @@ docs/WhatsApp Chat*/
 data/missing.json
 data/patients.json
 data/puntos_ayuda_live_db.csv
+# registro operativo phone→hospital (contacto) — nunca pushear; el .example sí va
+data/hospitales.json
+# inventario vivo de faltantes por hospital — captura interna; publica vía humano
+data/inventario-faltantes.json
 data/imported/hospitales-sismo/*.json
 data/imported/hospitales-sismo/*.csv
 # descarga cruda de Drive "SISMO 2026 VZLA" (fotos de listas + xlsx con PII)

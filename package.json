@@ -13,6 +13,7 @@
     "sb:health": "node scripts/sb-health.js",
     "revisar": "node scripts/revisar-server.js",
     "destila": "node scripts/destila.js",
+    "inventario": "node scripts/inventario.js",
     "extract-media": "node scripts/extract-media.mjs",
     "publica": "node scripts/publica.js"
   },
