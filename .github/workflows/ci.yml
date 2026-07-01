@@ -1,8 +1,8 @@
 name: CI
 on: [push, pull_request]
 
-# Sin deps npm (vanilla + stdlib) → sin npm install. Corre los tests de Node y el
-# selftest del webhook (cubre el path de firma HMAC) en cada push/PR.
+# Sin deps npm (vanilla + stdlib) → sin npm install. Corre los tests de Node y los
+# selftests del webhook Zavu (firma HMAC) + ruteo saliente en cada push/PR.
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -15,6 +15,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: webhook selftest (firma HMAC)
-        run: python3 whatsapp_buzon.py --selftest
+      - name: zavu webhook selftest (firma HMAC)
+        run: python3 zavu_buzon.py --selftest
+        working-directory: ingest
+      - name: reply selftest (ruteo saliente)
+        run: python3 reply.py --selftest
         working-directory: ingest

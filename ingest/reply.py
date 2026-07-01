@@ -10,7 +10,7 @@ Decisión: consulta de acopio (responder, sin LLM) → si no, eco destilado del
 mensaje (destilador, vía Gemini). Audio sin texto se transcribe antes.
 
 ponytail: send por urllib stdlib (sin httpx), espejo de cómo cada buzón ya
-llama a su API. Telegram: sendMessage. WhatsApp: POST a /{phone_id}/messages.
+llama a su API. Telegram: sendMessage. WhatsApp/SMS: Zavu POST /v1/messages.
 
 Uso:
   python3 reply.py --selftest
@@ -22,9 +22,8 @@ import destilador
 REPLY_ENABLED = os.environ.get("REPLY_ENABLED", "").lower() in ("1", "true", "yes", "on")
 
 TG_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-WA_TOKEN = os.environ.get("WA_TOKEN", "")
-WA_PHONE_ID = os.environ.get("WA_PHONE_NUMBER_ID", "")
-GRAPH = "https://graph.facebook.com/v21.0"
+ZAVU_API_KEY = os.environ.get("ZAVU_API_KEY", "")
+ZAVU_API = os.environ.get("ZAVU_API", "https://api.zavu.dev")
 
 
 def send_telegram(chat_id, text):
@@ -34,11 +33,11 @@ def send_telegram(chat_id, text):
         return r.status
 
 
-def send_whatsapp(to, text):
-    payload = json.dumps({"messaging_product": "whatsapp", "to": str(to),
-                          "type": "text", "text": {"body": text}}).encode()
-    req = urllib.request.Request(f"{GRAPH}/{WA_PHONE_ID}/messages", data=payload,
-                                 headers={"Authorization": f"Bearer {WA_TOKEN}",
+def send_zavu(to, text, channel="whatsapp"):
+    # Zavu unifica los canales: un POST /v1/messages, fallback a SMS automático si WA falla.
+    payload = json.dumps({"to": str(to), "channel": channel, "text": text}).encode()
+    req = urllib.request.Request(f"{ZAVU_API}/v1/messages", data=payload,
+                                 headers={"Authorization": f"Bearer {ZAVU_API_KEY}",
                                           "Content-Type": "application/json"})
     with urllib.request.urlopen(req, timeout=15) as r:
         return r.status
@@ -48,7 +47,7 @@ def maybe_reply(text, channel, dest, audio_path=None, image_path=None):
     """Si REPLY_ENABLED, responde por el canal: consulta de acopio (responder) o,
     si no, el eco destilado del mensaje (destilador). Audio sin texto se transcribe;
     foto sin texto la lee el VLM (destila_imagen ya da el acuse, no re-destila).
-    channel: 'telegram'|'whatsapp'; dest: chat_id|wa_id. Devuelve el reply o None."""
+    channel: 'telegram'|'zavu'; dest: chat_id|E.164. Devuelve el reply o None."""
     if not REPLY_ENABLED:
         return None
     try:  # la capa de respuesta NUNCA debe tumbar el buzón de intake
@@ -63,8 +62,8 @@ def maybe_reply(text, channel, dest, audio_path=None, image_path=None):
             return None
         if channel == "telegram":
             send_telegram(dest, reply)
-        elif channel == "whatsapp":
-            send_whatsapp(dest, reply)
+        elif channel == "zavu":
+            send_zavu(dest, reply)
         return reply
     except Exception as e:
         print("error en maybe_reply:", e)
@@ -72,21 +71,21 @@ def maybe_reply(text, channel, dest, audio_path=None, image_path=None):
 
 
 def selftest():
-    global REPLY_ENABLED, send_telegram, send_whatsapp
+    global REPLY_ENABLED, send_telegram, send_zavu
     # default OFF: no envía aunque sea consulta válida
     assert maybe_reply("centro de acopio en Maracaibo", "telegram", 1) is None
     # ON + parches sin red (responder/destilador stub → no toca LLM ni bundle)
     REPLY_ENABLED = True
     sent = []
     send_telegram = lambda d, t: sent.append(("tg", d, t))
-    send_whatsapp = lambda d, t: sent.append(("wa", d, t))
+    send_zavu = lambda d, t: sent.append(("zv", d, t))
     responder.responder = lambda t: "📍 acopio" if t and "acopio" in t else None
     destilador.destila = lambda t: "✅ Recibido (sin verificar)" if t and "agua" in t else None
     # consulta de acopio -> responder, ruteo correcto por canal/dest
     out = maybe_reply("centro de acopio en Maracaibo", "telegram", 999)
     assert out and sent[-1][:2] == ("tg", 999), sent
-    maybe_reply("centro de acopio en Maracaibo", "whatsapp", "584140001122")
-    assert sent[-1][:2] == ("wa", "584140001122"), sent
+    maybe_reply("centro de acopio en Maracaibo", "zavu", "+584140001122")
+    assert sent[-1][:2] == ("zv", "+584140001122"), sent
     # reporte (no consulta) -> eco del destilador
     sent.clear()
     out = maybe_reply("falta agua en Catia", "telegram", 7)

@@ -22,11 +22,12 @@ npm run revisar                   # panel del operador (compuerta humana)
 node scripts/analiza.js           # inbox → necesidades/ofertas/gaps/alertas
 
 # Buzones Python (corren standalone; selftest = gate sin red):
-python3 ingest/whatsapp_buzon.py --selftest   # cubre el path de firma HMAC
+python3 ingest/zavu_buzon.py --selftest       # WhatsApp/SMS vía Zavu; cubre firma HMAC
 python3 ingest/telegram_buzon.py --selftest
+python3 ingest/reply.py --selftest            # ruteo saliente
 ```
 
-CI (`.github/workflows/ci.yml`) corre exactamente `node --test` + el selftest del webhook WhatsApp.
+CI (`.github/workflows/ci.yml`) corre exactamente `node --test` + los selftests del webhook Zavu y `reply`.
 No hay lint configurado.
 
 ## Restricción dura: sin dependencias externas
@@ -50,10 +51,13 @@ declarativas en `sources.manifest.json` (la lista) — los adaptadores las imple
 
 **2. Sensor de demanda (el bot) — Python intake + JS destilación.** El loop central:
 `reenvío → buzón → inbox JSONL → destila (LLM) → dedup+geocode → compuerta humana → salida`.
-- Buzones (`ingest/whatsapp_buzon.py`, `ingest/telegram_buzon.py`) escriben **el mismo** contrato:
-  una línea JSONL por mensaje en `ingest/inbox/<YYYY-MM-DD>.jsonl` (`{ts,from,kind,text,media}`,
-  definido en `ingest/inbox.py`). El destilador no distingue canal — ese es el único acoplamiento
-  entre los dos stacks. `ingest/inbox/` es **gitignored (PII)**.
+- Buzones (`ingest/telegram_buzon.py`, `ingest/zavu_buzon.py`) escriben **el mismo** contrato: una
+  línea JSONL por mensaje en `ingest/inbox/<YYYY-MM-DD>.jsonl` (`{ts,from,kind,text,media}`, definido
+  en `ingest/inbox.py`). El destilador no distingue canal — ese es el único acoplamiento entre los dos
+  stacks. `ingest/inbox/` es **gitignored (PII)**.
+- WhatsApp (entrada y salida) va por **Zavu** (`docs.zavu.dev`, API multicanal), no Meta directo:
+  `zavu_buzon.py` (webhook) + `send_zavu()` en `reply.py`. Da fallback SMS automático y media ya
+  hosteada. API cruda con `urllib` — **no** el SDK `@zavudev` (regla sin-deps).
 - `scripts/destila.js` lee ese inbox → `data/sitrep-drafts.json`; el operador aprueba en
   `npm run revisar`. **Nada público sin que un humano lo verifique** (regla no negociable).
 
@@ -76,8 +80,12 @@ declarativas en `sources.manifest.json` (la lista) — los adaptadores las imple
   proveedor con `DESTILA_*`/`ANALIZA_*` env vars sin tocar código. `ingest/destilador.py` (eco
   por-mensaje) usa el endpoint **nativo** `generateContent`. Ambos endpoints funcionan; no hay
   Ollama ni modelo local cableado.
-- `whatsapp_buzon.py` exige `WA_APP_SECRET` (verificación de firma HMAC) salvo `--dev`. El panel
-  `revisar` se gatea con `REVISAR_TOKEN` (HTTP Basic) antes de tunelizar.
+- `zavu_buzon.py` (webhook `:8789`) exige `ZAVU_WEBHOOK_SECRET` (firma `X-Zavu-Signature`, HMAC de
+  `"{t}.{body}"`, rechaza > 5 min) salvo `--dev`; `ZAVU_API_KEY` (zv_…) baja media y responde;
+  `ZAVU_API` overridea el host. Saliente = `send_zavu()` en `reply.py`, gateado por `REPLY_ENABLED`.
+  Ojo ventana WhatsApp 24h: mensaje libre saliente solo dentro de las 24h del último inbound; fuera
+  de eso hace falta plantilla aprobada por Meta. El panel `revisar` se gatea con `REVISAR_TOKEN`
+  (HTTP Basic) antes de tunelizar.
 - `.env` lo lee `server.js` con un parser stdlib propio; solo expone URL + publishable key al
   navegador, nunca la secret.
 

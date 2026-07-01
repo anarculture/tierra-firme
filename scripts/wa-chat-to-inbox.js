@@ -1,6 +1,6 @@
 /* Adapter: export de WhatsApp (_chat.txt) → inbox JSONL.
    Convierte un export de chat de WhatsApp al MISMO contrato que escriben los buzones
-   (ingest/inbox.py / whatsapp_buzon.py / telegram_buzon.py): una línea JSONL por mensaje
+   (ingest/inbox.py / zavu_buzon.py / telegram_buzon.py): una línea JSONL por mensaje
    {ts,from,kind,text,media} en ingest/inbox/<YYYY-MM-DD>.jsonl. Sirve para dogfood: correr
    destila.js / analiza.js sobre un chat real sin levantar el webhook.
 
