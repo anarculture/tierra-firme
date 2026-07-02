@@ -1,42 +1,25 @@
-# `ingest/` — buzones de intake (Telegram + WhatsApp)
+# `ingest/` — buzón de intake (WhatsApp vía Zavu)
 
-Colectores que vuelcan el **caos crudo** (texto, voz, fotos, reenvíos) al **mismo**
-inbox para que `/sitrep` lo destile. Ningún colab distingue el canal: ambos escriben
-`inbox/<YYYY-MM-DD>.jsonl` con líneas `{ts, from, kind, text, media}` (contrato en
-`inbox.py`). Media a `inbox/media/`. **`inbox/` es gitignored — contiene PII, nunca al repo.**
+Colector que vuelca el **caos crudo** (texto, voz, fotos, reenvíos) al inbox para
+que `/sitrep` lo destile. Escribe `inbox/<YYYY-MM-DD>.jsonl` con líneas
+`{ts, from, kind, text, media}` (contrato en `inbox.py`). Media a `inbox/media/`.
+**`inbox/` es gitignored — contiene PII, nunca al repo.**
 
-> Transcripción de voz: la hace `/sitrep` con `transcribe.py` (faster-whisper, `.venv`).
-> Los buzones solo guardan el `.ogg`.
+> Transcripción de voz: `transcribe.py` vía **Gemini** (única vía por PRD).
+> El buzón solo guarda el `.ogg`.
 
 ```
-inbox.py            contrato compartido: append(rec) + rutas
-telegram_buzon.py   buzón Telegram (long-poll, sin endpoint público)
-zavu_buzon.py       buzón WhatsApp/SMS vía Zavu (webhook → necesita HTTPS público)
-reply.py            saliente: responde por el canal si REPLY_ENABLED (default off)
-transcribe.py       voz → texto (lo usa /sitrep)
+inbox.py            contrato del inbox: append(rec) + rutas
+zavu_buzon.py       buzón WhatsApp vía Zavu (webhook → necesita HTTPS público)
+reply.py            saliente: responde si REPLY_ENABLED (default off)
+transcribe.py       voz → texto vía Gemini (lo usan /sitrep y enriquece)
 ```
 
-Prueba sin red (gate de cada buzón):
+Prueba sin red (gate del buzón):
 ```bash
-python3 telegram_buzon.py --selftest
 python3 zavu_buzon.py --selftest
 python3 reply.py --selftest
 ```
-
----
-
-## Telegram (rápido, sin infra)
-
-1. Crea el bot con [@BotFather](https://t.me/BotFather) → copia el token.
-2. Corre el buzón:
-   ```bash
-   export TELEGRAM_BOT_TOKEN=<token>
-   python3 telegram_buzon.py
-   ```
-3. Escríbele al bot (o reenvíale algo). Verás `+ HH:MM Nombre: text …` y una línea
-   nueva en `inbox/<fecha>.jsonl`.
-
-Telegram sondea (long-poll), así que **no necesita endpoint público**.
 
 ---
 
@@ -85,8 +68,8 @@ Manda una **nota de voz** al número. Deberías ver
 `REPLY_ENABLED=1`. Ojo la **ventana 24h** de WhatsApp: mensaje libre saliente solo
 dentro de las 24h del último inbound; fuera de eso hace falta plantilla aprobada.
 
-> **PII**: WhatsApp expone el teléfono del remitente (Telegram no). Va al `from` del
+> **PII**: WhatsApp expone el teléfono del remitente. Va al `from` del
 > record, dentro de `inbox/` gitignored. Este slice requiere `/security-review` antes de cerrar.
 
 > **Túnel temporal**: la URL de `cloudflared tunnel --url` cambia en cada corrida.
-> Para algo estable, un named tunnel o deploy — cuando el volumen lo pida (hoy: a demanda).
+> Para algo estable, named tunnel + systemd: ver `docs/DEPLOY.md`.

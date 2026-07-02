@@ -45,7 +45,7 @@ const SYSTEM = `Destilás un volcado crudo de mensajes de crisis (Venezuela, sis
 Reglas DURAS (no se rompen):
 - CERO PII en la salida: sin nombres, teléfonos ni ubicación de personas vivas. Las personas buscadas/localizadas NO van acá (van a un índice privado aparte). Si un mensaje es solo "busco a X", omitilo.
 - Agrupá por zona. Un item por hecho/necesidad por zona.
-- Procedencia obligatoria: fuenteOrigen describe el ORIGEN sin PII (p.ej. "Reporte ciudadano vía Telegram", "Varios reportes ciudadanos"). Nunca el nombre del reportante.
+- Procedencia obligatoria: fuenteOrigen describe el ORIGEN sin PII (p.ej. "Reporte ciudadano vía WhatsApp", "Varios reportes ciudadanos"). Nunca el nombre del reportante.
 - Verificación: si un dato viene de UNA sola fuente o sin confirmar, empezá el texto con "⏳ sin confirmar:". Solo marcá como hecho lo confirmado por 2+ reportes independientes.
 - Rumores/estafas (cuentas de donación dudosas, refugios falsos): incluilos con texto empezando en "⚠ rumor sin verificar:".
 - titulo: corto y concreto. texto: legible, una pantalla de teléfono. Si no hay nada destilable, devolvé items vacío.

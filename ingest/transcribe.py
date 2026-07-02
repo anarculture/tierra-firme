@@ -8,15 +8,10 @@ clínica ("Mindray", "terapia intensiva"), rápido (~1.6s) y MÁS DISPONIBLE que
 503 'high demand' seguido). Subí a gemini-2.5-pro vía TRANSCRIBE_MODEL para máxima precisión
 cuando esté arriba. Reintenta los 503/429/500 transitorios con backoff antes de rendirse.
 
-Fallback PII-local con --local: faster-whisper (import PEREZOSO — ya NO es dependencia
-obligatoria del repo; solo carga si la pedís). Úsalo cuando el audio no pueda salir de la
-máquina.
-
 Uso:
-  ANALIZA_API_KEY=... python3 transcribe.py <audio>          # Gemini (default)
-  python3 transcribe.py <audio> --local [modelo]             # whisper local (PII, requiere .venv)
+  ANALIZA_API_KEY=... python3 transcribe.py <audio>          # Gemini (única vía, por PRD)
   python3 transcribe.py --selftest                           # sin red
-Env: TRANSCRIBE_MODEL (def gemini-2.5-flash) · ANALIZA_API_KEY|GEMINI_API_KEY · ECHO_BASE_URL
+Env: TRANSCRIBE_MODEL (def gemini-2.5-flash) · VLM_API_KEY|ANALIZA_API_KEY|GEMINI_API_KEY · ECHO_BASE_URL
 """
 import base64, json, os, sys, time, urllib.request, urllib.error
 
@@ -67,35 +62,21 @@ def transcribe_gemini(path, retries=3):
                    if not p.get("thought")).strip()
 
 
-def transcribe_local(path, model="small"):
-    """Fallback PII-local: faster-whisper. Import PEREZOSO → la dep solo se carga en este path."""
-    from faster_whisper import WhisperModel  # dep opcional, no obligatoria
-    m = WhisperModel(model, device="cpu", compute_type="int8")
-    segments, _info = m.transcribe(path, language="es")
-    return " ".join(s.text.strip() for s in segments).strip()
-
-
-def transcribe(path, model="small", local=False):
-    """Audio → texto. Gemini por default; faster-whisper si local=True (PII estricta).
-    Firma compatible: callers viejos `transcribe(path)` siguen funcionando (ahora vía Gemini)."""
-    if local:
-        return transcribe_local(path, model)
+def transcribe(path):
+    """Audio → texto vía Gemini (única vía por PRD; whisper local purgado 2026-07-02)."""
     if not API_KEY:
-        sys.exit("falta ANALIZA_API_KEY/GEMINI_API_KEY (o usá --local para whisper)")
+        sys.exit("falta VLM_API_KEY/ANALIZA_API_KEY/GEMINI_API_KEY")
     return transcribe_gemini(path)
 
 
 def selftest():
-    """Gate sin red: mime por extensión + ruteo local/Gemini con stubs."""
-    global API_KEY, transcribe_local, transcribe_gemini
+    """Gate sin red: mime por extensión + ruteo a Gemini con stub."""
+    global API_KEY, transcribe_gemini
     assert _mime("x.opus") == "audio/ogg" and _mime("x.mp3") == "audio/mp3"
     assert _mime("X.WAV") == "audio/wav" and _mime("z.desconocido") == "audio/ogg"
     API_KEY = "x"
-    transcribe_local = lambda p, m="small": f"LOCAL:{os.path.basename(p)}:{m}"
     transcribe_gemini = lambda p: f"GEMINI:{os.path.basename(p)}"
     assert transcribe("a.ogg") == "GEMINI:a.ogg", "default = Gemini"
-    assert transcribe("a.ogg", local=True) == "LOCAL:a.ogg:small", "local=True → whisper"
-    assert transcribe("a.ogg", model="medium", local=True) == "LOCAL:a.ogg:medium", "modelo pasa al fallback"
     print("selftest OK")
 
 
@@ -103,10 +84,6 @@ if __name__ == "__main__":
     if "--selftest" in sys.argv:
         selftest()
     elif len(sys.argv) > 1 and not sys.argv[1].startswith("--"):
-        args = sys.argv[1:]
-        local = "--local" in args
-        rest = [a for a in args if not a.startswith("--")]
-        model = rest[1] if len(rest) > 1 else "small"
-        print(transcribe(rest[0], model=model, local=local))
+        print(transcribe(sys.argv[1]))
     else:
-        sys.exit("uso: transcribe.py <audio> [--local [modelo]] | --selftest")
+        sys.exit("uso: transcribe.py <audio> | --selftest")

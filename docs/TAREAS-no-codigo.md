@@ -8,11 +8,12 @@ verificados** y **config de cuentas**. Cada tarea dice: **quién** puede hacerla
 
 ## A. Desbloquear el bot (PRIORIDAD)
 
-**A1 · Bot de Telegram.** Cualquiera, 5 min. Creá un bot con [@BotFather](https://t.me/BotFather).
-→ Produce: `TELEGRAM_BOT_TOKEN` → al dev.
+**A1 · Cuenta Zavu lista.** Quien tiene la cuenta: esperar el aviso de KYC de WhatsApp
+(Zavu/Meta lo procesan, nadie lo acelera) y cargar créditos en dashboard.zavu.dev.
+→ Produce: número WhatsApp operativo para el bot.
 
-**A2 · Punto de recolección.** Cualquiera. Creá el grupo/canal de Telegram (o número de WhatsApp)
-donde la gente manda el caos, e invitá a los verificadores. → Produce: el buzón donde aterriza todo.
+**A2 · Punto de recolección.** Cualquiera. Difundí el número WhatsApp del bot donde la
+gente manda el caos, e invitá a los verificadores. → Produce: el buzón donde aterriza todo.
 
 ---
 

@@ -33,7 +33,7 @@ API = os.environ.get("ZAVU_API", "https://api.zavu.dev")
 PORT = int(os.environ.get("PORT", 8789))
 MAX_SKEW = 300  # rechaza firmas > 5 min (anti-replay), igual que el ejemplo de Zavu
 
-# messageType de Zavu con archivo -> kind normalizado (vocabulario telegram/whatsapp)
+# messageType de Zavu con archivo -> kind normalizado
 MEDIA_KINDS = {"image": "photo", "video": "video", "audio": "voice",
                "document": "document", "sticker": "sticker"}
 

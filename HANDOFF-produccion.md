@@ -25,9 +25,9 @@ Producir salida verificada (destila→revisar→publica) es una etapa aparte, ya
 - `6ce1de8` — quita tareas/handoff stale del setup Meta borrado.
 - Gate: `zavu_buzon` + `reply` selftests + `node --test` (100 en `main`) verde.
 
-### Telegram (legacy, FUERA del PRD)
-- `ingest/telegram_buzon.py` existe pero **no se deploya ni se extiende** — canal
-  único = WhatsApp vía Zavu. Purga pendiente de decisión.
+### Telegram + whisper (PURGADOS 2026-07-02)
+- `telegram_buzon.py`, `send_telegram`, `--local`/faster-whisper y `.venv` borrados —
+  fuera del PRD. Canal único = WhatsApp vía Zavu; audio = Gemini.
 
 ### Conector VLM→needs (mergeado a `main` · DONE + desplegado)
 - Los ítems de fotos extraídos por el VLM llegan a `site/needs.json` y al sitio.

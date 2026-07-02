@@ -5,7 +5,7 @@ analiza.js (text-only) la levanten sin cambiar.
 Hoy el grueso de la señal de crisis está en fotos (listas de insumos) y notas de
 voz; el pipeline de texto las dejaba caer. Esto las convierte a texto y las mete
 al `text` del propio record:
-  - voz/audio  → transcribe.py (faster-whisper, ya existe)
+  - voz/audio  → transcribe.py (Gemini)
   - imagen     → Gemini vision vía endpoint OpenAI-compat (data-URI base64)
   - pdf/video  → se marcan y se saltan (v1)
 
@@ -72,7 +72,7 @@ def _gemini_vision(path):
 
 
 def _transcribe(path):
-    from transcribe import transcribe  # lazy: solo carga whisper si HAY audio que transcribir
+    from transcribe import transcribe  # lazy: solo importa si HAY audio que transcribir
     return transcribe(path)
 
 
@@ -107,7 +107,7 @@ def enrich_record(rec, media_dir, transcribe_fn, vision_fn):
 
 def run(date, media_dir=None, transcribe_fn=None, vision_fn=None):
     if transcribe_fn is None:
-        transcribe_fn = _transcribe  # difiere la carga de whisper a la 1ra transcripción
+        transcribe_fn = _transcribe  # difiere el import a la 1ra transcripción
     if vision_fn is None:
         vision_fn = _gemini_vision
     fpath = os.path.join(INBOX, f"{date}.jsonl")

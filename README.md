@@ -53,7 +53,7 @@ npm run publica                       # libro → site/needs.json (lista recorta
 npm run dev                           # server público (site/): lista + informe + /api
 npm run deploy                        # genera → [gate humano] → deploy gh-pages (--deploy = push real)
 
-# Buzones Python (intake WhatsApp/Telegram vía Zavu; selftest = gate sin red)
+# Buzón Python (intake WhatsApp vía Zavu; selftest = gate sin red)
 python3 ingest/zavu_buzon.py --selftest   ·   python3 ingest/reply.py --selftest
 ```
 

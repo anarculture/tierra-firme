@@ -121,7 +121,7 @@ def _chat_audio(path):
 
 def destila_audio(path):
     """Nota de voz → eco 'esto entendí (sin verificar)', o None si no hay nada útil. Gemini
-    entiende el audio directo (multi-formato), reemplaza el paso whisper para el eco."""
+    entiende el audio directo (multi-formato), un solo paso audio→eco, sin transcripción aparte."""
     if not path or not os.path.exists(path) or not API_KEY:
         return None
     out = _chat_audio(path)

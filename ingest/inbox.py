@@ -1,4 +1,4 @@
-"""Contrato del inbox — compartido por los buzones (telegram, whatsapp).
+"""Contrato del inbox — compartido por los buzones (whatsapp vía Zavu).
 
 Un record = {ts, from, kind, text, media}; una línea JSONL por mensaje en
 inbox/<YYYY-MM-DD>.jsonl. La media baja a inbox/media/. inbox/ es gitignored (PII).
