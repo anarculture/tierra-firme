@@ -63,15 +63,15 @@ BATCH:  fotos → npm run extract-media → resultados-vlm.json → node scripts
 > - Sender "Default" `+13213951815` = **SMS/voz, NO WhatsApp** — no se usa.
 
 ### A. Bloqueo real: KYC + créditos (no código, lo resuelve Zavu/Meta)
-- [ ] **A1 · KYC de WhatsApp EN PROCESO** — el dashboard muestra *"KYC Verification In
-  Progress — you will be notified once complete"*. Hasta que Zavu/Meta lo completen, el
-  número WhatsApp **no recibe** mensajes reales (por eso el WhatsApp de prueba no entró).
-  **Ninguna API ni el MCP lo aceleran.** Esperar el aviso de Zavu.
-- [ ] **A2 · Créditos** — plan Hobby con $0 cargados; "Agregar créditos" en el dashboard.
+- [x] **A1 · KYC de WhatsApp** — completado (confirmado 2026-07-02). El número ya
+  puede recibir mensajes reales.
+- [x] **A2 · Créditos** — suficientes para el volumen inicial del PoC (2026-07-02);
+  no cargar más hasta que el volumen lo pida.
 - [ ] **A3 · URL pública estable** — el webhook hoy apunta a un **ngrok efímero** (muere
-  al cerrar la terminal). Para prod: named tunnel + dominio (planvenezuela.org, en
-  Spaceship) o VPS, y re-apuntar el webhook del sender "Tierra Firme" a esa URL con
-  `message.inbound` (1 llamada `PATCH /v1/senders/{id}`, o el dashboard).
+  al cerrar la terminal). Decisión 2026-07-02: **hosting en la máquina del operador**
+  mientras el PoC se valida (VPS diferido). Falta elegir túnel estable y re-apuntar el
+  webhook del sender "Tierra Firme" con `message.inbound` (1 llamada
+  `PATCH /v1/senders/{id}`, o el dashboard).
 
 > **Cuando el KYC salga:** basta correr el buzón con el `ZAVU_WEBHOOK_SECRET` del sender
 > "Tierra Firme" apuntado a la URL estable → escribirle al número WhatsApp cae al `inbox/`
@@ -108,12 +108,12 @@ BATCH:  fotos → npm run extract-media → resultados-vlm.json → node scripts
 ---
 
 ## Ruta mínima a prod (dump)
-1. A1: esperar KYC de WhatsApp (Zavu/Meta) — bloqueo externo.
-2. A2: cargar créditos en la cuenta Zavu.
-3. B1: host chico (VPS) con systemd → `zavu_buzon` (seguir `docs/DEPLOY.md`).
-4. A3: named cloudflared tunnel con dominio fijo → re-apuntar webhook Zavu.
-5. B2: llenar `.env` en el host.
-6. C1: `/security-review` del path PII.
+1. ~~A1 KYC~~ + ~~A2 créditos~~ — listos 2026-07-02.
+2. A3: túnel estable desde la máquina del operador (VPS diferido hasta validar PoC)
+   → re-apuntar webhook Zavu.
+3. B1: `zavu_buzon` bajo systemd (unit en `deploy/`, adaptar paths al host local).
+4. B2: llenar `.env` local.
+5. C1: `/security-review` del path PII.
 
 ## Lo cerrable por código — CERRADO 2026-07-02
 - [x] `deploy/zavu-buzon.service` (`Restart=on-failure`, `EnvironmentFile`).
