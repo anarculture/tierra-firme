@@ -2,6 +2,7 @@ node_modules/
 .venv/
 .env
 .env.*
+!.env.example
 data/bundles/
 data/sheets/*.csv
 data/sitrep-drafts.json

@@ -1,0 +1,18 @@
+# Buzón WhatsApp vía Zavu — webhook :8789 → ingest/inbox/<fecha>.jsonl
+# Instalar: cp a /etc/systemd/system/, systemctl daemon-reload, enable --now zavu-buzon
+[Unit]
+Description=Tierra Firme - buzon WhatsApp (webhook Zavu :8789)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/tierra-firme
+EnvironmentFile=/opt/tierra-firme/.env
+ExecStart=/usr/bin/python3 ingest/zavu_buzon.py
+Restart=on-failure
+RestartSec=5
+# ponytail: sin sandboxing systemd (DynamicUser/ProtectSystem); agregar si el host se comparte
+
+[Install]
+WantedBy=multi-user.target

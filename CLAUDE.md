@@ -23,10 +23,10 @@ npm run enriquece -- <fecha>      # media del inbox (foto/voz) → texto — COR
 node scripts/analiza.js           # inbox → necesidades/ofertas/gaps/alertas
 node scripts/vlm-import.js <fecha> # ítems del batch VLM (resultados-vlm.json) → draft analisis (luego publica)
 
-# Buzones Python (corren standalone; selftest = gate sin red):
-python3 ingest/zavu_buzon.py --selftest       # WhatsApp/SMS vía Zavu; cubre firma HMAC
-python3 ingest/telegram_buzon.py --selftest
+# Buzón Python (corre standalone; selftest = gate sin red):
+python3 ingest/zavu_buzon.py --selftest       # WhatsApp vía Zavu; cubre firma HMAC
 python3 ingest/reply.py --selftest            # ruteo saliente
+# (telegram_buzon.py = legacy fuera del PRD: canal único es WhatsApp; no deployar ni extender)
 ```
 
 CI (`.github/workflows/ci.yml`) corre exactamente `node --test` + los selftests del webhook Zavu y `reply`.
@@ -34,8 +34,9 @@ No hay lint configurado.
 
 ## Restricción dura: sin dependencias externas
 
-Vanilla JS + Node stdlib (`type: module`, Node ≥20) en `src/`+`scripts/`; Python stdlib en `ingest/`
-(excepción: `faster-whisper` en `.venv` para `transcribe.py`). **No agregues una dependencia npm/pip
+Vanilla JS + Node stdlib (`type: module`, Node ≥20) en `src/`+`scripts/`; Python stdlib en `ingest/`.
+Audio→texto va por **Gemini** (`VLM_API_KEY`); `faster-whisper` en `.venv` es legacy fuera del PRD,
+no lo uses ni lo cablees. **No agregues una dependencia npm/pip
 para lo que unas líneas de stdlib resuelven.** Las deps (p.ej. `@supabase/supabase-js`) se cablean
 solo cuando una capa concreta las usa. Esto es deliberado: corre en red mala, server-light.
 
@@ -53,10 +54,10 @@ declarativas en `sources.manifest.json` (la lista) — los adaptadores las imple
 
 **2. Sensor de demanda (el bot) — Python intake + JS destilación.** El loop central:
 `reenvío → buzón → inbox JSONL → destila (LLM) → dedup+geocode → compuerta humana → salida`.
-- Buzones (`ingest/telegram_buzon.py`, `ingest/zavu_buzon.py`) escriben **el mismo** contrato: una
-  línea JSONL por mensaje en `ingest/inbox/<YYYY-MM-DD>.jsonl` (`{ts,from,kind,text,media}`, definido
-  en `ingest/inbox.py`). El destilador no distingue canal — ese es el único acoplamiento entre los dos
-  stacks. `ingest/inbox/` es **gitignored (PII)**.
+- El buzón (`ingest/zavu_buzon.py` — canal único WhatsApp; `telegram_buzon.py` es legacy fuera del
+  PRD) escribe el contrato de inbox: una línea JSONL por mensaje en `ingest/inbox/<YYYY-MM-DD>.jsonl`
+  (`{ts,from,kind,text,media}`, definido en `ingest/inbox.py`). El destilador no distingue canal —
+  ese es el único acoplamiento entre los dos stacks. `ingest/inbox/` es **gitignored (PII)**.
 - WhatsApp (entrada y salida) va por **Zavu** (`docs.zavu.dev`, API multicanal), no Meta directo:
   `zavu_buzon.py` (webhook) + `send_zavu()` en `reply.py`. Da fallback SMS automático y media ya
   hosteada. API cruda con `urllib` — **no** el SDK `@zavudev` (regla sin-deps).
